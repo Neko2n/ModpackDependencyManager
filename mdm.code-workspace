@@ -1,0 +1,188 @@
+{
+    "folders": [
+        {
+            "name": "Modpack Dependency Manager",
+            "path": "."
+        }
+    ],
+    "settings": {
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "java.compile.nullAnalysis.mode": "disabled",
+        "java.jdt.ls.vmargs": "-Xmx2G -XX:+UseG1GC",
+        "files.watcherExclude": {
+            "**/.git/objects/**": true,
+            "**/target/**": true, 
+            "**/build/**": true,
+            "**/.gradle/**": true,
+            "**/.minecraft/**": true
+        },
+        "editor.bracketPairColorization.enabled": false,
+        "editor.tokenColorCustomizations": {
+            "textMateRules": [
+                {
+                    "scope": [
+                        "storage.type.primitive.java",
+                        "entity.name.type.enum.java",
+                        "constant.numeric",
+                        "constant.language.java",
+                        "keyword.control.java",
+                        "storage.modifier.java",
+                        "storage.type.function.arrow.java",
+                        "punctuation.definition.annotation-arguments",
+                        "storage.type.annotation.java",
+                        "punctuation.definition.annotation.java"
+                    ],
+                    "settings": {
+                        "fontStyle": "bold"
+                    }
+                },
+                {
+                    "scope": [
+                        "keyword.control.java",
+                        "storage.modifier.java"
+                    ],
+                    "settings": {
+                        "foreground": "#e06c75"
+                    }
+                },
+                {
+                    "scope": "keyword.control.throw.java",
+                    "settings": {
+                        "foreground": "#e06c75"
+                    }
+                },
+                {
+                    "scope": "keyword.control.new.java",
+                    "settings": {
+                        "foreground": "#C586C0"
+                    }
+                },
+                {
+                    "scope": [
+                        "entity.name.type.class.java",
+                        "entity.name.type.interface.java"
+                    ],
+                    "settings": {
+                        "foreground": "#9eb8d7"
+                    }
+                },
+                {
+                    "scope": "entity.name.function.java",
+                    "settings": {
+                        "foreground": "#61AFEF"
+                    }
+                },
+                {
+                    "scope": [
+                        "punctuation.separator",
+                        "punctuation.bracket",
+                        "keyword.control.ternary",
+                        "variable.parameter.java"
+                    ],
+                    "settings": {
+                        "foreground": "#bcbcbc"
+                    }
+                },
+                {
+                    "scope": [
+                        "punctuation.definition.annotation-arguments",
+                        "storage.type.annotation.java",
+                        "punctuation.definition.annotation.java"
+                    ],
+                    "settings": {
+                        "foreground": "#eacc6a"
+                    }
+                },
+                {
+                    "scope": [
+                        "constant.numeric",
+                        "storage.type.primitive.java",
+                        "entity.name.type.enum.java",
+                        "constant.language.java"
+                    ],
+                    "settings": {
+                        "foreground": "#D19A66"
+                    }
+                },
+                {
+                    "scope": [
+                        "string.quoted.double.java",
+                        "string.quoted.single.java"
+                    ],
+                    "settings": {
+                        "foreground": "#79c388"
+                    }
+                },
+                {
+                    "scope": [
+                        "comment.line"
+                    ],
+                    "settings": {
+                        "fontStyle": "italic"
+                    }
+                },
+                {
+                    "scope": [
+                        "comment.line",
+                        "comment.line punctuation.definition.comment"
+                    ],
+                    "settings": {
+                        "foreground": "#525967"
+                    }
+                },
+                {
+                    "scope": [
+                        "comment.block",
+                        "comment.block punctuation.definition.comment"
+                    ],
+                    "settings": {
+                        "foreground": "#727a8a"
+                    }
+                },
+                {
+                    "scope": "support.class.java",
+                    "settings": {
+                        "foreground": "#9eb8d7"
+                    }
+                }
+            ]
+        },
+        "editor.semanticTokenColorCustomizations": {
+            "rules": {
+                "class": "#9eb8d7",
+                "class.constructor": {
+                    "bold": true
+                },
+                "class.declaration": {
+                    "foreground": "#ebace5",
+                    "bold": false,
+                },
+                "interface": "#9eb8d7",
+                "enum": "#9eb8d7",
+                "enumMember": {
+                    "foreground": "#6e8bc4",
+                    "bold": true,
+                },
+                "function": "#efa861",
+                "method": "#e0cc9a",
+                "method.declaration": "#eacc6a",
+                "namespace": {
+                    "foreground": "#bcbcbc",
+                    "bold": true
+                },
+                "namespace.importDeclaration": {
+                    "bold": false
+                },
+                "parameter": "#c6b6b2",
+                "parameter.readonly": "#a6a1c7",
+                "property": "#bcbcbc",
+                "property.readonly": "#6e8bc4",
+                "variable": "#bcbcbc",
+                "variable.readonly": "#8e9fc2",
+                "keyword": "#e06c75",
+                "modifier": "#e06c75"
+            }
+        },
+        "java.import.gradle.java.home": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.11.10-hotspot"
+    }
+}
