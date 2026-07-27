@@ -13,15 +13,29 @@ logoFile = "${mod_id}.png" #optional
 credits = "${credits}" #optional
 authors = "${mod_author}" #optional
 description = '''${description}''' #mandatory (Supports multiline text)
+[modproperties.${mod_id}]
+    configuredBackground="${configured_background}"
 [[dependencies.${mod_id}]] #optional
 modId = "forge" #mandatory
 mandatory = true #mandatory
 versionRange = "[${forge_version},)" #mandatory
 ordering = "NONE" # The order that this dependency should load in relation to your mod, required to be either 'BEFORE' or 'AFTER' if the dependency is not mandatory
-side = "BOTH" # Side this dependency is applied on - 'BOTH', 'CLIENT' or 'SERVER'
+side = "CLIENT" # Side this dependency is applied on - 'BOTH', 'CLIENT' or 'SERVER'
 [[dependencies.${mod_id}]]
 modId = "minecraft"
 mandatory = true
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
-side = "BOTH"
+side = "CLIENT"
+[[dependencies.${mod_id}]]
+modId = "configured"
+mandatory=false
+versionRange = "[0,)"
+ordering = "NONE"
+side = "CLIENT"
+[[dependencies.${mod_id}]]
+modId = "catalogue"
+mandatory=false
+versionRange = "[0,)"
+ordering = "NONE"
+side = "CLIENT"

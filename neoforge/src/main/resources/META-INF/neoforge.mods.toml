@@ -12,6 +12,8 @@ logoFile="${mod_id}.png" #optional
 credits="${credits}" #optional
 authors = "${mod_author}" #optional
 description = '''${description}''' #mandatory (Supports multiline text)
+[modproperties.${mod_id}]
+  configuredBackground="${configured_background}"
 [[mixins]]
 config = "${mod_id}.mixins.json"
 [[mixins]]
@@ -21,13 +23,25 @@ modId = "neoforge" #mandatory
 type="required" #mandatory (Can be one of "required", "optional", "incompatible" or "discouraged")
 versionRange = "[${neoforge_version},)" #mandatory
 ordering = "NONE" # The order that this dependency should load in relation to your mod, required to be either 'BEFORE' or 'AFTER' if the dependency is not mandatory
-side = "BOTH" # Side this dependency is applied on - 'BOTH', 'CLIENT' or 'SERVER'
+side = "CLIENT" # Side this dependency is applied on - 'BOTH', 'CLIENT' or 'SERVER'
 [[dependencies.${mod_id}]]
 modId = "minecraft"
 type="required" #mandatory (Can be one of "required", "optional", "incompatible" or "discouraged")
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
-side = "BOTH"
+side = "CLIENT"
+[[dependencies.${mod_id}]]
+modId = "configured"
+type="optional"
+versionRange = "[0,)"
+ordering = "NONE"
+side = "CLIENT"
+[[dependencies.${mod_id}]]
+modId = "catalogue"
+type="optional"
+versionRange = "[0,)"
+ordering = "NONE"
+side = "CLIENT"
 
 # Features are specific properties of the game environment, that you may want to declare you require. This example declares
 # that your mod requires GL version 3.2 or higher. Other features will be added. They are side aware so declaring this won't
