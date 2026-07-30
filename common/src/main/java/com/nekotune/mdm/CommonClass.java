@@ -9,7 +9,7 @@ public class CommonClass {
 
     public static void init() {
         
-        final Optional<Path> downloaded = Modrinth.INSTANCE.downloadAssets("fresh-animations");
+        final Optional<Path> downloaded = Modrinth.INSTANCE.downloadAssets("invalid-slug");
         downloaded.ifPresentOrElse(path -> {
             Constants.LOG.debug("Successfully downloaded resource pack to file: " + path.toString());
         }, () -> {

@@ -43,7 +43,7 @@ public final class Curseforge extends WebFetch {
             this.str = str;
         }
 
-        public Optional<Integer> id = Optional.empty();
+        public volatile Optional<Integer> id = Optional.empty();
 
         public String toString() {
             return str;

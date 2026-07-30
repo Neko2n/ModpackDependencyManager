@@ -1,5 +1,6 @@
 package com.nekotune.mdm.web;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpRetryException;
 import java.net.URI;
@@ -21,7 +22,7 @@ public abstract class WebFetch {
     protected abstract Map<String, String> requestHeaders();
 
     protected abstract String resolveFileURL(final String slug)
-            throws IOException, InterruptedException, SecurityException, HttpRetryException;
+            throws IOException, InterruptedException, SecurityException;
 
     /**
      * Downloads a resource pack from this website.
@@ -55,6 +56,10 @@ public abstract class WebFetch {
             final String fileUrl = resolveFileURL(slug);
             response = HTTP_CLIENT.send(buildRequest(fileUrl),
                     HttpResponse.BodyHandlers.ofByteArray());
+        } catch (final FileNotFoundException e) {
+            Constants.LOG.warn("[WebFetch] " + e.toString());
+            // TODO: hook for warning about invalid slugs
+            return Optional.empty();
         } catch (final IOException | InterruptedException | SecurityException e) {
             Constants.LOG.error("[WebFetch] Exception occured fetching file: " + e.toString());
             return Optional.empty();
@@ -89,10 +94,13 @@ public abstract class WebFetch {
     }
 
     protected HttpResponse<String> fetchString(final String url)
-            throws IOException, InterruptedException, SecurityException, HttpRetryException {
+            throws IOException, InterruptedException, SecurityException {
         final HttpResponse<String> response = HTTP_CLIENT.send(
                 buildRequest(url),
                 HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == 204 || response.statusCode() == 404) {
+            throw new FileNotFoundException(response.statusCode() + "; File not found at url " + url);
+        }
         if (response.statusCode() != 200) {
             throw new HttpRetryException("API error: " + response.body(), response.statusCode());
         }

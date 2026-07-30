@@ -29,7 +29,7 @@ public final class Modrinth extends WebFetch {
 
     @Override
     protected String resolveFileURL(final String slug)
-            throws IOException, InterruptedException, SecurityException, HttpRetryException {
+            throws IOException, InterruptedException, SecurityException {
 
         // Fetch a list of version URLs
         final String url = VERSIONS_URL.formatted(slug);
