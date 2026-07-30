@@ -3,7 +3,6 @@ package com.nekotune.mdm.platform;
 import com.google.common.base.Suppliers;
 import com.nekotune.mdm.Constants;
 import com.nekotune.mdm.platform.services.IPlatformHelper;
-import com.nekotune.mdm.platform.services.config.IConfigHelper;
 
 import java.util.ServiceLoader;
 import java.util.function.Supplier;
@@ -11,8 +10,6 @@ import java.util.function.Supplier;
 public final class Services {
     public static final Supplier<IPlatformHelper> PLATFORM = Suppliers.memoize(
             () -> load(IPlatformHelper.class));
-    public static final Supplier<IConfigHelper> CONFIG = Suppliers.memoize(
-            () -> load(IConfigHelper.class));
 
     private static ClassLoader loader;
 

@@ -27,16 +27,8 @@
         "fabricloader": ">=${fabric_loader_version}",
         "fabric-api": "*",
         "minecraft": "${minecraft_version}",
-        "java": ">=${java_version}",
-        "forgeconfigapiport": ">=21.1.0"
+        "java": ">=${java_version}"
     },
-    "suggests": {
-        "modmenu": ">=11.0.0"
-    },
-    "custom": {
-        "modproperties.${mod_id}": {
-            "configuredBackground": "${configured_background}"
-        }
-    }
+    "suggests": {}
 }
   

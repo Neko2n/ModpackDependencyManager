@@ -27,15 +27,3 @@ mandatory = true
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "CLIENT"
-[[dependencies.${mod_id}]]
-modId = "configured"
-mandatory=false
-versionRange = "[0,)"
-ordering = "NONE"
-side = "CLIENT"
-[[dependencies.${mod_id}]]
-modId = "catalogue"
-mandatory=false
-versionRange = "[0,)"
-ordering = "NONE"
-side = "CLIENT"
