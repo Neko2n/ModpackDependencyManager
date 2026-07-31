@@ -1,4 +1,4 @@
-package com.nekotune.mdm.web;
+package com.nekotune.mdm.definition.web;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -13,9 +13,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.Optional;
 
-import com.nekotune.mdm.Constants;
-
-public abstract class WebFetch {
+public abstract class Website {
 
     static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
@@ -31,7 +29,9 @@ public abstract class WebFetch {
      * @return The downloaded file's path, or {@link Optional#empty()} if the
      *         download failed.
      */
-    public Optional<Path> downloadAssets(final String slug) {
+    public Path fetchAssets(final String slug) throws
+            FileNotFoundException, HttpRetryException, IOException,
+            InterruptedException, SecurityException {
         final Path destination = Path.of("resourcepacks", slug + ".zip");
         return downloadTo(destination, slug);
     }
@@ -43,45 +43,34 @@ public abstract class WebFetch {
      * @return The downloaded file's path, or {@link Optional#empty()} if the
      *         download failed.
      */
-    public Optional<Path> downloadData(final String slug) {
+    public Path fetchData(final String slug) throws
+            FileNotFoundException, HttpRetryException, IOException,
+            InterruptedException, SecurityException {
         final Path destination = Path.of("datapacks", slug + ".zip");
         return downloadTo(destination, slug);
     }
 
-    private Optional<Path> downloadTo(final Path destination, final String slug) {
+    private Path downloadTo(final Path destination, final String slug) throws
+            FileNotFoundException, HttpRetryException, IOException,
+            InterruptedException, SecurityException {
 
         // Fetch the best file
-        final HttpResponse<byte[]> response;
-        try {
-            final String fileUrl = resolveFileURL(slug);
-            response = HTTP_CLIENT.send(buildRequest(fileUrl),
-                    HttpResponse.BodyHandlers.ofByteArray());
-        } catch (final FileNotFoundException e) {
-            Constants.LOG.warn("[WebFetch] " + e.toString());
-            // TODO: hook for warning about invalid slugs
-            return Optional.empty();
-        } catch (final IOException | InterruptedException | SecurityException e) {
-            Constants.LOG.error("[WebFetch] Exception occured fetching file: " + e.toString());
-            return Optional.empty();
-        }
+        final String fileUrl = resolveFileURL(slug);
+        final HttpResponse<byte[]> response = HTTP_CLIENT.send(
+                buildRequest(fileUrl),
+                HttpResponse.BodyHandlers.ofByteArray());
 
         // Validate response
         if (response.statusCode() != 200) {
-            Constants.LOG.error("[WebFetch] File download failed: HTTP " + response.statusCode());
-            return Optional.empty();
+            final String message = "File download failed: HTTP " + response.statusCode();
+            throw new HttpRetryException(message, response.statusCode());
         }
 
         // Write the file to disk
-        final Path written;
-        try {
-            written = Files.write(destination, response.body(),
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (final IOException e) {
-            Constants.LOG.error("[WebFetch] " + e.toString());
-            return Optional.empty();
-        }
-        return Optional.of(written);
+        final Path written = Files.write(destination, response.body(),
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING);
+        return written;
     }
 
     protected HttpRequest buildRequest(final String url) {
@@ -93,8 +82,9 @@ public abstract class WebFetch {
         return requestBuilder.GET().build();
     }
 
-    protected HttpResponse<String> fetchString(final String url)
-            throws IOException, InterruptedException, SecurityException {
+    protected HttpResponse<String> fetchString(final String url) throws
+            FileNotFoundException, HttpRetryException, IOException,
+            InterruptedException, SecurityException {
         final HttpResponse<String> response = HTTP_CLIENT.send(
                 buildRequest(url),
                 HttpResponse.BodyHandlers.ofString());

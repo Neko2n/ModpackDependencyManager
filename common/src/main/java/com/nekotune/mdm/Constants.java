@@ -15,6 +15,4 @@ public class Constants {
 	public static final String[] MC_VERSIONS = {
 		"1.21.1"
 	};
-
-	public static final String CONFIG_FILE_NAME = "dependencies." + Constants.MOD_ID + ".json";
 }

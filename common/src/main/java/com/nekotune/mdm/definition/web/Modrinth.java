@@ -1,4 +1,4 @@
-package com.nekotune.mdm.web;
+package com.nekotune.mdm.definition.web;
 
 import java.io.IOException;
 import java.net.HttpRetryException;
@@ -12,7 +12,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.nekotune.mdm.Constants;
 
-public final class Modrinth extends WebFetch {
+public final class Modrinth extends Website {
 
     public static final Modrinth INSTANCE = new Modrinth();
 

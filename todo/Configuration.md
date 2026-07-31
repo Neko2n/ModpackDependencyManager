@@ -37,6 +37,7 @@ Handled by `config/dependencies.mdm.json`
 			"mode": "FORCED"
 		}
 	],
+	"hide_forced": true,
 	"downloaded": [],
 	"warn_enabled": true
 }
@@ -52,9 +53,7 @@ When "warn_enabled" is false, the in-game warning screen is not shown for downlo
 
 ### Modes
 
-Data packs: FORCED, OPTIONAL_ENABLED, OPTIONAL_DISABLED, SUPPORT
-
-Resource packs: FORCED, FORCED_HIDDEN, OPTIONAL_ENABLED, OPTIONAL_DISABLED, SUPPORT
+FORCED, OPTIONAL_ENABLED, OPTIONAL_DISABLED, SUPPORT
 
 Support mode is basically force disabled and hidden. This is for modpacks who want to use edited versions of the dependency, and just need to download it to support the original author.
 

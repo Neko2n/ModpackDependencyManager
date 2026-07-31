@@ -1,4 +1,4 @@
-package com.nekotune.mdm.web;
+package com.nekotune.mdm.definition.web;
 
 import java.io.IOException;
 import java.net.HttpRetryException;
@@ -15,8 +15,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.nekotune.mdm.Constants;
+import com.nekotune.mdm.definition.web.Curseforge;
 
-public final class Curseforge extends WebFetch {
+public final class Curseforge extends Website {
 
     public static final Curseforge INSTANCE = new Curseforge();
 

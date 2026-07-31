@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "todo/Web Fetches.md",
+                "file": "todo/Configuration.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Web Fetches"
+              "title": "Configuration"
             }
           }
         ]
@@ -185,19 +185,19 @@
   },
   "active": "73d9c8ff0d76fd6d",
   "lastOpenFiles": [
-    "neoforge/run/logs/2026-07-30-8.log.gz",
-    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/CommonClass.class.uniqueId1",
-    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/ModpackDependencyManager.class.uniqueId0",
-    "common/build/tmp/compileJava/compileTransaction/stash-dir/CommonClass.class.uniqueId0",
-    "todo/Global Data Packs.md",
-    "neoforge/run/logs/2026-07-30-7.log.gz",
-    "neoforge/build/classes/java/main/com/nekotune/mdm/web/Curseforge.class",
-    "neoforge/build/classes/java/main/com/nekotune/mdm/web/Curseforge$ResourceClass.class",
-    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/ModpackDependencyManager.class.uniqueId1",
-    "neoforge/run/resourcepacks/fresh-animations.zip",
-    "neoforge/run/logs/2026-07-30-6.log.gz",
-    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/WebFetch.class.uniqueId4",
+    "neoforge/run/logs/2026-07-31-4.log.gz",
+    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/CommonClass.class.uniqueId12",
+    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/Services.class.uniqueId11",
+    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/ModpackDependencyManager.class.uniqueId10",
+    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/ConfigHandler.class.uniqueId9",
+    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/DownloadManager.class.uniqueId8",
+    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/DownloadManager$DownloadThreads.class.uniqueId7",
+    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/Modrinth.class.uniqueId6",
+    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/DownloadManager$1.class.uniqueId5",
+    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/DownloadManager$DownloadThread.class.uniqueId4",
+    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/Curseforge$ResourceClass.class.uniqueId3",
     "todo/Web Fetches.md",
+    "todo/Global Data Packs.md",
     "todo/Configuration.md",
     "todo/Title GUI.md",
     "todo/web-fetch/Modrinth.md",
