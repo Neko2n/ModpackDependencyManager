@@ -66,6 +66,12 @@ public abstract class Website {
             throw new HttpRetryException(message, response.statusCode());
         }
 
+        // Ensure parent directories exist
+        final Path parent = destination.getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
+        }
+
         // Write the file to disk
         final Path written = Files.write(destination, response.body(),
                 StandardOpenOption.CREATE,

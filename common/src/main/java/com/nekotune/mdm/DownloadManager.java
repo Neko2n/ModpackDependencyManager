@@ -3,23 +3,19 @@ package com.nekotune.mdm;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpRetryException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
-import com.nekotune.mdm.definition.DependencyInfo;
 import com.nekotune.mdm.definition.DependencyInfo.DownloadTarget;
-import com.nekotune.mdm.definition.DependencyInfo.Host;
-import com.nekotune.mdm.definition.web.Curseforge;
-import com.nekotune.mdm.definition.web.Modrinth;
 import com.nekotune.mdm.definition.web.Website;
 
 public final class DownloadManager {
@@ -61,21 +57,22 @@ public final class DownloadManager {
     }
 
     public static final class DownloadThreads extends CountDownLatch implements Iterable<DownloadThread> {
-        private final EnumMap<DependencyInfo.Host, DownloadThread> map =
-                new EnumMap<>(DependencyInfo.Host.class);
+        private final EnumMap<DownloadTarget.Host, DownloadThread> map =
+                new EnumMap<>(DownloadTarget.Host.class);
 
         public DownloadThreads(final List<DownloadTarget> targets) {
-            super(targets.size());
-            assign(DependencyInfo.Host.MODRINTH, targets);
-            assign(DependencyInfo.Host.CURSEFORGE, targets);
+            super(DownloadTarget.Host.values().length);
+            for (DownloadTarget.Host website : DownloadTarget.Host.values()) {
+                assign(website, targets);
+            }
         }
 
-        private DownloadThread assign(Host key, final List<DownloadTarget> targets) {
-            return map.put(key, new DownloadThread(this,
-                    targets.stream().filter(key::matches).toList()));
+        private DownloadThread assign(final DownloadTarget.Host host, final List<DownloadTarget> targets) {
+            return map.put(host, new DownloadThread(this,
+                    targets.stream().filter(host::matches).toList()));
         }
 
-        public Map<DependencyInfo.Host, DownloadThread> toMap() {
+        public Map<DownloadTarget.Host, DownloadThread> toMap() {
             return map;
         }
 
@@ -145,20 +142,8 @@ public final class DownloadManager {
         private static DownloadResult tryDownload(final DownloadTarget target) {
             
             // Determine download host(s) and target slug(s)
-            final List<Website> websitesToTry = new LinkedList<>();
-            switch (target.host()) {
-                case ANY:
-                    websitesToTry.add(Modrinth.INSTANCE);
-                    websitesToTry.add(Curseforge.INSTANCE);
-                    break;
-                case MODRINTH:
-                    websitesToTry.add(Modrinth.INSTANCE);
-                    break;
-                case CURSEFORGE:
-                    websitesToTry.add(Curseforge.INSTANCE);
-                    break;
-            }
-            final List<String> slugsToTry = List.copyOf(target.mirrors());
+            final List<DownloadTarget.Host> websitesToTry = target.hosts();
+            final List<String> slugsToTry = new ArrayList<>(target.mirrors());
             slugsToTry.addFirst(target.slug());
             
             // Set up tracking variables
@@ -169,7 +154,7 @@ public final class DownloadManager {
             // Attempt to download file from all slugs and websites
             while (true) {
                 final String slug = slugsToTry.get(slugsTried);
-                final Website website = websitesToTry.get(websitesTried);
+                final Website website = websitesToTry.get(websitesTried).get();
 
                 try {
                     switch (target.type()) {
@@ -186,17 +171,19 @@ public final class DownloadManager {
                     return DownloadResult.SUCCESS;
                 } catch (final FileNotFoundException e) {
                     httpRetries = 0;
+                    slugsTried++;
 
                     // If all slugs have been tried for this host,
                     // try other hosts.
                     if (slugsTried == slugsToTry.size()) {
                         slugsTried = 0;
                         websitesTried++;
-                        continue;
-                    }
 
-                    // Try the next slug
-                    slugsTried++;
+                        // If all hosts have been tried, return NOT_FOUND
+                        if (websitesTried == websitesToTry.size()) {
+                            return DownloadResult.NOT_FOUND;
+                        }
+                    }
                     continue;
 
                 } catch (final HttpRetryException e) {
@@ -208,6 +195,7 @@ public final class DownloadManager {
                     continue;
 
                 } catch (final IOException e) {
+                    Constants.LOG.error("[DownloadManager#tryDownload] " + e.toString());
                     return DownloadResult.IO_FAILURE;
 
                 } catch (final InterruptedException e) {

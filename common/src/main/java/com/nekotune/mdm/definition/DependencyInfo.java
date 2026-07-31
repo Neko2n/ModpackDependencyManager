@@ -2,10 +2,12 @@ package com.nekotune.mdm.definition;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.nekotune.mdm.ConfigHandler;
 import com.nekotune.mdm.definition.web.Curseforge;
 import com.nekotune.mdm.definition.web.Modrinth;
+import com.nekotune.mdm.definition.web.Website;
 
 public interface DependencyInfo {
 
@@ -15,31 +17,6 @@ public interface DependencyInfo {
      * Populated by {@link ConfigHandler}.
      */
     public static final LinkedList<String> LOAD_ORDER = new LinkedList<>();
-
-    /**
-     * Which host(s) a dependency should attempt to download from.
-     */
-    public static enum Host {
-        /**
-         * Only attempt to download the dependency from {@link Modrinth}
-         */
-        MODRINTH,
-
-        /**
-         * Only attempt to download the dependency from {@link Curseforge}
-         */
-        CURSEFORGE,
-
-        /**
-         * Attempts to download from all possible hosts, retrying the next host on
-         * failure.
-         */
-        ANY;
-
-        public boolean matches(final DownloadTarget target) {
-            return target.host == this || target.host == ANY;
-        }
-    }
 
     /**
      * How this dependency should be loaded into the game.
@@ -93,7 +70,7 @@ public interface DependencyInfo {
      * 
      * @param slug    The slug to search up and download from.
      * @param mirrors Mirror slugs for if the initial slug failed to find a match.
-     * @param host    The host(s) to download from.
+     * @param hosts   The website host(s) to attempt to download from.
      * @param mode    The way the dependency should be loaded into the game once
      *                downloaded.
      * @param type    Whether the dependency is a resource pack or a data pack.
@@ -101,24 +78,42 @@ public interface DependencyInfo {
     public record DownloadTarget(
             String slug,
             List<String> mirrors,
-            Host host,
+            List<DownloadTarget.Host> hosts,
             Mode mode,
             Type type) {
 
         @Override
         public String toString() {
-            String mirrorStr = "[";
-            for (final String mirrorSlug : mirrors) {
-                mirrorStr += mirrorSlug + ", ";
-            }
-            mirrorStr = mirrorStr.substring(0, mirrorStr.length() - 2)
-                    + "]";
             return "{slug: " + slug
-                    + ", mirror: " + mirrorStr
-                    + ", host: " + host.toString()
+                    + ", mirror: " + mirrors.toString()
+                    + ", host: " + hosts.toString()
                     + ", mode: " + mode.toString()
                     + ", type: " + type.toString()
                     + "}";
+        }
+
+        public static enum Host implements Supplier<Website> {
+            CURSEFORGE(Curseforge.INSTANCE),
+            MODRINTH(Modrinth.INSTANCE);
+        
+            public static List<Host> any() {
+                return List.of(Host.values());
+            }
+        
+            private final Website website;
+        
+            private Host(final Website website) {
+                this.website = website;
+            }
+        
+            public boolean matches(final DependencyInfo.DownloadTarget target) {
+                return target.hosts().contains(this);
+            }
+        
+            @Override
+            public Website get() {
+                return website;
+            }
         }
     }
 }
