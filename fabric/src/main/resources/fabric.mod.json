@@ -17,6 +17,9 @@
     "entrypoints": {
         "client": [
             "com.nekotune.mdm.ModpackDependencyManager"
+        ],
+        "modmenu": [
+            "com.nekotune.mdm.ModMenuIntegration"
         ]
     },
     "mixins": [
@@ -29,6 +32,12 @@
         "minecraft": "${minecraft_version}",
         "java": ">=${java_version}"
     },
-    "suggests": {}
+    "suggests": {},
+    "custom": {
+        "modmenu": {
+            "links": {},
+            "badges": [],
+            "update_checker": false
+        }
+    }
 }
-  

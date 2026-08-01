@@ -101,9 +101,7 @@ processResources {
             'credits'                      : credits,
             'java_version'                 : java_version,
             'homepage'                     : homepage,
-            'sources'                      : sources,
-            'configured_background'        : configured_background,
-            'forgeconfigapiport_version'   : forgeconfigapiport_version
+            'sources'                      : sources
     ]
 
     filesMatching(['pack.mcmeta', 'fabric.mod.json', 'META-INF/mods.toml', 'META-INF/neoforge.mods.toml', '*.mixins.json']) {

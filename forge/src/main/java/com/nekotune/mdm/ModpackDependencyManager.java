@@ -11,5 +11,8 @@ public class ModpackDependencyManager {
     public ModpackDependencyManager(final FMLJavaModLoadingContext context) {
         Services.init(this.getClass().getClassLoader());
         CommonClass.init();
+
+        // Hook up configuration screen to the mods menu button
+        ForgeConfigScreen.register(context);
     }
 }
