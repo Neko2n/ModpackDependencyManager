@@ -1,0 +1,53 @@
+openapi: 3.0.3
+info:
+    title: Content Fetch API
+    version: 1.0.0
+servers:
+    - url: http://localhost:8080
+
+paths:
+    /{path}/{slug}/{resourceClass}:
+        get:
+            operationId: getContent
+            summary: Fetch content for a given path and slug
+            parameters:
+                - name: path
+                  in: path
+                  required: true
+                  description: Top-level resource path segment
+                  schema:
+                      type: string
+                - name: slug
+                  in: path
+                  required: true
+                  description: Specific item identifier
+                  schema:
+                      type: string
+                - name: ResourceClass
+                  in: header
+                  required: true
+                  description: The class of the resource to fetch
+                  schema:
+                      type: string
+                      example: "RESOURCE_PACK"
+                - name: GameVersions
+                  in: header
+                  required: true
+                  description: Comma-separated list of supported Minecraft versions
+                  schema:
+                      type: string
+                      example: "1.21.1,1.20.4"
+            responses:
+                "200":
+                    description: Raw content bytes
+                    content:
+                        application/octet-stream:
+                            schema:
+                                type: string
+                                format: binary
+                "404":
+                    description: Content not found
+                "429":
+                    description: Rate limit exceeded
+                "500":
+                    description: Server error

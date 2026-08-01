@@ -1,13 +1,12 @@
-package com.nekotune.mdm.definition;
+package com.nekotune.mdm;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import com.nekotune.mdm.Config;
-import com.nekotune.mdm.definition.web.Curseforge;
-import com.nekotune.mdm.definition.web.Modrinth;
-import com.nekotune.mdm.definition.web.Website;
+import com.nekotune.mdm.web.Curseforge;
+import com.nekotune.mdm.web.Modrinth;
+import com.nekotune.mdm.web.WebHostAPI;
 
 public interface DependencyInfo {
 
@@ -92,7 +91,7 @@ public interface DependencyInfo {
                     + "}";
         }
 
-        public static enum Host implements Supplier<Website> {
+        public static enum Host implements Supplier<WebHostAPI> {
             CURSEFORGE(Curseforge.INSTANCE),
             MODRINTH(Modrinth.INSTANCE);
         
@@ -100,9 +99,9 @@ public interface DependencyInfo {
                 return List.of(Host.values());
             }
         
-            private final Website website;
+            private final WebHostAPI website;
         
-            private Host(final Website website) {
+            private Host(final WebHostAPI website) {
                 this.website = website;
             }
         
@@ -111,7 +110,7 @@ public interface DependencyInfo {
             }
         
             @Override
-            public Website get() {
+            public WebHostAPI get() {
                 return website;
             }
         }

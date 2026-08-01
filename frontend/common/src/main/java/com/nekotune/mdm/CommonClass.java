@@ -3,10 +3,9 @@ package com.nekotune.mdm;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nekotune.mdm.definition.DependencyInfo.DownloadTarget;
 import com.nekotune.mdm.Config.DependencySettings;
+import com.nekotune.mdm.DependencyInfo.DownloadTarget;
 import com.nekotune.mdm.DownloadManager.DownloadThreads;
-import com.nekotune.mdm.definition.DependencyInfo;
 
 public class CommonClass {
 

@@ -12,7 +12,6 @@ import java.util.Optional;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Since;
-import com.nekotune.mdm.definition.DependencyInfo;
 
 public final class Config {
 
@@ -141,9 +140,14 @@ public final class Config {
 
     private static void sanitize(final Config config) {
         config.downloaded = new ArrayList<>(config.downloaded.stream().distinct().toList());
-        config.resourcePacks.removeIf(v -> config.downloaded.contains(v.slug));
-        config.dataPacks.removeIf(v -> config.downloaded.contains(v.slug));
-        config.resourcePacks = new ArrayList<>(config.resourcePacks.stream().distinct().toList());
-        config.dataPacks = new ArrayList<>(config.dataPacks.stream().distinct().toList());
+        config.resourcePacks = new ArrayList<>(config.resourcePacks);
+        config.dataPacks = new ArrayList<>(config.dataPacks);
+        config.downloaded.removeIf(slug -> {
+            final boolean isResourcePack = config.resourcePacks.stream()
+                    .anyMatch(rp -> rp.slug.equals(slug));
+            final boolean isDataPack = config.dataPacks.stream()
+                    .anyMatch(dp -> dp.slug.equals(slug));
+            return !(isResourcePack || isDataPack);
+        });
     }
 }

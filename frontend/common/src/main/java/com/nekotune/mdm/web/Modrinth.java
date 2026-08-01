@@ -1,7 +1,10 @@
-package com.nekotune.mdm.definition.web;
+package com.nekotune.mdm.web;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpRetryException;
+import java.net.URI;
+import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Arrays;
 import java.util.Map;
@@ -12,7 +15,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.nekotune.mdm.Constants;
 
-public final class Modrinth extends Website {
+public final class Modrinth extends WebHostAPI {
 
     public static final Modrinth INSTANCE = new Modrinth();
 
@@ -22,13 +25,27 @@ public final class Modrinth extends Website {
     private final String VERSIONS_URL = "https://api.modrinth.com/v2/project/%s/version";
 
     @Override
-    protected Map<String, String> requestHeaders() {
+    protected HttpResponse<byte[]> GET(final String slug,
+            final ResourceClass resourceClass) throws
+                    IOException, InterruptedException,
+                    SecurityException {
+        final String fileUrl = resolveFileURL(slug);
+        return Constants.HTTP_CLIENT.send(
+                HttpRequest.newBuilder()
+                        .uri(URI.create(fileUrl))
+                        .headers(requestHeaders().entrySet().stream()
+                                .flatMap(e -> Arrays.asList(e.getKey(), e.getValue()).stream())
+                                .toArray(String[]::new))
+                        .build(),
+                HttpResponse.BodyHandlers.ofByteArray());
+    }
+    
+    private Map<String, String> requestHeaders() {
         return Map.of(
                 "User-Agent", "nekotune/" + Constants.MOD_ID + " (nekotune2n@gmail.com)");
     }
 
-    @Override
-    protected String resolveFileURL(final String slug)
+    private String resolveFileURL(final String slug)
             throws IOException, InterruptedException, SecurityException {
 
         // Fetch a list of version URLs
@@ -91,5 +108,20 @@ public final class Modrinth extends Website {
 
         // Fall back to newest version
         return files.get(0).getAsJsonObject().get("url").getAsString();
+    }
+
+    private HttpResponse<String> fetchString(final String url) throws
+            FileNotFoundException, HttpRetryException, IOException,
+            InterruptedException, SecurityException {
+        final HttpResponse<String> response = Constants.HTTP_CLIENT.send(
+                HttpRequest.newBuilder().uri(URI.create(url)).build(),
+                HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == 204 || response.statusCode() == 404) {
+            throw new FileNotFoundException(response.statusCode() + "; File not found at url " + url);
+        }
+        if (response.statusCode() != 200) {
+            throw new HttpRetryException("API error: " + response.body(), response.statusCode());
+        }
+        return response;
     }
 }

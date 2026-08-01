@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.nekotune'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.google.code.gson:gson:2.11.0'
+    implementation 'com.atlassian.oai:swagger-request-validator-core:2.40.0'
+    implementation 'com.bucket4j:bucket4j-core:8.10.1'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
