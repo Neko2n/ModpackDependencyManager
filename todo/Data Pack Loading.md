@@ -7,3 +7,5 @@ Depending on how they're configured, datapacks will load themselves into worlds 
 
 Only forced datapacks will load themselves into existing worlds.
 Optionals will only be loaded into newly created worlds, if they're enabled by default.
+
+This probably requires the mod to be server-sided, not just client-sided.

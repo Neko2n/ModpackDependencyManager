@@ -1,7 +1,4 @@
-
-Button below "Exit Game" that says "Dependencies" with a little wrench icon in front of the text. The button is orange, unlike the other grey buttons.
-
-The GUI just displays the possible edits a user can make to the configuration.
+GUI representation of the [[Configuration]]
 
 "mode" enums are handled as actual dropdown enum options rather than direct string inputs.
 

@@ -59,7 +59,7 @@ Users likely won't touch the configuration file itself. Instead, it will be hand
 
 The downloaded array populates at runtime with the project slug strings once you've turned "production" on. Any projects in that array will not be downloaded in future launches.
 
-When "production" is true, the [[Title GUI]] is hidden.
+When "production" is true, the [[Title Screen Button]] is hidden.
 
 When "warn_enabled" is false, the in-game warning screen is not shown for download failures.
 

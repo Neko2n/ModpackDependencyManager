@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "todo/Configuration.md",
+                "file": "todo/Title Screen Button.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Configuration"
+              "title": "Title Screen Button"
             }
           }
         ]
@@ -187,17 +187,23 @@
   },
   "active": "73d9c8ff0d76fd6d",
   "lastOpenFiles": [
-    "fabric/build/loom-cache/remapped_working/loom_mappings_1_21_1_layered_hash_288375958_v2.com.terraformersmc-modmenu-11.0.4-sources.jar",
-    "fabric/build/loom-cache/remapped_working/loom_mappings_1_21_1_layered_hash_288375958_v2.com.terraformersmc-modmenu-11.0.4.jar",
-    "buildSrc/build/groovy-dsl-plugins/output/plugin-classes/precompiled_MultiloaderLoader$_run_closure5.class",
-    "buildSrc/build/groovy-dsl-plugins/output/plugin-classes/precompiled_MultiloaderLoader$_run_closure4.class",
-    "buildSrc/build/groovy-dsl-plugins/output/plugin-classes/precompiled_MultiloaderLoader$_run_closure3.class",
-    "buildSrc/build/groovy-dsl-plugins/output/plugin-classes/precompiled_MultiloaderLoader$_run_closure2.class",
-    "buildSrc/build/groovy-dsl-plugins/output/plugin-classes/precompiled_MultiloaderLoader$_run_closure2$_closure9.class",
-    "buildSrc/build/groovy-dsl-plugins/output/plugin-classes/precompiled_MultiloaderLoader$_run_closure2$_closure9$_closure10.class",
-    "buildSrc/build/groovy-dsl-plugins/output/plugin-classes/precompiled_MultiloaderLoader$_run_closure1.class",
-    "buildSrc/build/groovy-dsl-plugins/output/plugin-classes/precompiled_MultiloaderLoader$_run_closure1$_closure8.class",
-    "buildSrc/build/groovy-dsl-plugins/output/plugin-classes/precompiled_MultiloaderCommon$_run_closure5$_closure20.class",
+    "common/src/main/java/com/nekotune/mdm/definition/gui/DownloadErrorScreen.java",
+    "common/src/main/java/com/nekotune/mdm/definition/gui/ErrorScreen.java",
+    "common/src/main/java/com/nekotune/mdm/DownloadThread.java",
+    "todo/Config GUI.md",
+    "todo/Data Pack Loading.md",
+    "todo/Resource Pack Loading.md",
+    "todo/Title Screen Button.md",
+    "todo/done",
+    "todo/done/Configuration.md",
+    "todo/Download Wait Screen.md",
+    "common/src/main/java/com/nekotune/mdm/definition/gui/DownloadWaitScreen.java",
+    "common/src/main/java/com/nekotune/mdm/mixin/TitleScreenMixin.java",
+    "neoforge/run/resourcepacks/fresh-animations.zip",
+    "neoforge/run/resourcepacks",
+    "neoforge/run/logs/debug-4.log.gz",
+    "neoforge/run/logs/2026-08-01-3.log.gz",
+    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/CommonClass.class.uniqueId2",
     "README.md",
     "frontend/neoforge/build/docs/javadoc/resources/x.png",
     "frontend/neoforge/build/docs/javadoc/resources/glass.png",
@@ -218,10 +224,7 @@
     "frontend/common/build/docs/javadoc/legal/jqueryUI.md",
     "frontend/common/build/docs/javadoc/legal/jquery.md",
     "frontend/README.md",
-    "todo/Web Fetches.md",
-    "todo/Global Data Packs.md",
-    "todo/Configuration.md",
-    "todo/Title GUI.md",
+    "todo/done/Web Fetches.md",
     "todo/web-fetch/Modrinth.md",
     "todo/web-fetch/Curseforge.md",
     "todo/loading-order/Config.md"
