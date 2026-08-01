@@ -1,0 +1,45 @@
+package com.nekotune.mdm.definition.gui;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
+
+import com.nekotune.mdm.Constants;
+import com.nekotune.mdm.DownloadManager.DownloadResult;
+
+import net.minecraft.client.gui.screens.ErrorScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+
+public class DownloadErrorScreen extends ErrorScreen {
+
+    private static final String PATH = Constants.MOD_ID + ".screen.downloaderror";
+
+    public static final Component TITLE = Component.translatable(PATH + ".title");
+
+    private final Screen lastScreen;
+    public List<String> causes = new ArrayList<>();
+
+    private DownloadErrorScreen(final Screen lastScreen, final Supplier<String> message) {
+        super(TITLE, Component.translatable(PATH + ".message." + message.get()));
+        this.lastScreen = lastScreen;
+    }
+
+    public DownloadErrorScreen(final Screen lastScreen, final DownloadResult errorType) {
+        this(lastScreen, () -> {
+            switch (errorType) {
+                case NOT_FOUND:
+                    return "dependency-not-found";
+                case SECURITY_BLOCKED:
+                    return "security";
+                default:
+                    return "mod-error";
+            }
+        });
+    }
+
+    @Override
+    public void onClose() {
+        this.minecraft.setScreen(lastScreen);
+    }
+}

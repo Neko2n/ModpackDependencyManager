@@ -31,24 +31,30 @@ public interface DependencyInfo {
          * and resources,
          * so that they may be overridden.
          */
-        FORCED,
+        FORCED(true),
 
         /**
          * The dependency will be enabled by default, but users can disable it.
          */
-        OPTIONAL_ENABLED,
+        OPTIONAL_ENABLED(false),
 
         /**
          * The dependency will be disabled by default, but users can enable it.
          */
-        OPTIONAL_DISABLED,
+        OPTIONAL_DISABLED(false),
 
         /**
          * The dependency will be downloaded, but will not be added to the game.
          * Use this for when you need to distribute specific assets,
          * modified or otherwise, and still need to support the author.
          */
-        SUPPORT;
+        SUPPORT(true);
+
+        public final boolean isHidden;
+
+        private Mode(final boolean isHidden) {
+            this.isHidden = isHidden;
+        }
 
         public boolean matches(final DownloadTarget target) {
             return target.mode == this;

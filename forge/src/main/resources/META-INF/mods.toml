@@ -13,8 +13,6 @@ logoFile = "${mod_id}.png" #optional
 credits = "${credits}" #optional
 authors = "${mod_author}" #optional
 description = '''${description}''' #mandatory (Supports multiline text)
-[modproperties.${mod_id}]
-    configuredBackground="${configured_background}"
 [[dependencies.${mod_id}]] #optional
 modId = "forge" #mandatory
 mandatory = true #mandatory

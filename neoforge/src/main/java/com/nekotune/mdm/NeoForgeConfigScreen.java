@@ -11,7 +11,7 @@ public final class NeoForgeConfigScreen implements IConfigScreenFactory {
     public static void register(final ModContainer mod) {
         mod.registerExtensionPoint(
             IConfigScreenFactory.class,
-            NeoForgeConfigScreen::new);
+            new NeoForgeConfigScreen());
     }
 
     @Override

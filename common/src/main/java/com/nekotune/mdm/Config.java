@@ -45,6 +45,9 @@ public final class Config {
     @Since(1.0)
     public boolean warnEnabled = true;
 
+    @Since(1.0)
+    public boolean promptEnabled = true;
+
     /**
      * @see DependencyInfo.DownloadTarget
      */
@@ -64,6 +67,9 @@ public final class Config {
 
         @Since(1.0)
         public ResourceClass type = ResourceClass.RESOURCE_PACK;
+
+        @Since(1.0)
+        public int loadPriority = 0;
     }
 
     private Config() {

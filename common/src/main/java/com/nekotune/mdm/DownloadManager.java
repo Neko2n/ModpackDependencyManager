@@ -21,23 +21,29 @@ import com.nekotune.mdm.definition.web.WebHostAPI;
 public final class DownloadManager {
 
     /**
-     * A list of download targets which have been successfully downloaded.
-     * Targets listed here will be excluded from the download process on startup.
+     * A list of errors that occured during the download process.
+     * Errors are mapped by the slug belonging to the dependency that errored.
+     */
+    public static final Map<String, DownloadResult> DOWNLOAD_ERRORS = new HashMap<>();
+
+    /**
+     * A list of download targets which have been successfully downloaded
+     * in the current session.
      */
     private static final Map<String, DownloadTarget> DOWNLOADED = new HashMap<>();
 
     /**
-     * @return A copy of {@link DownloadManager#DOWNLOADED}
+     * @see DownloadManager#DOWNLOADED
      */
     public static Collection<DownloadTarget> getDownloaded() {
         return DOWNLOADED.values();
     }
 
     /**
-     * @return True if the dependency with the given target is downloaded,
-     *         false otherwise.
+     * @return True if the dependency with the given target was downloaded
+     *         in the running session, false otherwise.
      */
-    public static boolean isDownloaded(final DownloadTarget target) {
+    public static boolean wasDownloaded(final DownloadTarget target) {
         return DOWNLOADED.containsKey(target.slug());
     }
 
@@ -103,12 +109,7 @@ public final class DownloadManager {
             for (final DownloadTarget target : targets) {
 
                 // Ensure target is not already handled by another thread
-                try {
-                    sem.acquire();
-                } catch (final InterruptedException e) {
-                    Constants.LOG.error(e.toString());
-                    return;
-                }
+                sem.acquireUninterruptibly();
                 if (handled.contains(target)) {
                     sem.release();
                     continue;
@@ -125,15 +126,19 @@ public final class DownloadManager {
                         break;
                     case NOT_FOUND:
                         Constants.LOG.warn("[DownloadManager] [Working Thread " + this.threadId() + "] Download FAILURE; No files found for target " + target.toString() + "; Report this to the modpack author");
+                        DOWNLOAD_ERRORS.put(target.slug(), result);
                         break;
                     case SECURITY_BLOCKED:
                         Constants.LOG.warn("[DownloadManager] [Working Thread " + this.threadId() + "] Download FAILURE; Downloads blocked by security permissions; Check your firewall settings");
+                        DOWNLOAD_ERRORS.put(target.slug(), result);
                         break;
                     case OUT_OF_RETRIES:
                         Constants.LOG.error("[DownloadManager] [Working Thread " + this.threadId() + "] Download FAILURE; Ran out of HTTP request attempts for target " + target.toString() + "; Report this to the issue tracker");
+                        DOWNLOAD_ERRORS.put(target.slug(), result);
                         break;
                     case IO_FAILURE:
                         Constants.LOG.error("[DownloadManager] [Working Thread " + this.threadId() + "] Download FAILURE; IO failure while trying to write file; These things happen");
+                        DOWNLOAD_ERRORS.put(target.slug(), result);
                         break;
                 }
             }
@@ -194,13 +199,13 @@ public final class DownloadManager {
                 }
             }
         }
+    }
 
-        private static enum DownloadResult {
-            SUCCESS,
-            NOT_FOUND,
-            OUT_OF_RETRIES,
-            IO_FAILURE,
-            SECURITY_BLOCKED;
-        }
+    public static enum DownloadResult {
+        SUCCESS,
+        NOT_FOUND,
+        OUT_OF_RETRIES,
+        IO_FAILURE,
+        SECURITY_BLOCKED;
     }
 }
