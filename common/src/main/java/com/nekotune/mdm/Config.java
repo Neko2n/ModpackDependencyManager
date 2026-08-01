@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Since;
 import com.nekotune.mdm.definition.DependencyInfo;
+import com.nekotune.mdm.definition.web.WebHostAPI.ResourceClass;
 
 public final class Config {
 
@@ -33,10 +34,7 @@ public final class Config {
     public boolean production = false;
 
     @Since(1.0)
-    public ArrayList<DependencySettings> resourcePacks = new ArrayList<>();
-
-    @Since(1.0)
-    public ArrayList<DependencySettings> dataPacks = new ArrayList<>();
+    public ArrayList<DependencySettings> dependencies = new ArrayList<>();
 
     @Since(1.0)
     public boolean hideForced = true;
@@ -65,7 +63,7 @@ public final class Config {
         public DependencyInfo.Mode mode = DependencyInfo.Mode.FORCED;
 
         @Since(1.0)
-        public DependencyInfo.Type type = DependencyInfo.Type.RESOURCE_PACK;
+        public ResourceClass type = ResourceClass.RESOURCE_PACK;
     }
 
     private Config() {
@@ -78,8 +76,7 @@ public final class Config {
     public void load() {
         final Config config = fromExisting().orElse(new Config());
         this.production = config.production;
-        this.resourcePacks = config.resourcePacks;
-        this.dataPacks = config.dataPacks;
+        this.dependencies = config.dependencies;
         this.hideForced = config.hideForced;
         this.downloaded = config.downloaded;
         this.warnEnabled = config.warnEnabled;
@@ -141,9 +138,7 @@ public final class Config {
 
     private static void sanitize(final Config config) {
         config.downloaded = new ArrayList<>(config.downloaded.stream().distinct().toList());
-        config.resourcePacks.removeIf(v -> config.downloaded.contains(v.slug));
-        config.dataPacks.removeIf(v -> config.downloaded.contains(v.slug));
-        config.resourcePacks = new ArrayList<>(config.resourcePacks.stream().distinct().toList());
-        config.dataPacks = new ArrayList<>(config.dataPacks.stream().distinct().toList());
+        config.dependencies.removeIf(v -> config.downloaded.contains(v.slug));
+        config.dependencies = new ArrayList<>(config.dependencies.stream().distinct().toList());
     }
 }

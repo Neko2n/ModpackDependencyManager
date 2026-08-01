@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.nekotune.mdm.definition.DependencyInfo.DownloadTarget;
-import com.nekotune.mdm.Config.DependencySettings;
 import com.nekotune.mdm.DownloadManager.DownloadThreads;
-import com.nekotune.mdm.definition.DependencyInfo;
 
 public class CommonClass {
 
@@ -16,18 +14,13 @@ public class CommonClass {
         final Config config = Config.INSTANCE;
         config.load();
 
-        final List<DependencySettings> dependencies = new ArrayList<>(config.resourcePacks);
-        dependencies.addAll(config.dataPacks);
-        final List<DownloadTarget> targets = dependencies.stream()
-                .map(settings -> new DownloadTarget(
-                        settings.slug,
-                        settings.mirrors,
-                        settings.hosts,
-                        settings.mode,
-                        DependencyInfo.Type.RESOURCE_PACK))
+        // Build a list of download targets, excluding those already downloaded
+        final List<DownloadTarget> targets = new ArrayList<>(config.dependencies.stream()
+                .map(settings -> new DownloadTarget(settings))
                 .filter(target -> !config.downloaded.contains(target.slug()))
-                .toList();
+                .toList());
 
+        // Download dependencies
         final Thread downloadTask = new Thread(() -> {
             Constants.LOG.debug("[CommonClass] [Download Thread] Thread started");
             final DownloadThreads threads = DownloadManager.dispatch(targets);

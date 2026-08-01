@@ -16,7 +16,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
 import com.nekotune.mdm.definition.DependencyInfo.DownloadTarget;
-import com.nekotune.mdm.definition.web.Website;
+import com.nekotune.mdm.definition.web.WebHostAPI;
 
 public final class DownloadManager {
 
@@ -48,7 +48,7 @@ public final class DownloadManager {
      * @param targets A list of dependency targets to download
      *                from the web.
      * @return The scheduled worker threads bundled as a DownloadThreads object.
-     * @see Website
+     * @see WebHostAPI
      */
     public static DownloadThreads dispatch(final List<DownloadTarget> targets) {
         final DownloadThreads threads = new DownloadThreads(targets);
@@ -155,20 +155,10 @@ public final class DownloadManager {
             // Attempt to download file from all slugs and websites
             while (true) {
                 final String slug = slugsToTry.get(slugsTried);
-                final Website website = websitesToTry.get(websitesTried).get();
+                final WebHostAPI website = websitesToTry.get(websitesTried).get();
 
                 try {
-                    switch (target.type()) {
-                        case RESOURCE_PACK:
-                            website.fetchAssets(slug);
-                            break;
-                        case DATA_PACK:
-                            website.fetchData(slug);
-                            break;
-                        default:
-                            throw new UnsupportedOperationException(
-                                    "DownloadTarget type " + target.type() + " unsupported");
-                    }
+                    website.fetch(slug, target.type());
                     return DownloadResult.SUCCESS;
                 } catch (final FileNotFoundException e) {
                     httpRetries = 0;

@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import com.nekotune.mdm.Config;
+import com.nekotune.mdm.Config.DependencySettings;
 import com.nekotune.mdm.definition.web.Curseforge;
 import com.nekotune.mdm.definition.web.Modrinth;
-import com.nekotune.mdm.definition.web.Website;
+import com.nekotune.mdm.definition.web.WebHostAPI;
+import com.nekotune.mdm.definition.web.WebHostAPI.ResourceClass;
 
 public interface DependencyInfo {
 
@@ -54,18 +56,6 @@ public interface DependencyInfo {
     }
 
     /**
-     * Whether the dependency is a resource pack or a data pack.
-     */
-    public static enum Type {
-        RESOURCE_PACK,
-        DATA_PACK;
-
-        public boolean matches(final DownloadTarget target) {
-            return target.type == this;
-        }
-    }
-
-    /**
      * Information about a dependency download target.
      * 
      * @param slug    The slug to search up and download from.
@@ -80,7 +70,11 @@ public interface DependencyInfo {
             List<String> mirrors,
             List<DownloadTarget.Host> hosts,
             Mode mode,
-            Type type) {
+            ResourceClass type) {
+        
+        public DownloadTarget(final DependencySettings settings) {
+            this(settings.slug, settings.mirrors, settings.hosts, settings.mode, settings.type);
+        }
 
         @Override
         public String toString() {
@@ -92,7 +86,7 @@ public interface DependencyInfo {
                     + "}";
         }
 
-        public static enum Host implements Supplier<Website> {
+        public static enum Host implements Supplier<WebHostAPI> {
             CURSEFORGE(Curseforge.INSTANCE),
             MODRINTH(Modrinth.INSTANCE);
         
@@ -100,9 +94,9 @@ public interface DependencyInfo {
                 return List.of(Host.values());
             }
         
-            private final Website website;
+            private final WebHostAPI website;
         
-            private Host(final Website website) {
+            private Host(final WebHostAPI website) {
                 this.website = website;
             }
         
@@ -111,7 +105,7 @@ public interface DependencyInfo {
             }
         
             @Override
-            public Website get() {
+            public WebHostAPI get() {
                 return website;
             }
         }
