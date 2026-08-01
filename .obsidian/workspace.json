@@ -41,7 +41,9 @@
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical",
-                "autoReveal": false
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
               },
               "icon": "lucide-folder-closed",
               "title": "Files"
@@ -185,17 +187,17 @@
   },
   "active": "73d9c8ff0d76fd6d",
   "lastOpenFiles": [
-    "common/src/main/java/com/nekotune/mdm/definition/DependencyInfo/TargetHost.java",
-    "common/src/main/java/com/nekotune/mdm/definition/DependencyInfo",
-    "common/src/main/java/com/nekotune/mdm/definition/TargetHost.java",
-    "common/src/main/java/com/nekotune/mdm/TargetHost.java",
-    "neoforge/run/resourcepacks/better-leaves.zip",
-    "neoforge/run/datapacks/tras-fresh-player.zip",
     "neoforge/run/resourcepacks/fresh-animations.zip",
-    "neoforge/run/logs/2026-07-31-12.log.gz",
-    "neoforge/run/datapacks",
-    "neoforge/run/logs/2026-07-31-11.log.gz",
-    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/CommonClass.class.uniqueId5",
+    "neoforge/run/logs/2026-07-31-15.log.gz",
+    "neoforge/run/logs/2026-07-31-14.log.gz",
+    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/Config$DependencySettings.class.uniqueId3",
+    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/CommonClass.class.uniqueId2",
+    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/ModpackDependencyManager.class.uniqueId1",
+    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/Config.class.uniqueId0",
+    "common/build/tmp/compileJava/compileTransaction/stash-dir/Config$DependencySettings.class.uniqueId2",
+    "common/build/tmp/compileJava/compileTransaction/stash-dir/Config.class.uniqueId1",
+    "common/build/tmp/compileJava/compileTransaction/stash-dir/CommonClass.class.uniqueId0",
+    "neoforge/run/resourcepacks",
     "todo/Web Fetches.md",
     "todo/Global Data Packs.md",
     "todo/Configuration.md",

@@ -7,33 +7,45 @@ Handled by `config/dependencies.mdm.json`
 ```json
 {
 	"production": false,
-	"assets": [
+	"resourcepacks": [
 		{
 		    "slug": "fresh-animations",
-		    "mirror": [
+		    "mirrors": [
 			    "fresh-animations-mirror"
 		    ],
-		    "host": "MODRINTH",
-			"mode": "FORCED_HIDDEN"
+		    "hosts": [
+			    "MODRINTH"
+			],
+			"mode": "FORCED"
 		},
 		{
 		    "slug": "fresher-animations",
-		    "mirror": [
+		    "mirrors": [
 			    "fresher-animations-mirror"
 		    ],
-		    "host": "CURSEFORGE",
+		    "hosts": [
+			    "CURSEFORGE"
+			],
 			"mode": "OPTIONAL_DISABLED"
 		},
 		{
 		    "slug": "freshest-animations",
-		    "host": "ANY",
+		    "mirrors": [],
+		    "hosts": [
+			    "MODRINTH",
+			    "CURSEFORGE"
+			],
 			"mode": "SUPPORT"
 		}
 	],
-	"data": [
+	"datapacks": [
 		{
 		    "slug": "duck-origin",
-		    "host": "ANY",
+		    "mirrors": [],
+		    "hosts": [
+			    "MODRINTH",
+			    "CURSEFORGE"
+			],
 			"mode": "FORCED"
 		}
 	],

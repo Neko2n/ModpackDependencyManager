@@ -121,6 +121,7 @@ public final class DownloadManager {
                 switch (result) {
                     case SUCCESS:
                         Constants.LOG.debug("[DownloadManager] [Working Thread " + this.threadId() + "] Download SUCCESS for target " + target.toString());
+                        DOWNLOADED.put(target.slug(), target);
                         break;
                     case NOT_FOUND:
                         Constants.LOG.warn("[DownloadManager] [Working Thread " + this.threadId() + "] Download FAILURE; No files found for target " + target.toString() + "; Report this to the modpack author");

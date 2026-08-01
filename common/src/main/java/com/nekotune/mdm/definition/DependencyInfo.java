@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import com.nekotune.mdm.ConfigHandler;
+import com.nekotune.mdm.Config;
 import com.nekotune.mdm.definition.web.Curseforge;
 import com.nekotune.mdm.definition.web.Modrinth;
 import com.nekotune.mdm.definition.web.Website;
@@ -14,7 +14,7 @@ public interface DependencyInfo {
     /**
      * An ordered list of dependency slugs determining the order in which
      * said dependencies should be loaded into the game.
-     * Populated by {@link ConfigHandler}.
+     * Populated by {@link Config}.
      */
     public static final LinkedList<String> LOAD_ORDER = new LinkedList<>();
 
