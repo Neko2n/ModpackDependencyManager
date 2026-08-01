@@ -26,6 +26,7 @@ public final class Config {
 
     private static final Gson GSON = new GsonBuilder()
             .setVersion(1.0)
+            .setPrettyPrinting()
             .create();
 
     @Since(1.0)
