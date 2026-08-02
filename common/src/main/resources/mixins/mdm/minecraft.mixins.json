@@ -4,16 +4,15 @@
   "package": "com.nekotune.mdm.mixin.minecraft",
   "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [],
-  "client": [
+  "mixins": [
     "PackMixin",
     "PackSelectionModelMixin",
     "PackRepositoryMixin",
     "TitleScreenMixin"
   ],
+  "client": [],
   "server": [],
   "injectors": {
     "defaultRequire": 1
   }
 }
-

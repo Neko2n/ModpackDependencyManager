@@ -2,14 +2,13 @@ package com.nekotune.mdm;
 
 import com.nekotune.mdm.platform.Services;
 
-import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.ModInitializer;
 
-public class ModpackDependencyManager implements ClientModInitializer {
+public class ModpackDependencyManager implements ModInitializer {
     
     @Override
-    public void onInitializeClient() {
+    public void onInitialize() {
         Services.init(this.getClass().getClassLoader());
         CommonClass.init();
-        Constants.LOG.info("Hello Fabric world!");
     }
 }

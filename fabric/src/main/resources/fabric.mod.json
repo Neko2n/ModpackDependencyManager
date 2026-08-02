@@ -13,9 +13,9 @@
     },
     "license": "${license}",
     "icon": "${mod_id}.png",
-    "environment": "client",
+    "environment": "*",
     "entrypoints": {
-        "client": [
+        "main": [
             "com.nekotune.mdm.ModpackDependencyManager"
         ],
         "modmenu": [
