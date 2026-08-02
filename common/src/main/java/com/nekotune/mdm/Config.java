@@ -39,9 +39,6 @@ public final class Config {
     public boolean hideForced = true;
 
     @Since(1.0)
-    public ArrayList<String> downloaded = new ArrayList<>();
-
-    @Since(1.0)
     public boolean warnEnabled = true;
 
     @Since(1.0)
@@ -59,7 +56,6 @@ public final class Config {
         this.production = config.production;
         this.dependencies = config.dependencies;
         this.hideForced = config.hideForced;
-        this.downloaded = config.downloaded;
         this.warnEnabled = config.warnEnabled;
         this.promptEnabled = config.promptEnabled;
     }
@@ -119,7 +115,6 @@ public final class Config {
     }
 
     private static void sanitize(final Config config) {
-        config.downloaded = new ArrayList<>(config.downloaded.stream().distinct().toList());
         config.dependencies = new ArrayList<>(config.dependencies.stream().distinct().toList());
     }
 }

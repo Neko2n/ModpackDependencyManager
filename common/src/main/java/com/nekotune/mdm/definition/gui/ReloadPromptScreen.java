@@ -25,7 +25,7 @@ public class ReloadPromptScreen extends AlertScreen {
 
     public ReloadPromptScreen(final Screen lastScreen, final Runnable callback) {
         super(() -> {
-            Constants.LOG.debug("[ReloadPromptScreen] Screen closing");
+            Constants.LOG.debug("[ReloadPromptScreen] Reloading resources");
             callback.run();
             final Minecraft mc = Minecraft.getInstance();
             mc.setScreen(lastScreen);
@@ -40,5 +40,6 @@ public class ReloadPromptScreen extends AlertScreen {
 
     @Override
     public void onClose() {
+        Constants.LOG.debug("[ReloadPromptScreen] Screen closing");
     }
 }

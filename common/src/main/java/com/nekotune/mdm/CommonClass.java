@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Semaphore;
 
 import com.nekotune.mdm.DownloadManager.DownloadResult;
 import com.nekotune.mdm.definition.DependencyInfo;
@@ -20,6 +21,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.repository.PackRepository;
 
 public final class CommonClass {
+
+    private static final Semaphore lock = new Semaphore(1);
 
     public static void init() {
         // Load configuration settings from file
@@ -42,6 +45,8 @@ public final class CommonClass {
      * @see TitleScreenMixin#mdm$onTitleScreen
      */
     public static void gameLoadingFinished(final Minecraft mc) {
+        Constants.LOG.debug("[CommonClass] gameLoadingFinished called");
+        lock.acquireUninterruptibly();
 
         final Runnable finished = () -> {
             if (DownloadManager.getDownloaded().size() == 0)
@@ -89,14 +94,17 @@ public final class CommonClass {
             default:
                 break;
         }
+
+        lock.release();
     }
 
     /**
      * Called when a download finishes.
      */
     private static void onDownloadFinished() {
-
         Constants.LOG.debug("[CommonClass] onDownloadFinished called");
+        lock.acquireUninterruptibly();
+
 
         // If the download wait screen is showing,
         // close it.
@@ -104,6 +112,8 @@ public final class CommonClass {
         if (mc.screen instanceof final DownloadWaitScreen waitScreen) {
             waitScreen.onClose();
         }
+
+        lock.release();
 
         // Enable OPTIONAL_ENABLED resource packs by default
         final PackRepository repo = mc.getResourcePackRepository();

@@ -23,7 +23,7 @@ public class DownloadWaitScreen extends Screen {
     public void onClose() {
         Constants.LOG.debug("[DownloadWaitScreen] Screen closing");
         this.callback.run();
-        this.minecraft.setScreen(lastScreen);
+        this.minecraft.setScreen(new ReloadPromptScreen(lastScreen));
     }
 
     @Override

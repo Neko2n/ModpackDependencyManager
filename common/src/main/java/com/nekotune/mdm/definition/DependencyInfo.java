@@ -1,5 +1,8 @@
 package com.nekotune.mdm.definition;
 
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -36,6 +39,15 @@ public record DependencyInfo(
                 + ", mode: " + mode.toString()
                 + ", type: " + type.toString()
                 + "}";
+    }
+
+    /**
+     * @return True if this pack's file already exists on the user's machine,
+     *         false otherwise.
+     */
+    public boolean isDownloaded() {
+        final Path path = Path.of(this.type.folder, this.fileName());
+        return Files.exists(path, LinkOption.NOFOLLOW_LINKS);
     }
 
     /**

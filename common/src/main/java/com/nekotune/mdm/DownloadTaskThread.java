@@ -19,7 +19,7 @@ public final class DownloadTaskThread implements Runnable {
 
         // Build a list of download targets, excluding those already downloaded
         this.targets = new ArrayList<>(Config.INSTANCE.dependencies.stream()
-                .filter(target -> !Config.INSTANCE.downloaded.contains(target.slug()))
+                .filter(target -> !target.isDownloaded())
                 .toList());
     }
 
@@ -48,7 +48,6 @@ public final class DownloadTaskThread implements Runnable {
         state = DownloadState.FINISHED;
         String report = "[CommonClass] [Download Thread] Dependencies download SUCCESS; Took " + downloadTime + " ms; Downloaded: [ ";
         for (final DependencyInfo target : DownloadManager.getDownloaded()) {
-            Config.INSTANCE.downloaded.add(target.slug());
             report += target.slug() + ", ";
         }
         report = (report + "]").replace(", ]", " ]");
