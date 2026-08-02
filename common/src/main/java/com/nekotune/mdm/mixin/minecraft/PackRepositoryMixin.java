@@ -35,7 +35,6 @@ public class PackRepositoryMixin {
         // Separate out all packs which were downloaded as dependencies
         final List<Pack> forcedPacks = new ArrayList<>();
         final List<Pack> supportPacks = new ArrayList<>();
-        final List<Pack> optionalPacks = new ArrayList<>();
         int n = 0;
         for (final Pack pack : packs) {
             final Optional<DependencyInfo.Mode> mode = PackInfoAccessor.getMode(pack);
@@ -44,10 +43,6 @@ public class PackRepositoryMixin {
                 switch (mode.orElseThrow()) {
                     case FORCED:
                         forcedPacks.add(pack);
-                        break;
-                    case OPTIONAL_DISABLED:
-                    case OPTIONAL_ENABLED:
-                        optionalPacks.add(pack);
                         break;
                     case SUPPORT:
                         supportPacks.add(pack);
@@ -65,11 +60,10 @@ public class PackRepositoryMixin {
         final List<Pack> result = new ArrayList<>(packs);
         result.removeAll(supportPacks);
 
-        // Sort pack order by priority
+        // Sort forced packs by priority
         final Comparator<Pack> comparator = Comparator.comparingInt((final Pack pack) ->
                 PackInfoAccessor.getLoadPriority(pack).orElseThrow());
         forcedPacks.sort(comparator);
-        optionalPacks.sort(comparator);
 
         // Remove and re-insert forced packs after built-in packs
         result.removeAll(forcedPacks);

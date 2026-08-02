@@ -106,7 +106,6 @@ public final class CommonClass {
         }
 
         // Enable OPTIONAL_ENABLED resource packs by default
-        // TODO: Enable them between user-added packs and forced packs
         final PackRepository repo = mc.getResourcePackRepository();
         repo.reload();
         final List<DependencyInfo> optionalEnabled = Config.INSTANCE.dependencies.stream()
