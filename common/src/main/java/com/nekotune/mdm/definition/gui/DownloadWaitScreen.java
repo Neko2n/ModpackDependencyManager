@@ -11,7 +11,7 @@ public class DownloadWaitScreen extends Screen {
             .translatable(Constants.MOD_ID + ".screen.downloadwait.title");
 
     private final Screen lastScreen;
-    private final Runnable callback; // TODO: Fire callback once download is finished
+    private final Runnable callback;
 
     public DownloadWaitScreen(final Screen lastScreen, final Runnable callback) {
         super(TITLE);
