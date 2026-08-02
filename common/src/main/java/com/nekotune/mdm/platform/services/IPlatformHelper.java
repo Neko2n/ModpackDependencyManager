@@ -1,13 +1,20 @@
 package com.nekotune.mdm.platform.services;
 
+import net.minecraft.server.MinecraftServer;
+
 public interface IPlatformHelper {
+
+    public static enum Dist {
+        CLIENT,
+        SERVER;
+    }
 
     /**
      * Gets the name of the current platform
      *
      * @return The name of the current platform.
      */
-    String getPlatformName();
+    public abstract String getPlatformName();
 
     /**
      * Checks if a mod with the given id is loaded.
@@ -15,21 +22,36 @@ public interface IPlatformHelper {
      * @param modId The mod to check if it is loaded.
      * @return True if the mod is loaded, false otherwise.
      */
-    boolean isModLoaded(String modId);
+    public abstract boolean isModLoaded(String modId);
 
     /**
      * Check if the game is currently in a development environment.
      *
      * @return True if in a development environment, false otherwise.
      */
-    boolean isDevelopmentEnvironment();
+    public abstract boolean isDevelopmentEnvironment();
+
+    /**
+     * Gets the currently running server.
+     * Make sure to only run this if dist() == Dist.SERVER
+     * 
+     * @return The current MinecraftServer instance.
+     */
+    public abstract MinecraftServer getServer();
+
+    /**
+     * Check which logical side the game is running on.
+     * 
+     * @return Distribution type
+     */
+    public abstract Dist dist();
 
     /**
      * Gets the name of the environment type as a string.
      *
      * @return The name of the environment type.
      */
-    default String getEnvironmentName() {
+    public default String getEnvironmentName() {
 
         return isDevelopmentEnvironment() ? "development" : "production";
     }

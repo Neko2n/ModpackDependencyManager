@@ -1,6 +1,6 @@
 package com.nekotune.mdm;
 
-import com.nekotune.mdm.definition.gui.ConfigScreen;
+import com.nekotune.mdm.client.gui.ConfigScreen;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 

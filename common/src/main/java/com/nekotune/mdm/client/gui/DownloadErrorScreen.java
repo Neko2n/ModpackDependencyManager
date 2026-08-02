@@ -1,4 +1,4 @@
-package com.nekotune.mdm.definition.gui;
+package com.nekotune.mdm.client.gui;
 
 import java.util.ArrayList;
 import java.util.List;

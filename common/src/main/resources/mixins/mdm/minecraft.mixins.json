@@ -6,11 +6,12 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "PackMixin",
+    "PackRepositoryMixin"
+  ],
+  "client": [
     "PackSelectionModelMixin",
-    "PackRepositoryMixin",
     "TitleScreenMixin"
   ],
-  "client": [],
   "server": [],
   "injectors": {
     "defaultRequire": 1

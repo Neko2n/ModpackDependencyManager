@@ -18,6 +18,9 @@
         "main": [
             "com.nekotune.mdm.ModpackDependencyManager"
         ],
+        "client": [
+            "com.nekotune.mdm.ClientModpackDependencyManager"
+        ],
         "modmenu": [
             "com.nekotune.mdm.ModMenuIntegration"
         ]

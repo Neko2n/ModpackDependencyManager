@@ -55,6 +55,9 @@ public final class DownloadTaskThread implements Runnable {
         
         // Save state to config file
         Config.INSTANCE.save();
+
+        // Alert event listeners
+        DownloadManager.onDownloadFinished.fire();
     }
 
     public static enum DownloadState {

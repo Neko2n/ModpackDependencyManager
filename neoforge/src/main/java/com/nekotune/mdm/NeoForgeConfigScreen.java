@@ -1,6 +1,6 @@
 package com.nekotune.mdm;
 
-import com.nekotune.mdm.definition.gui.ConfigScreen;
+import com.nekotune.mdm.client.gui.ConfigScreen;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.neoforged.api.distmarker.Dist;

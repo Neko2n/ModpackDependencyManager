@@ -16,9 +16,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
 import com.nekotune.mdm.definition.DependencyInfo;
+import com.nekotune.mdm.definition.Event;
 import com.nekotune.mdm.definition.web.WebHostAPI;
 
 public final class DownloadManager {
+
+    public static final Event onDownloadFinished = new Event();
 
     /**
      * A list of errors that occured during the download process.

@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.nekotune.mdm.CommonClass;
+import com.nekotune.mdm.client.ClientCommonClass;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -20,7 +20,7 @@ public class TitleScreenMixin {
     private void mdm$onTitleScreen(final Screen screen, final CallbackInfo ci) {
         if (screen instanceof TitleScreen && firstLoad) {
             firstLoad = false;
-            CommonClass.gameLoadingFinished((Minecraft)(Object)this);
+            ClientCommonClass.clientLoaded((Minecraft)(Object)this);
         }
     }
 }
