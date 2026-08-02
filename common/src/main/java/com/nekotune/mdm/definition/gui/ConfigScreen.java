@@ -8,7 +8,8 @@ import net.minecraft.network.chat.Component;
 public class ConfigScreen extends Screen {
 
     public static final Component TITLE = Component.translatable(
-            Constants.MOD_ID + ".screen.config.title");
+            Constants.MOD_ID + ".screen.config.title")
+            .withColor(Constants.TOKEN_COLOR);
 
     public final Screen lastScreen;
 

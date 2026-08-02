@@ -14,6 +14,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.nekotune.mdm.Constants;
+import com.nekotune.mdm.definition.DependencyInfo;
 
 public final class Modrinth extends WebHostAPI {
 
@@ -26,7 +27,7 @@ public final class Modrinth extends WebHostAPI {
 
     @Override
     protected APIResponse<byte[]> GET(final String slug,
-            final ResourceClass resourceClass) throws
+            final DependencyInfo.ResourceClass resourceClass) throws
                     IOException, InterruptedException,
                     SecurityException {
         final String fileUrl = resolveFileURL(slug);

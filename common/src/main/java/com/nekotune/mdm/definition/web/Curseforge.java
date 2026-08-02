@@ -17,6 +17,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.nekotune.mdm.Constants;
+import com.nekotune.mdm.definition.DependencyInfo;
 
 public class Curseforge extends WebHostAPI {
 
@@ -32,16 +33,16 @@ public class Curseforge extends WebHostAPI {
 
     private static final String API_KEY = ""; // TODO: Add flame API key here
 
-    private static final Map<ResourceClass, String> CONTENT_TYPE_MAP =
+    private static final Map<DependencyInfo.ResourceClass, String> CONTENT_TYPE_MAP =
             new EnumMap<>(Map.of(
-                    ResourceClass.RESOURCE_PACK, "Resource Packs",
-                    ResourceClass.DATA_PACK, "Data Packs"
+                    DependencyInfo.ResourceClass.RESOURCE_PACK, "Resource Packs",
+                    DependencyInfo.ResourceClass.DATA_PACK, "Data Packs"
             ));
-    private static final Map<ResourceClass, Integer> CLASS_ID_CACHE =
-            new EnumMap<>(ResourceClass.class);
+    private static final Map<DependencyInfo.ResourceClass, Integer> CLASS_ID_CACHE =
+            new EnumMap<>(DependencyInfo.ResourceClass.class);
 
     @Override
-    public APIResponse<byte[]> GET(final String slug, final ResourceClass resourceClass) throws
+    public APIResponse<byte[]> GET(final String slug, final DependencyInfo.ResourceClass resourceClass) throws
                     IOException, InterruptedException {
         final APIResponse<String> fileUrl = resolveFileURL(slug, Constants.MC_VERSIONS, resourceClass);
         if (fileUrl.body().isEmpty()) {
@@ -65,7 +66,7 @@ public class Curseforge extends WebHostAPI {
     }
 
     private APIResponse<String> resolveFileURL(final String slug,
-            final String[] targetGameVersions, final ResourceClass resourceClass) throws
+            final String[] targetGameVersions, final DependencyInfo.ResourceClass resourceClass) throws
                     IOException, InterruptedException {
 
         // Fetch a list of files for the given mod slug
@@ -139,7 +140,7 @@ public class Curseforge extends WebHostAPI {
     /**
      * Query the API for the ID associated with the given resource class.
      */
-    private APIResponse<Integer> resolveClassId(final ResourceClass resourceClass)
+    private APIResponse<Integer> resolveClassId(final DependencyInfo.ResourceClass resourceClass)
             throws IOException, InterruptedException {
         if (CLASS_ID_CACHE.containsKey(resourceClass)) {
             return new APIResponse<>(200, CLASS_ID_CACHE.get(resourceClass));
@@ -166,7 +167,7 @@ public class Curseforge extends WebHostAPI {
     /**
      * Query the API for the asset ID associated with the given slug.
      */
-    private APIResponse<Integer> resolveAssetId(final String slug, final ResourceClass resourceClass)
+    private APIResponse<Integer> resolveAssetId(final String slug, final DependencyInfo.ResourceClass resourceClass)
             throws IOException, InterruptedException, FileNotFoundException {
         final APIResponse<Integer> classIdResponse = resolveClassId(resourceClass);
         if (classIdResponse.statusCode() != 200) {

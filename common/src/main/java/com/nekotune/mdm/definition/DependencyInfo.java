@@ -1,24 +1,99 @@
 package com.nekotune.mdm.definition;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import com.nekotune.mdm.Config;
-import com.nekotune.mdm.Config.DependencySettings;
 import com.nekotune.mdm.definition.web.Curseforge;
 import com.nekotune.mdm.definition.web.Modrinth;
 import com.nekotune.mdm.definition.web.WebHostAPI;
-import com.nekotune.mdm.definition.web.WebHostAPI.ResourceClass;
 
-public interface DependencyInfo {
+/**
+ * Information about a downloaded dependency.
+ * 
+ * @param slug         The slug to search up and download from.
+ * @param mirrors      Mirror slugs for if the initial slug failed to find a
+ *                     match.
+ * @param hosts        The website host(s) to attempt to download from.
+ * @param mode         The way the dependency should be loaded into the game
+ *                     once
+ *                     downloaded.
+ * @param type         Whether the dependency is a resource pack or a data pack.
+ * @param loadPriority Determines the order in which dependencies are loaded.
+ */
+public record DependencyInfo(
+        String slug,
+        List<String> mirrors,
+        List<DependencyInfo.Host> hosts,
+        Mode mode,
+        ResourceClass type,
+        int loadPriority) {
+
+    @Override
+    public String toString() {
+        return "{slug: " + slug
+                + ", mirror: " + mirrors.toString()
+                + ", host: " + hosts.toString()
+                + ", mode: " + mode.toString()
+                + ", type: " + type.toString()
+                + "}";
+    }
 
     /**
-     * An ordered list of dependency slugs determining the order in which
-     * said dependencies should be loaded into the game.
-     * Populated by {@link Config}.
+     * @return The file name of the dependency when downloaded as a file.
      */
-    public static final LinkedList<String> LOAD_ORDER = new LinkedList<>();
+    public String fileName() {
+        return "modpack." + slug + ".zip";
+    }
+
+    /**
+     * @return The pack ID representing the dependency.
+     */
+    public String packId() {
+        return "file/" + fileName();
+    }
+
+    /**
+     * @return A formatted, readable string to represent the dependency.
+     */
+    public String title() {
+        final StringBuilder sb = new StringBuilder(slug.toLowerCase()
+                .replaceAll("[\\-_]", " "));
+        boolean capitalize = true;
+        for (int i = 0; i < sb.length(); i++) {
+            final char c = sb.charAt(i);
+            if (Character.isWhitespace(c)) {
+                capitalize = true;
+            } else if (capitalize) {
+                sb.setCharAt(i, Character.toUpperCase(c));
+                capitalize = false;
+            }
+        }
+        return sb.toString();
+    }
+
+    public static enum Host implements Supplier<WebHostAPI> {
+        CURSEFORGE(Curseforge.INSTANCE),
+        MODRINTH(Modrinth.INSTANCE);
+
+        public static List<Host> any() {
+            return List.of(Host.values());
+        }
+
+        private final WebHostAPI website;
+
+        private Host(final WebHostAPI website) {
+            this.website = website;
+        }
+
+        public boolean matches(final DependencyInfo target) {
+            return target.hosts().contains(this);
+        }
+
+        @Override
+        public WebHostAPI get() {
+            return website;
+        }
+    }
 
     /**
      * How this dependency should be loaded into the game.
@@ -56,64 +131,19 @@ public interface DependencyInfo {
             this.isHidden = isHidden;
         }
 
-        public boolean matches(final DownloadTarget target) {
+        public boolean matches(final DependencyInfo target) {
             return target.mode == this;
         }
     }
 
-    /**
-     * Information about a dependency download target.
-     * 
-     * @param slug    The slug to search up and download from.
-     * @param mirrors Mirror slugs for if the initial slug failed to find a match.
-     * @param hosts   The website host(s) to attempt to download from.
-     * @param mode    The way the dependency should be loaded into the game once
-     *                downloaded.
-     * @param type    Whether the dependency is a resource pack or a data pack.
-     */
-    public record DownloadTarget(
-            String slug,
-            List<String> mirrors,
-            List<DownloadTarget.Host> hosts,
-            Mode mode,
-            ResourceClass type) {
-        
-        public DownloadTarget(final DependencySettings settings) {
-            this(settings.slug, settings.mirrors, settings.hosts, settings.mode, settings.type);
+    public static enum ResourceClass {
+        RESOURCE_PACK("resourcepacks"),
+        DATA_PACK("datapacks");
+
+        private ResourceClass(final String folder) {
+            this.folder = folder;
         }
 
-        @Override
-        public String toString() {
-            return "{slug: " + slug
-                    + ", mirror: " + mirrors.toString()
-                    + ", host: " + hosts.toString()
-                    + ", mode: " + mode.toString()
-                    + ", type: " + type.toString()
-                    + "}";
-        }
-
-        public static enum Host implements Supplier<WebHostAPI> {
-            CURSEFORGE(Curseforge.INSTANCE),
-            MODRINTH(Modrinth.INSTANCE);
-        
-            public static List<Host> any() {
-                return List.of(Host.values());
-            }
-        
-            private final WebHostAPI website;
-        
-            private Host(final WebHostAPI website) {
-                this.website = website;
-            }
-        
-            public boolean matches(final DependencyInfo.DownloadTarget target) {
-                return target.hosts().contains(this);
-            }
-        
-            @Override
-            public WebHostAPI get() {
-                return website;
-            }
-        }
+        public final String folder;
     }
 }

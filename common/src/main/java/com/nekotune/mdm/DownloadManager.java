@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
-import com.nekotune.mdm.definition.DependencyInfo.DownloadTarget;
+import com.nekotune.mdm.definition.DependencyInfo;
 import com.nekotune.mdm.definition.web.WebHostAPI;
 
 public final class DownloadManager {
@@ -30,12 +30,12 @@ public final class DownloadManager {
      * A list of download targets which have been successfully downloaded
      * in the current session.
      */
-    private static final Map<String, DownloadTarget> DOWNLOADED = new HashMap<>();
+    private static final Map<String, DependencyInfo> DOWNLOADED = new HashMap<>();
 
     /**
      * @see DownloadManager#DOWNLOADED
      */
-    public static Collection<DownloadTarget> getDownloaded() {
+    public static Collection<DependencyInfo> getDownloaded() {
         return DOWNLOADED.values();
     }
 
@@ -43,7 +43,7 @@ public final class DownloadManager {
      * @return True if the dependency with the given target was downloaded
      *         in the running session, false otherwise.
      */
-    public static boolean wasDownloaded(final DownloadTarget target) {
+    public static boolean wasDownloaded(final DependencyInfo target) {
         return DOWNLOADED.containsKey(target.slug());
     }
 
@@ -56,57 +56,57 @@ public final class DownloadManager {
      * @return The scheduled worker threads bundled as a DownloadThreads object.
      * @see WebHostAPI
      */
-    public static DownloadThreads dispatch(final List<DownloadTarget> targets) {
-        final DownloadThreads threads = new DownloadThreads(targets);
-        threads.forEach(DownloadThread::start);
+    public static Download dispatch(final List<DependencyInfo> targets) {
+        final Download threads = new Download(targets);
+        threads.forEach(WorkerThread::start);
         return threads;
     }
 
-    public static final class DownloadThreads extends CountDownLatch implements Iterable<DownloadThread> {
-        private final EnumMap<DownloadTarget.Host, DownloadThread> map =
-                new EnumMap<>(DownloadTarget.Host.class);
+    public static final class Download extends CountDownLatch implements Iterable<WorkerThread> {
+        private final EnumMap<DependencyInfo.Host, WorkerThread> map =
+                new EnumMap<>(DependencyInfo.Host.class);
 
-        public DownloadThreads(final List<DownloadTarget> targets) {
-            super(DownloadTarget.Host.values().length);
-            for (DownloadTarget.Host website : DownloadTarget.Host.values()) {
+        public Download(final List<DependencyInfo> targets) {
+            super(DependencyInfo.Host.values().length);
+            for (DependencyInfo.Host website : DependencyInfo.Host.values()) {
                 assign(website, targets);
             }
         }
 
-        private DownloadThread assign(final DownloadTarget.Host host, final List<DownloadTarget> targets) {
-            return map.put(host, new DownloadThread(this,
+        private WorkerThread assign(final DependencyInfo.Host host, final List<DependencyInfo> targets) {
+            return map.put(host, new WorkerThread(this,
                     targets.stream().filter(host::matches).toList()));
         }
 
-        public Map<DownloadTarget.Host, DownloadThread> toMap() {
+        public Map<DependencyInfo.Host, WorkerThread> toMap() {
             return map;
         }
 
         @Override
-        public Iterator<DownloadThread> iterator() {
+        public Iterator<WorkerThread> iterator() {
             return map.values().iterator();
         }
     }
 
-    public static final class DownloadThread extends Thread {
+    private static final class WorkerThread extends Thread {
 
         public static final int MAX_HTTP_RETRIES = 20;
 
-        private static final Set<DownloadTarget> handled = new HashSet<>();
+        private static final Set<DependencyInfo> handled = new HashSet<>();
         private static final Semaphore sem = new Semaphore(1);
 
         private final CountDownLatch latch;
-        private final Set<DownloadTarget> targets;
+        private final Set<DependencyInfo> targets;
 
-        private DownloadThread(final CountDownLatch latch,
-                final Collection<DownloadTarget> targets) {
+        private WorkerThread(final CountDownLatch latch,
+                final Collection<DependencyInfo> targets) {
             this.latch = latch;
             this.targets = Set.copyOf(targets);
         }
 
         @Override
         public void run() {
-            for (final DownloadTarget target : targets) {
+            for (final DependencyInfo target : targets) {
 
                 // Ensure target is not already handled by another thread
                 sem.acquireUninterruptibly();
@@ -145,10 +145,10 @@ public final class DownloadManager {
             latch.countDown();
         }
 
-        private static DownloadResult tryDownload(final DownloadTarget target) {
+        private static DownloadResult tryDownload(final DependencyInfo target) {
             
             // Determine download host(s) and target slug(s)
-            final List<DownloadTarget.Host> websitesToTry = target.hosts();
+            final List<DependencyInfo.Host> websitesToTry = target.hosts();
             final List<String> slugsToTry = new ArrayList<>(target.mirrors());
             slugsToTry.addFirst(target.slug());
             

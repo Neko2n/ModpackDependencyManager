@@ -2,43 +2,43 @@ package com.nekotune.mdm;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-import com.nekotune.mdm.DownloadManager.DownloadThreads;
-import com.nekotune.mdm.definition.DependencyInfo.DownloadTarget;
+import com.nekotune.mdm.DownloadManager.Download;
+import com.nekotune.mdm.definition.DependencyInfo;
 
-public final class DownloadThread extends Thread {
+public final class DownloadTaskThread implements Runnable {
 
-    private static final DownloadThread INSTANCE = new DownloadThread();
+    private static final DownloadTaskThread INSTANCE = new DownloadTaskThread();
 
     public static volatile DownloadState state = DownloadState.NOT_STARTED;
 
-    final List<DownloadTarget> targets;
+    private final List<DependencyInfo> targets;
 
-    private DownloadThread() {
+    private DownloadTaskThread() {
 
         // Build a list of download targets, excluding those already downloaded
         this.targets = new ArrayList<>(Config.INSTANCE.dependencies.stream()
-                .map(settings -> new DownloadTarget(settings))
                 .filter(target -> !Config.INSTANCE.downloaded.contains(target.slug()))
                 .toList());
     }
 
-    public static void dispatch() {
-        INSTANCE.start();
+    public static CompletableFuture<Void> start() {
+        return CompletableFuture.runAsync(INSTANCE);
     }
 
     @Override
     public void run() {
         state = DownloadState.STARTED;
         Constants.LOG.debug("[CommonClass] [Download Thread] Thread started");
-        final DownloadThreads threads = DownloadManager.dispatch(targets);
+        final Download threads = DownloadManager.dispatch(targets);
         final long startTime = System.currentTimeMillis();
         Constants.LOG.debug("[CommonClass] [Download Thread] Downloading dependencies...");
         try {
             threads.await();
         } catch (final InterruptedException e) {
             Constants.LOG.error("[CommonClass] [Download Thread] Dependencies download FAILURE; ", e);
-            state = DownloadState.FAILED;
+            state = DownloadState.INTERRUPTED;
             Thread.currentThread().interrupt();
             return;
         }
@@ -47,7 +47,7 @@ public final class DownloadThread extends Thread {
         // Report successful download
         state = DownloadState.FINISHED;
         String report = "[CommonClass] [Download Thread] Dependencies download SUCCESS; Took " + downloadTime + " ms; Downloaded: [ ";
-        for (final DownloadTarget target : DownloadManager.getDownloaded()) {
+        for (final DependencyInfo target : DownloadManager.getDownloaded()) {
             Config.INSTANCE.downloaded.add(target.slug());
             report += target.slug() + ", ";
         }
@@ -62,6 +62,6 @@ public final class DownloadThread extends Thread {
         NOT_STARTED,
         STARTED,
         FINISHED,
-        FAILED;
+        INTERRUPTED;
     }
 }

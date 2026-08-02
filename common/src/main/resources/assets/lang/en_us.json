@@ -1,8 +1,9 @@
 {
-    "mdm.screen.config.title": "§6Modpack Dependency Settings",
-    "mdm.screen.reloadprompt.title": "§l§fModpack Dependencies Downloaded",
+    "mdm.screen.config.title": "Modpack Dependency Settings",
+    "mdm.screen.reloadprompt.title": "Modpack Dependencies Downloaded",
     "mdm.screen.reloadprompt.message": "If this is your first startup, you can ignore this message.",
-    "mdm.screen.downloaderror.title": "§l§4Error Downloading Modpack Dependencies",
+    "mdm.screen.reloadprompt.button": "Reload",
+    "mdm.screen.downloaderror.title": "Error Downloading Modpack Dependencies",
     "mdm.screen.downloaderror.message.security": "Blocked by security settings.\nPlease check your firewall and DNS configuration, and try re-launching.",
     "mdm.screen.downloaderror.message.mod-error": "Exception in Modpack Dependency Manager (mdm)",
     "mdm.screen.downloaderror.message.dependency-not-found": "Invalid dependencies could not be downloaded.\nPlease report this to the modpack author."

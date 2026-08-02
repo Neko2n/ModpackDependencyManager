@@ -13,7 +13,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Since;
 import com.nekotune.mdm.definition.DependencyInfo;
-import com.nekotune.mdm.definition.web.WebHostAPI.ResourceClass;
 
 public final class Config {
 
@@ -34,7 +33,7 @@ public final class Config {
     public boolean production = false;
 
     @Since(1.0)
-    public ArrayList<DependencySettings> dependencies = new ArrayList<>();
+    public ArrayList<DependencyInfo> dependencies = new ArrayList<>();
 
     @Since(1.0)
     public boolean hideForced = true;
@@ -47,30 +46,6 @@ public final class Config {
 
     @Since(1.0)
     public boolean promptEnabled = true;
-
-    /**
-     * @see DependencyInfo.DownloadTarget
-     */
-    public static final class DependencySettings {
-
-        @Since(1.0)
-        public String slug = "";
-
-        @Since(1.0)
-        public ArrayList<String> mirrors = new ArrayList<>();
-
-        @Since(1.0)
-        public ArrayList<DependencyInfo.DownloadTarget.Host> hosts = new ArrayList<>();
-
-        @Since(1.0)
-        public DependencyInfo.Mode mode = DependencyInfo.Mode.FORCED;
-
-        @Since(1.0)
-        public ResourceClass type = ResourceClass.RESOURCE_PACK;
-
-        @Since(1.0)
-        public int loadPriority = 0;
-    }
 
     private Config() {
     }
@@ -86,6 +61,7 @@ public final class Config {
         this.hideForced = config.hideForced;
         this.downloaded = config.downloaded;
         this.warnEnabled = config.warnEnabled;
+        this.promptEnabled = config.promptEnabled;
     }
 
     /**
@@ -144,7 +120,6 @@ public final class Config {
 
     private static void sanitize(final Config config) {
         config.downloaded = new ArrayList<>(config.downloaded.stream().distinct().toList());
-        config.dependencies.removeIf(v -> config.downloaded.contains(v.slug));
         config.dependencies = new ArrayList<>(config.dependencies.stream().distinct().toList());
     }
 }

@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import com.nekotune.mdm.Constants;
 import com.nekotune.mdm.DownloadManager.DownloadResult;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.ErrorScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -15,7 +16,8 @@ public class DownloadErrorScreen extends ErrorScreen {
 
     private static final String PATH = Constants.MOD_ID + ".screen.downloaderror";
 
-    public static final Component TITLE = Component.translatable(PATH + ".title");
+    public static final Component TITLE = Component.translatable(PATH + ".title")
+            .withStyle(ChatFormatting.RED, ChatFormatting.BOLD);
 
     private final Screen lastScreen;
     public List<String> causes = new ArrayList<>();

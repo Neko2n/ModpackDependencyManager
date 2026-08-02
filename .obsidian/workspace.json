@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "todo/Title Screen Button.md",
+                "file": "todo/done/Configuration.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Title Screen Button"
+              "title": "Configuration"
             }
           }
         ]
@@ -187,23 +187,23 @@
   },
   "active": "73d9c8ff0d76fd6d",
   "lastOpenFiles": [
-    "common/src/main/java/com/nekotune/mdm/definition/gui/DownloadErrorScreen.java",
-    "common/src/main/java/com/nekotune/mdm/definition/gui/ErrorScreen.java",
-    "common/src/main/java/com/nekotune/mdm/DownloadThread.java",
-    "todo/Config GUI.md",
-    "todo/Data Pack Loading.md",
+    "neoforge/run/logs/2026-08-02-5.log.gz",
+    "neoforge/run/resourcepacks/modpack.low-on-fire.zip",
+    "neoforge/run/resourcepacks/modpack.fresh-animations-extensions.zip",
+    "neoforge/run/resourcepacks/modpack.dramatic-skys.zip",
+    "neoforge/run/resourcepacks/modpack.fast-better-grass.zip",
+    "neoforge/run/resourcepacks/modpack.bare-bones.zip",
+    "neoforge/run/resourcepacks/modpack.fresh-animations.zip",
+    "neoforge/run/resourcepacks/modpack.fullbright-ub.zip",
+    "neoforge/run/resourcepacks",
+    "neoforge/run/logs/2026-08-02-4.log.gz",
+    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/DownloadWaitScreen.class.uniqueId4",
     "todo/Resource Pack Loading.md",
+    "todo/Config GUI.md",
     "todo/Title Screen Button.md",
-    "todo/done",
+    "todo/Data Pack Loading.md",
     "todo/done/Configuration.md",
     "todo/Download Wait Screen.md",
-    "common/src/main/java/com/nekotune/mdm/definition/gui/DownloadWaitScreen.java",
-    "common/src/main/java/com/nekotune/mdm/mixin/TitleScreenMixin.java",
-    "neoforge/run/resourcepacks/fresh-animations.zip",
-    "neoforge/run/resourcepacks",
-    "neoforge/run/logs/debug-4.log.gz",
-    "neoforge/run/logs/2026-08-01-3.log.gz",
-    "neoforge/build/tmp/compileJava/compileTransaction/stash-dir/CommonClass.class.uniqueId2",
     "README.md",
     "frontend/neoforge/build/docs/javadoc/resources/x.png",
     "frontend/neoforge/build/docs/javadoc/resources/glass.png",

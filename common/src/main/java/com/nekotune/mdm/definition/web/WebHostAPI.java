@@ -6,10 +6,12 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Optional;
 
+import com.nekotune.mdm.definition.DependencyInfo;
+
 public abstract class WebHostAPI {
 
     protected abstract APIResponse<byte[]> GET(final String slug,
-            final ResourceClass resourceClass) throws
+            final DependencyInfo.ResourceClass resourceClass) throws
                     IOException, InterruptedException,
                     SecurityException;
 
@@ -20,13 +22,13 @@ public abstract class WebHostAPI {
      * @return The downloaded file's path, or {@link Optional#empty()} if the
      *         download failed.
      */
-    public APIResponse<Path> fetch(final String slug, final ResourceClass resourceClass) throws
+    public APIResponse<Path> fetch(final String slug, final DependencyInfo.ResourceClass resourceClass) throws
             IOException, InterruptedException, SecurityException {
-        final Path destination = Path.of(resourceClass.folder, slug + ".zip");
+        final Path destination = Path.of(resourceClass.folder, "modpack." + slug + ".zip");
         return downloadTo(destination, slug, resourceClass);
     }
 
-    private APIResponse<Path> downloadTo(final Path destination, final String slug, final ResourceClass resourceClass)
+    private APIResponse<Path> downloadTo(final Path destination, final String slug, final DependencyInfo.ResourceClass resourceClass)
             throws IOException, InterruptedException, SecurityException {
 
         // Fetch the best file
@@ -48,17 +50,6 @@ public abstract class WebHostAPI {
                 StandardOpenOption.CREATE,
                 StandardOpenOption.TRUNCATE_EXISTING);
         return new APIResponse<>(200, written);
-    }
-
-    public static enum ResourceClass {
-        RESOURCE_PACK("resourcepacks"),
-        DATA_PACK("datapacks");
-
-        private ResourceClass(final String folder) {
-            this.folder = folder;
-        }
-
-        public final String folder;
     }
 
     protected static record APIResponse<T>(
