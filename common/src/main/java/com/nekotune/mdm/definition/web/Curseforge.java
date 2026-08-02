@@ -31,7 +31,7 @@ public class Curseforge extends WebHostAPI {
     private static final String FILES_URL = API_URL + "/mods/%d/files";
     private static final String DOWNLOAD_URL = FILES_URL + "/%d/download-url";
 
-    private static final String API_KEY = ""; // TODO: Add flame API key here
+    private static final String API_KEY = "$2a$10$H0H1nUTWnyquwe63X/2BsuRahDATysk9ub4kI2KgVeuUppffsGLji";
 
     private static final Map<DependencyInfo.ResourceClass, String> CONTENT_TYPE_MAP =
             new EnumMap<>(Map.of(
