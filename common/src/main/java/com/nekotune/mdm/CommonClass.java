@@ -44,6 +44,8 @@ public final class CommonClass {
     public static void gameLoadingFinished(final Minecraft mc) {
 
         final Runnable finished = () -> {
+            if (DownloadManager.getDownloaded().size() == 0)
+                return;
             
             // Show invalid dependency errors
             final Map<DownloadResult, List<String>> errors = new EnumMap<>(DownloadResult.class);
