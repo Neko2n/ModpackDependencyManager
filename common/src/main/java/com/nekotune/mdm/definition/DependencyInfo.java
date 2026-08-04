@@ -3,7 +3,9 @@ package com.nekotune.mdm.definition;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import com.nekotune.mdm.definition.web.Curseforge;
@@ -26,12 +28,46 @@ import net.minecraft.server.packs.PackType;
  * @param loadPriority Determines the order in which dependencies are loaded.
  */
 public record DependencyInfo(
+        PackType type,
         String slug,
         List<String> mirrors,
         List<DependencyInfo.Host> hosts,
         Mode mode,
-        PackType type,
         int loadPriority) {
+
+    public DependencyInfo {
+        mirrors = mirrors != null ? mirrors : List.of();
+        hosts = hosts != null ? hosts : List.of();
+        mode = mode != null ? mode : Mode.OPTIONAL_DISABLED;
+        if (slug == null && mirrors.size() > 0) {
+            slug = mirrors.removeFirst();
+        }
+    }
+
+    private static final Map<PackType, Path> folder$CACHE = new EnumMap<>(PackType.class);
+
+    /**
+     * Returns the folder which holds packs of the given pack type.
+     * 
+     * @param packType The pack type to return the folder for
+     * @return Folder directory path
+     */
+    public static Path folder(final PackType packType) {
+        return folder$CACHE.computeIfAbsent(packType, t -> {
+            final String subFolder;
+            switch (packType) {
+                case CLIENT_RESOURCES:
+                    subFolder = "resourcepacks";
+                    break;
+                case SERVER_DATA:
+                    subFolder = "datapacks";
+                    break;
+                default:
+                    throw new UnsupportedOperationException();
+            }
+            return Path.of("dependencies", subFolder);
+        });
+    }
 
     @Override
     public String toString() {
@@ -48,7 +84,7 @@ public record DependencyInfo(
      *         false otherwise.
      */
     public boolean isDownloaded() {
-        return Files.exists(this.path(), LinkOption.NOFOLLOW_LINKS);
+        return Files.exists(this.packDir(), LinkOption.NOFOLLOW_LINKS);
     }
 
     /**
@@ -67,21 +103,17 @@ public record DependencyInfo(
     }
 
     /**
-     * @return The file path this dependency exists at.
+     * @return {@link DependencyInfo#fileName} as a path.
      */
-    public Path path() {
-        final String folder;
-        switch (type) {
-            case CLIENT_RESOURCES:
-                folder = "resourcepacks";
-                break;
-            case SERVER_DATA:
-                folder = "datapacks";
-                break;
-            default:
-                throw new UnsupportedOperationException();
-        }
-        return Path.of("dependencies", folder, fileName());
+    public Path file() {
+        return Path.of(fileName());
+    }
+
+    /**
+     * @return The full pack directory path this dependency exists at.
+     */
+    public Path packDir() {
+        return folder(type).resolve(file());
     }
 
     /**
@@ -166,16 +198,5 @@ public record DependencyInfo(
         public boolean matches(final DependencyInfo target) {
             return target.mode == this;
         }
-    }
-
-    public static enum packType {
-        RESOURCE_PACK("resourcepacks"),
-        DATA_PACK("datapacks");
-
-        private packType(final String folder) {
-            this.folder = folder;
-        }
-
-        public final String folder;
     }
 }

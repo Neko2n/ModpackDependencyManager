@@ -1,7 +1,5 @@
 package com.nekotune.mdm.platform.services;
 
-import net.minecraft.server.MinecraftServer;
-
 public interface IPlatformHelper {
 
     public static enum Dist {
@@ -30,14 +28,6 @@ public interface IPlatformHelper {
      * @return True if in a development environment, false otherwise.
      */
     public abstract boolean isDevelopmentEnvironment();
-
-    /**
-     * Gets the currently running server.
-     * Make sure to only run this if dist() == Dist.SERVER
-     * 
-     * @return The current MinecraftServer instance.
-     */
-    public abstract MinecraftServer getServer();
 
     /**
      * Check which logical side the game is running on.

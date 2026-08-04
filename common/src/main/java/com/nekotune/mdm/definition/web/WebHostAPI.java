@@ -34,23 +34,24 @@ public abstract class WebHostAPI {
             // Try mirror slugs on failure
             if (response.statusCode() != 200) {
                 response = GET(mirror, target.type());
-            }
-
-            // Write file on success
-            if (response.statusCode() == 200) {
-
-                // Ensure parent directories exist
-                final Path parent = target.path().getParent();
-                if (parent != null) {
-                    Files.createDirectories(parent);
-                }
-
-                // Write the file to disk
-                Files.write(target.path(), response.body(),
-                        StandardOpenOption.CREATE,
-                        StandardOpenOption.TRUNCATE_EXISTING);
+            } else {
                 break;
             }
+        }
+
+        // Write file on success
+        if (response.statusCode() == 200) {
+            
+            // Ensure parent directories exist
+            final Path parent = target.packDir().getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+
+            // Write the file to disk
+            Files.write(target.packDir(), response.body(),
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING);
         }
         return response;
     }

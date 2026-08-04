@@ -12,14 +12,28 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
+import com.nekotune.mdm.core.Event;
 import com.nekotune.mdm.definition.DependencyInfo;
-import com.nekotune.mdm.definition.Event;
 import com.nekotune.mdm.definition.web.WebHostAPI;
 import com.nekotune.mdm.definition.web.WebHostAPI.APIResponse;
 
 public final class DownloadManager {
 
-    public static final Event onDownloadFinished = new Event();
+    private static final Event<Void> downloadFinished = new Event<>();
+    public static final Event.Hook<Void> onDownloadFinished = downloadFinished.hook;
+
+    private static volatile DownloadState state = DownloadState.NOT_STARTED;
+
+    public static enum DownloadState {
+        NOT_STARTED,
+        STARTED,
+        FINISHED,
+        INTERRUPTED;
+    }
+
+    public static DownloadState getState() {
+        return state;
+    }
 
     /**
      * A list of errors that occured during the download process.
@@ -52,20 +66,30 @@ public final class DownloadManager {
      * Dispatches worker threads to fetch the provided dependency targets.
      * Populates the {@link DownloadManager#DOWNLOADED} map.
      * 
-     * @param targets A list of dependency targets to download
-     *                from the web.
+     * @param targets A list of dependency targets to download from the web.
      * @return The scheduled worker threads bundled as a DownloadThreads object.
      * @see WebHostAPI
      */
     public static Download dispatch(final List<DependencyInfo> targets) {
         final Download threads = new Download(targets);
         threads.forEach(WorkerThread::start);
+        state = DownloadState.STARTED;
+        Thread.startVirtualThread(() -> {
+            try {
+                threads.await();
+                state = DownloadState.FINISHED;
+            } catch (final InterruptedException e) {
+                Constants.LOG.error(e.toString());
+                state = DownloadState.INTERRUPTED;
+            }
+            downloadFinished.controller.post(null);
+            downloadFinished.controller.clear();
+        });
         return threads;
     }
 
     public static final class Download extends CountDownLatch implements Iterable<WorkerThread> {
-        private final EnumMap<DependencyInfo.Host, WorkerThread> map =
-                new EnumMap<>(DependencyInfo.Host.class);
+        private final EnumMap<DependencyInfo.Host, WorkerThread> map = new EnumMap<>(DependencyInfo.Host.class);
 
         public Download(final List<DependencyInfo> targets) {
             super(DependencyInfo.Host.values().length);
@@ -131,19 +155,24 @@ public final class DownloadManager {
                 }
                 switch (result) {
                     case SUCCESS:
-                        Constants.LOG.debug("[DownloadManager] [Working Thread " + this.threadId() + "] Download SUCCESS for target " + target.toString());
+                        Constants.LOG.debug("[DownloadManager] [Working Thread " + this.threadId()
+                                + "] Download SUCCESS for target " + target.toString());
                         DOWNLOADED.put(target.slug(), target);
                         break;
                     case NOT_FOUND:
-                        Constants.LOG.warn("[DownloadManager] [Working Thread " + this.threadId() + "] Download FAILURE; No files found for target " + target.toString() + "; Report this to the modpack author");
+                        Constants.LOG.warn("[DownloadManager] [Working Thread " + this.threadId()
+                                + "] Download FAILURE; No files found for target " + target.toString()
+                                + "; Report this to the modpack author");
                         DOWNLOAD_ERRORS.put(target.slug(), result);
                         break;
                     case SECURITY_BLOCKED:
-                        Constants.LOG.warn("[DownloadManager] [Working Thread " + this.threadId() + "] Download FAILURE; Downloads blocked by security permissions; Check your firewall settings");
+                        Constants.LOG.warn("[DownloadManager] [Working Thread " + this.threadId()
+                                + "] Download FAILURE; Downloads blocked by security permissions; Check your firewall settings");
                         DOWNLOAD_ERRORS.put(target.slug(), result);
                         break;
                     case EXCEPTION:
-                        Constants.LOG.error("[DownloadManager] [Working Thread " + this.threadId() + "] Download FAILURE; An exception occured");
+                        Constants.LOG.error("[DownloadManager] [Working Thread " + this.threadId()
+                                + "] Download FAILURE; An exception occured");
                         DOWNLOAD_ERRORS.put(target.slug(), result);
                         break;
                 }
@@ -172,10 +201,12 @@ public final class DownloadManager {
                 if (response.statusCode() == 200) {
                     return DownloadResult.SUCCESS;
                 }
-                
+
                 // Report that there was no file at the given slugs
                 if (response.statusCode() == 404) {
-                    Constants.LOG.warn("[DownloadManager#tryDownload] Download failed; HTTP 404; No files found for dependency " + target.toString());
+                    Constants.LOG.warn(
+                            "[DownloadManager#tryDownload] Download failed; HTTP 404; No files found for dependency "
+                                    + target.toString());
                     return DownloadResult.NOT_FOUND;
                 }
             }

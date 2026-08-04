@@ -1,7 +1,6 @@
 package com.nekotune.mdm.definition;
 
-import java.io.FileNotFoundException;
-import java.nio.file.Path;
+import java.io.IOException;
 import java.util.Optional;
 
 import com.nekotune.mdm.Config;
@@ -25,7 +24,7 @@ public class DependencyPack extends Pack {
      * Custom source type for modpack-loaded dependency packs.
      * Has a unique badge and color.
      */
-    public static final PackSource SOURCE = PackSource.create((final Component component) -> {
+    public static final PackSource PACK_SOURCE = PackSource.create((final Component component) -> {
         return Component.translatable("mdm.meta.pack-source",
                 component, Component.literal("modpack"))
                 .withStyle(ChatFormatting.BOLD)
@@ -46,17 +45,17 @@ public class DependencyPack extends Pack {
      * 
      * @param info The information about the dependency to build the pack for.
      * @return The newly created DependencyPack object.
-     * @throws FileNotFoundException If the pack's file was invalid or missing.
+     * @throws IOException If the pack's file metadata could not be read.
      */
-    public static DependencyPack from(final DependencyInfo info) throws FileNotFoundException {
+    public static DependencyPack from(final DependencyInfo info) throws IOException {
         final var location = new PackLocationInfo(info.packId(),
-                Component.literal(info.fileName()), SOURCE,
+                Component.literal(info.fileName()), PACK_SOURCE,
                 Optional.empty());
-        final var supplier = new PathPackResources.PathResourcesSupplier(Path.of(info.fileName()));
+        final var supplier = new PathPackResources.PathResourcesSupplier(info.file());
         final int version = SharedConstants.getCurrentVersion().getPackVersion(info.type());
         final Metadata meta = Pack.readPackMetadata(location, supplier, version);
         if (meta == null) {
-            throw new FileNotFoundException(null);
+            throw new IOException("File metadata could not be read for dependency " + info.toString());
         }
         final boolean required = info.mode() == DependencyInfo.Mode.FORCED;
         final Position pos = required ? Position.BOTTOM : Position.TOP;

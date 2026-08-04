@@ -1,13 +1,17 @@
 package com.nekotune.mdm;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.nekotune.mdm.DownloadManager.Download;
 import com.nekotune.mdm.definition.DependencyInfo;
 import com.nekotune.mdm.platform.Services;
 import com.nekotune.mdm.platform.services.IPlatformHelper;
+import com.nekotune.mdm.platform.services.IPlatformHelper.Dist;
+import com.nekotune.mdm.server.ServerCommonClass;
 
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.PackRepository;
@@ -15,28 +19,80 @@ import net.minecraft.server.packs.repository.PackRepository;
 public final class CommonClass {
 
     public static void init() {
-        // Load configuration settings from file
-        Config.INSTANCE.load();
-
-        // Enable OPTIONAL_ENABLED server packs by default
-        DownloadManager.onDownloadFinished.connect(() -> {
-            Constants.LOG.debug("[CommonClass] onDownloadFinished called");
-            final IPlatformHelper platform = Services.PLATFORM.get();
-            final PackRepository repo = platform.getServer().getPackRepository();
-            repo.reload();
-            final List<DependencyInfo> optionalEnabled = Config.INSTANCE.dependencies.stream()
-                    .filter(dependency -> dependency.mode() == DependencyInfo.Mode.OPTIONAL_ENABLED
-                            && dependency.type() == PackType.SERVER_DATA)
-                    .toList();
-            final Set<String> selectedPacks = new LinkedHashSet<>(repo.getSelectedIds());
-            selectedPacks.addAll(optionalEnabled.stream()
-                    .sorted(Comparator.comparingInt(v -> v.loadPriority()))
-                    .map(DependencyInfo::packId)
-                    .toList());
-            repo.setSelected(selectedPacks);
-        });
+        final IPlatformHelper platform = Services.PLATFORM.get();
+        if (platform.dist() == Dist.SERVER) {
+            ServerCommonClass.init();
+        }
 
         // Download dependencies
-        DownloadTaskThread.start();
+        (new DownloadTaskThread()).start();
+    }
+
+    /**
+     * Utility method to automatically enable downloaded dependency packs marked as
+     * OPTIONAL_ENABLED
+     * 
+     * @param repo The pack repository to enable the packs within
+     * @param type The type of packs in the repository
+     */
+    public static void enableDownloadedOptionals(final PackRepository repo, final PackType type) {
+        repo.reload();
+        final List<DependencyInfo> optionalEnabled = DownloadManager.getDownloaded().stream()
+                .filter(dependency -> dependency.mode() == DependencyInfo.Mode.OPTIONAL_ENABLED
+                        && dependency.type() == type)
+                .toList();
+        final Set<String> selectedPacks = new LinkedHashSet<>(repo.getSelectedIds());
+        selectedPacks.addAll(optionalEnabled.stream()
+                .sorted(Comparator.comparingInt(v -> v.loadPriority()))
+                .map(DependencyInfo::packId)
+                .toList());
+        repo.setSelected(selectedPacks);
+    }
+
+    /**
+     * Task thread to handle downloading dependencies separately from the main
+     * thread.
+     * 
+     * @see DownloadManager
+     */
+    public static final class DownloadTaskThread extends Thread {
+
+        private final List<DependencyInfo> targets;
+
+        private DownloadTaskThread() {
+
+            // Build a list of download targets, excluding those already downloaded
+            this.targets = new ArrayList<>(Config.INSTANCE.dependencies.stream()
+                    .filter(target -> !target.isDownloaded())
+                    .toList());
+        }
+
+        @Override
+        public void run() {
+            Constants.LOG.debug("[CommonClass] [Download Thread] Thread started");
+            final Download threads = DownloadManager.dispatch(targets);
+            final long startTime = System.currentTimeMillis();
+            Constants.LOG.debug("[CommonClass] [Download Thread] Downloading dependencies...");
+            try {
+                threads.await();
+            } catch (final InterruptedException e) {
+                Constants.LOG.error("[CommonClass] [Download Thread] Dependencies download FAILURE; ", e);
+                Thread.currentThread().interrupt();
+                return;
+            }
+            final long downloadTime = System.currentTimeMillis() - startTime;
+
+            // Report successful download
+            String report = "[CommonClass] [Download Thread] Dependencies download SUCCESS; Took " + downloadTime
+                    + " ms; Downloaded: [ ";
+            for (final DependencyInfo target : DownloadManager.getDownloaded()) {
+                report += target.slug() + ", ";
+            }
+            report = (report + "]").replace(", ]", " ]");
+            Constants.LOG.debug(report);
+
+            // Save state to config file
+            Config.INSTANCE.save();
+        }
     }
 }

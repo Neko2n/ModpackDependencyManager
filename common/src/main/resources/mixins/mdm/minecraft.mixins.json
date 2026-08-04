@@ -5,12 +5,11 @@
   "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "PackMixin",
-    "PackRepositoryMixin"
+    "shared.BuiltInPackSourceAccessor",
+    "shared.PackRepositoryMixin"
   ],
   "client": [
-    "PackSelectionModelMixin",
-    "TitleScreenMixin"
+    "client.PackSelectionModelMixin"
   ],
   "server": [],
   "injectors": {

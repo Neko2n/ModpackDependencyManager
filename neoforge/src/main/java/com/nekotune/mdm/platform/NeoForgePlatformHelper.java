@@ -2,11 +2,9 @@ package com.nekotune.mdm.platform;
 
 import com.nekotune.mdm.platform.services.IPlatformHelper;
 
-import net.minecraft.server.MinecraftServer;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLLoader;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 public class NeoForgePlatformHelper implements IPlatformHelper {
 
@@ -35,10 +33,5 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
             default:
                 throw new UnsupportedOperationException();
         }
-    }
-
-    @Override
-    public MinecraftServer getServer() {
-        return ServerLifecycleHooks.getCurrentServer();
     }
 }

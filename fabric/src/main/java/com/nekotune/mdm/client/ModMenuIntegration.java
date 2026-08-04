@@ -1,11 +1,14 @@
-package com.nekotune.mdm;
+package com.nekotune.mdm.client;
 
 import com.nekotune.mdm.client.gui.ConfigScreen;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screens.Screen;
 
+@Environment(value = EnvType.CLIENT)
 public class ModMenuIntegration implements ModMenuApi {
 
     @Override

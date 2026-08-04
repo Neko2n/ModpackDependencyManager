@@ -1,4 +1,4 @@
-package com.nekotune.mdm.mixin.minecraft;
+package com.nekotune.mdm.mixin.minecraft.client;
 
 import java.util.Collection;
 
@@ -17,7 +17,7 @@ import net.minecraft.server.packs.repository.PackRepository;
 @Mixin(PackSelectionModel.class)
 public abstract class PackSelectionModelMixin {
 
-    // Hide hidden packs
+    // Hide hidden packs 
     @Redirect(method = "findNewPacks", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/packs/repository/PackRepository;getAvailablePacks()Ljava/util/Collection;"))
     private Collection<Pack> mdm$getVisiblePacks(final PackRepository repository) {
         return repository.getAvailablePacks().stream()

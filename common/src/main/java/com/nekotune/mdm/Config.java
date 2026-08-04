@@ -22,12 +22,12 @@ public final class Config {
     public static final Path FILE_PATH = Path.of("config",
             "dependencies." + Constants.MOD_ID + ".json");
 
-    public static final Config INSTANCE = new Config();
-
     private static final Gson GSON = new GsonBuilder()
             .setVersion(1.0)
             .setPrettyPrinting()
             .create();
+
+    public static final Config INSTANCE = fromExisting().orElse(new Config());
 
     @Since(1.0)
     public boolean production = false;
@@ -51,19 +51,6 @@ public final class Config {
     }
 
     /**
-     * Loads existing settings from the configuration file,
-     * if it exists.
-     */
-    public void load() {
-        final Config config = fromExisting().orElse(new Config());
-        this.production = config.production;
-        this.dependencies = config.dependencies;
-        this.hideForced = config.hideForced;
-        this.warnEnabled = config.warnEnabled;
-        this.promptEnabled = config.promptEnabled;
-    }
-
-    /**
      * Saves the current settings to the configuration file.
      */
     public void save() {
@@ -81,8 +68,7 @@ public final class Config {
     }
 
     private static Optional<Config> fromExisting() {
-        if (!(Files.exists(FILE_PATH, LinkOption.NOFOLLOW_LINKS)
-                && Files.isReadable(FILE_PATH))) {
+        if (!(Files.exists(FILE_PATH) && Files.isReadable(FILE_PATH))) {
             Constants.LOG.debug("[Config] No config file found at "
                     + FILE_PATH.toString()
                     + "; Using default settings");
@@ -118,6 +104,13 @@ public final class Config {
     }
 
     private static void sanitize(final Config config) {
-        config.dependencies = new ArrayList<>(config.dependencies.stream().distinct().toList());
+        config.dependencies = new ArrayList<>(config.dependencies.stream()
+                .distinct()
+                .filter((final DependencyInfo dependency) -> {
+                    if (dependency.type() == null || dependency.slug() == null) {
+                        return false;
+                    }
+                    return true;
+                }).toList());
     }
 }
