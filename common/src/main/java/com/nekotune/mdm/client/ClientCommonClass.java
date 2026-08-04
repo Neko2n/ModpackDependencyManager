@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
-import java.util.function.BiConsumer;
-
 import com.nekotune.mdm.Config;
 import com.nekotune.mdm.Constants;
 import com.nekotune.mdm.DownloadManager;
@@ -19,11 +17,10 @@ import com.nekotune.mdm.client.gui.DownloadErrorScreen;
 import com.nekotune.mdm.client.gui.DownloadWaitScreen;
 import com.nekotune.mdm.client.gui.ReloadPromptScreen;
 import com.nekotune.mdm.definition.DependencyInfo;
-import com.nekotune.mdm.definition.DependencyInfo.ResourceClass;
 import com.nekotune.mdm.mixin.minecraft.TitleScreenMixin;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.PackRepository;
 
 public class ClientCommonClass {
@@ -46,27 +43,19 @@ public class ClientCommonClass {
 
             lock.release();
 
-            // Enable OPTIONAL_ENABLED packs by default
-            final BiConsumer<ResourceClass, PackRepository> enableOptionals = (resourceType, repo) -> {
-                repo.reload();
-                final List<DependencyInfo> optionalEnabled = Config.INSTANCE.dependencies.stream()
-                        .filter(dependency -> dependency.mode() == DependencyInfo.Mode.OPTIONAL_ENABLED
-                                && dependency.type() == resourceType)
-                        .toList();
-                final Set<String> selectedPacks = new LinkedHashSet<>(repo.getSelectedIds());
-                selectedPacks.addAll(optionalEnabled.stream()
-                        .sorted(Comparator.comparingInt(v -> v.loadPriority()))
-                        .map(DependencyInfo::packId)
-                        .toList());
-                repo.setSelected(selectedPacks);
-            };
-            enableOptionals.accept(ResourceClass.RESOURCE_PACK,
-                    mc.getResourcePackRepository());
-            final IntegratedServer server = mc.getSingleplayerServer();
-            if (server != null) {
-                enableOptionals.accept(ResourceClass.DATA_PACK,
-                        server.getPackRepository());
-            }
+            // Enable OPTIONAL_ENABLED client packs by default
+            final PackRepository repo = mc.getResourcePackRepository();
+            repo.reload();
+            final List<DependencyInfo> optionalEnabled = Config.INSTANCE.dependencies.stream()
+                    .filter(dependency -> dependency.mode() == DependencyInfo.Mode.OPTIONAL_ENABLED
+                            && dependency.type() == PackType.CLIENT_RESOURCES)
+                    .toList();
+            final Set<String> selectedPacks = new LinkedHashSet<>(repo.getSelectedIds());
+            selectedPacks.addAll(optionalEnabled.stream()
+                    .sorted(Comparator.comparingInt(v -> v.loadPriority()))
+                    .map(DependencyInfo::packId)
+                    .toList());
+            repo.setSelected(selectedPacks);
         });
     }
     
@@ -118,8 +107,8 @@ public class ClientCommonClass {
             // If the download thread was interrupted,
             // show the internal error screen.
             case INTERRUPTED:
-                Constants.LOG.debug("[CommonClass] Setting screen to DownloadError IO_FAILURE");
-                mc.setScreen(new DownloadErrorScreen(mc.screen, DownloadResult.IO_FAILURE));
+                Constants.LOG.debug("[CommonClass] Setting screen to DownloadError EXCEPTION");
+                mc.setScreen(new DownloadErrorScreen(mc.screen, DownloadResult.EXCEPTION));
                 break;
 
             default:

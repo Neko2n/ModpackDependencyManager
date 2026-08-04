@@ -8,13 +8,15 @@ import java.util.Optional;
 
 import com.nekotune.mdm.definition.DependencyInfo;
 
+import net.minecraft.server.packs.PackType;
+
 public abstract class WebHostAPI {
 
     protected abstract APIResponse<byte[]> GET(final String slug,
-            final DependencyInfo.ResourceClass resourceClass) throws
+            final PackType packType) throws
                     IOException, InterruptedException,
                     SecurityException;
-
+         
     /**
      * Downloads a resource pack from this website.
      * 
@@ -22,37 +24,38 @@ public abstract class WebHostAPI {
      * @return The downloaded file's path, or {@link Optional#empty()} if the
      *         download failed.
      */
-    public APIResponse<Path> fetch(final String slug, final DependencyInfo.ResourceClass resourceClass) throws
-            IOException, InterruptedException, SecurityException {
-        final Path destination = Path.of(resourceClass.folder, "modpack." + slug + ".zip");
-        return downloadTo(destination, slug, resourceClass);
-    }
-
-    private APIResponse<Path> downloadTo(final Path destination, final String slug, final DependencyInfo.ResourceClass resourceClass)
+    public APIResponse<byte[]> download(final DependencyInfo target)
             throws IOException, InterruptedException, SecurityException {
 
-        // Fetch the best file
-        final APIResponse<byte[]> response = GET(slug, resourceClass);
+        // Send an http GET request for the best file
+        APIResponse<byte[]> response = GET(target.slug(), target.type());
+        for (final String mirror : target.mirrors()) {
 
-        // Validate response
-        if (response.statusCode() != 200) {
-            return new APIResponse<>(response.statusCode(), null);
+            // Try mirror slugs on failure
+            if (response.statusCode() != 200) {
+                response = GET(mirror, target.type());
+            }
+
+            // Write file on success
+            if (response.statusCode() == 200) {
+
+                // Ensure parent directories exist
+                final Path parent = target.path().getParent();
+                if (parent != null) {
+                    Files.createDirectories(parent);
+                }
+
+                // Write the file to disk
+                Files.write(target.path(), response.body(),
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.TRUNCATE_EXISTING);
+                break;
+            }
         }
-
-        // Ensure parent directories exist
-        final Path parent = destination.getParent();
-        if (parent != null) {
-            Files.createDirectories(parent);
-        }
-
-        // Write the file to disk
-        final Path written = Files.write(destination, response.body(),
-                StandardOpenOption.CREATE,
-                StandardOpenOption.TRUNCATE_EXISTING);
-        return new APIResponse<>(200, written);
+        return response;
     }
 
-    protected static record APIResponse<T>(
+    public static record APIResponse<T>(
             int statusCode,
             T body) {
     }

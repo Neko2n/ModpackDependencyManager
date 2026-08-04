@@ -10,6 +10,8 @@ import com.nekotune.mdm.definition.web.Curseforge;
 import com.nekotune.mdm.definition.web.Modrinth;
 import com.nekotune.mdm.definition.web.WebHostAPI;
 
+import net.minecraft.server.packs.PackType;
+
 /**
  * Information about a downloaded dependency.
  * 
@@ -28,7 +30,7 @@ public record DependencyInfo(
         List<String> mirrors,
         List<DependencyInfo.Host> hosts,
         Mode mode,
-        ResourceClass type,
+        PackType type,
         int loadPriority) {
 
     @Override
@@ -46,22 +48,40 @@ public record DependencyInfo(
      *         false otherwise.
      */
     public boolean isDownloaded() {
-        final Path path = Path.of(this.type.folder, this.fileName());
-        return Files.exists(path, LinkOption.NOFOLLOW_LINKS);
+        return Files.exists(this.path(), LinkOption.NOFOLLOW_LINKS);
     }
 
     /**
      * @return The file name of the dependency when downloaded as a file.
      */
     public String fileName() {
-        return "modpack." + slug + ".zip";
+        return slug + ".zip";
     }
 
     /**
      * @return The pack ID representing the dependency.
+     * @see DependencyPack
      */
     public String packId() {
-        return "file/" + fileName();
+        return "modpack/" + fileName();
+    }
+
+    /**
+     * @return The file path this dependency exists at.
+     */
+    public Path path() {
+        final String folder;
+        switch (type) {
+            case CLIENT_RESOURCES:
+                folder = "resourcepacks";
+                break;
+            case SERVER_DATA:
+                folder = "datapacks";
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
+        return Path.of("dependencies", folder, fileName());
     }
 
     /**
@@ -148,11 +168,11 @@ public record DependencyInfo(
         }
     }
 
-    public static enum ResourceClass {
+    public static enum packType {
         RESOURCE_PACK("resourcepacks"),
         DATA_PACK("datapacks");
 
-        private ResourceClass(final String folder) {
+        private packType(final String folder) {
             this.folder = folder;
         }
 

@@ -17,7 +17,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.nekotune.mdm.Constants;
-import com.nekotune.mdm.definition.DependencyInfo;
+
+import net.minecraft.server.packs.PackType;
 
 public class Curseforge extends WebHostAPI {
 
@@ -33,18 +34,18 @@ public class Curseforge extends WebHostAPI {
 
     private static final String API_KEY = "$2a$10$H0H1nUTWnyquwe63X/2BsuRahDATysk9ub4kI2KgVeuUppffsGLji";
 
-    private static final Map<DependencyInfo.ResourceClass, String> CONTENT_TYPE_MAP =
+    private static final Map<PackType, String> CONTENT_TYPE_MAP =
             new EnumMap<>(Map.of(
-                    DependencyInfo.ResourceClass.RESOURCE_PACK, "Resource Packs",
-                    DependencyInfo.ResourceClass.DATA_PACK, "Data Packs"
+                    PackType.CLIENT_RESOURCES, "Resource Packs",
+                    PackType.SERVER_DATA, "Data Packs"
             ));
-    private static final Map<DependencyInfo.ResourceClass, Integer> CLASS_ID_CACHE =
-            new EnumMap<>(DependencyInfo.ResourceClass.class);
+    private static final Map<PackType, Integer> CLASS_ID_CACHE =
+            new EnumMap<>(PackType.class);
 
     @Override
-    public APIResponse<byte[]> GET(final String slug, final DependencyInfo.ResourceClass resourceClass) throws
+    public APIResponse<byte[]> GET(final String slug, final PackType packType) throws
                     IOException, InterruptedException {
-        final APIResponse<String> fileUrl = resolveFileURL(slug, Constants.MC_VERSIONS, resourceClass);
+        final APIResponse<String> fileUrl = resolveFileURL(slug, Constants.MC_VERSIONS, packType);
         if (fileUrl.body().isEmpty()) {
             return new APIResponse<>(404, new byte[0]);
         }
@@ -66,11 +67,11 @@ public class Curseforge extends WebHostAPI {
     }
 
     private APIResponse<String> resolveFileURL(final String slug,
-            final String[] targetGameVersions, final DependencyInfo.ResourceClass resourceClass) throws
+            final String[] targetGameVersions, final PackType packType) throws
                     IOException, InterruptedException {
 
         // Fetch a list of files for the given mod slug
-        final APIResponse<Integer> assetIdResponse = resolveAssetId(slug, resourceClass);
+        final APIResponse<Integer> assetIdResponse = resolveAssetId(slug, packType);
         if (assetIdResponse.statusCode() != 200) {
             return new APIResponse<>(404, "");
         }
@@ -140,10 +141,10 @@ public class Curseforge extends WebHostAPI {
     /**
      * Query the API for the ID associated with the given resource class.
      */
-    private APIResponse<Integer> resolveClassId(final DependencyInfo.ResourceClass resourceClass)
+    private APIResponse<Integer> resolveClassId(final PackType packType)
             throws IOException, InterruptedException {
-        if (CLASS_ID_CACHE.containsKey(resourceClass)) {
-            return new APIResponse<>(200, CLASS_ID_CACHE.get(resourceClass));
+        if (CLASS_ID_CACHE.containsKey(packType)) {
+            return new APIResponse<>(200, CLASS_ID_CACHE.get(packType));
         }
         final APIResponse<String> response = fetchString(CATEGORIES_URL);
         if (response.statusCode() != 200) {
@@ -153,11 +154,11 @@ public class Curseforge extends WebHostAPI {
                 .getAsJsonObject().getAsJsonArray("data");
         for (final JsonElement element : classes) {
             final JsonObject clazz = element.getAsJsonObject();
-            if (CONTENT_TYPE_MAP.get(resourceClass)
+            if (CONTENT_TYPE_MAP.get(packType)
                     .equalsIgnoreCase(clazz.get("name")
                     .getAsString())) {
                 final int id = clazz.get("id").getAsInt();
-                CLASS_ID_CACHE.put(resourceClass, id);
+                CLASS_ID_CACHE.put(packType, id);
                 return new APIResponse<>(200, id);
             }
         }
@@ -167,9 +168,9 @@ public class Curseforge extends WebHostAPI {
     /**
      * Query the API for the asset ID associated with the given slug.
      */
-    private APIResponse<Integer> resolveAssetId(final String slug, final DependencyInfo.ResourceClass resourceClass)
+    private APIResponse<Integer> resolveAssetId(final String slug, final PackType packType)
             throws IOException, InterruptedException, FileNotFoundException {
-        final APIResponse<Integer> classIdResponse = resolveClassId(resourceClass);
+        final APIResponse<Integer> classIdResponse = resolveClassId(packType);
         if (classIdResponse.statusCode() != 200) {
             return new APIResponse<>(404, -1);
         }

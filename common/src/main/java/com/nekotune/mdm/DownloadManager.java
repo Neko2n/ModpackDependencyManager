@@ -1,9 +1,6 @@
 package com.nekotune.mdm;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.HttpRetryException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -18,6 +15,7 @@ import java.util.concurrent.Semaphore;
 import com.nekotune.mdm.definition.DependencyInfo;
 import com.nekotune.mdm.definition.Event;
 import com.nekotune.mdm.definition.web.WebHostAPI;
+import com.nekotune.mdm.definition.web.WebHostAPI.APIResponse;
 
 public final class DownloadManager {
 
@@ -93,8 +91,6 @@ public final class DownloadManager {
 
     private static final class WorkerThread extends Thread {
 
-        public static final int MAX_HTTP_RETRIES = 20;
-
         private static final Set<DependencyInfo> handled = new HashSet<>();
         private static final Semaphore sem = new Semaphore(1);
 
@@ -105,6 +101,10 @@ public final class DownloadManager {
                 final Collection<DependencyInfo> targets) {
             this.latch = latch;
             this.targets = Set.copyOf(targets);
+        }
+
+        private void exit() {
+            latch.countDown();
         }
 
         @Override
@@ -121,7 +121,14 @@ public final class DownloadManager {
                 sem.release();
 
                 // Download dependency target
-                final DownloadResult result = tryDownload(target);
+                final DownloadResult result;
+                try {
+                    result = tryDownload(target);
+                } catch (final InterruptedException e) {
+                    exit();
+                    this.interrupt();
+                    return;
+                }
                 switch (result) {
                     case SUCCESS:
                         Constants.LOG.debug("[DownloadManager] [Working Thread " + this.threadId() + "] Download SUCCESS for target " + target.toString());
@@ -135,80 +142,52 @@ public final class DownloadManager {
                         Constants.LOG.warn("[DownloadManager] [Working Thread " + this.threadId() + "] Download FAILURE; Downloads blocked by security permissions; Check your firewall settings");
                         DOWNLOAD_ERRORS.put(target.slug(), result);
                         break;
-                    case OUT_OF_RETRIES:
-                        Constants.LOG.error("[DownloadManager] [Working Thread " + this.threadId() + "] Download FAILURE; Ran out of HTTP request attempts for target " + target.toString() + "; Report this to the issue tracker");
-                        DOWNLOAD_ERRORS.put(target.slug(), result);
-                        break;
-                    case IO_FAILURE:
-                        Constants.LOG.error("[DownloadManager] [Working Thread " + this.threadId() + "] Download FAILURE; IO failure while trying to write file; These things happen");
+                    case EXCEPTION:
+                        Constants.LOG.error("[DownloadManager] [Working Thread " + this.threadId() + "] Download FAILURE; An exception occured");
                         DOWNLOAD_ERRORS.put(target.slug(), result);
                         break;
                 }
             }
-            latch.countDown();
+            exit();
         }
 
-        private static DownloadResult tryDownload(final DependencyInfo target) {
-            
-            // Determine download host(s) and target slug(s)
-            final List<DependencyInfo.Host> websitesToTry = target.hosts();
-            final List<String> slugsToTry = new ArrayList<>(target.mirrors());
-            slugsToTry.addFirst(target.slug());
-            
-            // Set up tracking variables
-            int slugsTried = 0;
-            int websitesTried = 0;
-            int httpRetries = 0;
+        private static DownloadResult tryDownload(final DependencyInfo target)
+                throws InterruptedException {
 
-            // Attempt to download file from all slugs and websites
-            while (true) {
-                final String slug = slugsToTry.get(slugsTried);
-                final WebHostAPI website = websitesToTry.get(websitesTried).get();
+            // Attempt to download file from all websites
+            for (final DependencyInfo.Host host : target.hosts()) {
+                final APIResponse<byte[]> response;
 
                 try {
-                    website.fetch(slug, target.type());
-                    return DownloadResult.SUCCESS;
-                } catch (final FileNotFoundException e) {
-                    httpRetries = 0;
-                    slugsTried++;
-
-                    // If all slugs have been tried for this host,
-                    // try other hosts.
-                    if (slugsTried == slugsToTry.size()) {
-                        slugsTried = 0;
-                        websitesTried++;
-
-                        // If all hosts have been tried, return NOT_FOUND
-                        if (websitesTried == websitesToTry.size()) {
-                            return DownloadResult.NOT_FOUND;
-                        }
-                    }
-                    continue;
-
-                } catch (final HttpRetryException e) {
-                    // Attempt to retry when prompted
-                    httpRetries++;
-                    if (httpRetries >= MAX_HTTP_RETRIES) {
-                        return DownloadResult.OUT_OF_RETRIES;
-                    }
-                    continue;
-
+                    response = host.get().download(target);
+                } catch (final SecurityException e) {
+                    Constants.LOG.error("[DownloadManager#tryDownload] " + e.toString());
+                    return DownloadResult.SECURITY_BLOCKED;
                 } catch (final IOException e) {
                     Constants.LOG.error("[DownloadManager#tryDownload] " + e.toString());
-                    return DownloadResult.IO_FAILURE;
+                    return DownloadResult.EXCEPTION;
+                }
 
-                } catch (final InterruptedException e) {
-                    Thread.currentThread().interrupt();
+                // Report a successful download
+                if (response.statusCode() == 200) {
+                    return DownloadResult.SUCCESS;
+                }
+                
+                // Report that there was no file at the given slugs
+                if (response.statusCode() == 404) {
+                    Constants.LOG.warn("[DownloadManager#tryDownload] Download failed; HTTP 404; No files found for dependency " + target.toString());
+                    return DownloadResult.NOT_FOUND;
                 }
             }
+
+            return DownloadResult.EXCEPTION;
         }
     }
 
     public static enum DownloadResult {
         SUCCESS,
         NOT_FOUND,
-        OUT_OF_RETRIES,
-        IO_FAILURE,
+        EXCEPTION,
         SECURITY_BLOCKED;
     }
 }

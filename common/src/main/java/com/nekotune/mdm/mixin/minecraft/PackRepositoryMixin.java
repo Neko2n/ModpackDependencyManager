@@ -4,48 +4,48 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.nekotune.mdm.Constants;
-import com.nekotune.mdm.definition.DependencyInfo;
-import com.nekotune.mdm.mixin.PackInfoAccessor;
+import com.nekotune.mdm.definition.DependencyPack;
 
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.repository.PackSource;
 
+/**
+ * Modify pack repositories to automatically enforce modpack
+ * dependency loading order.
+ */
 @Mixin(PackRepository.class)
 public class PackRepositoryMixin {
 
     @Inject(method = "rebuildSelected", at = @At("RETURN"), cancellable = true)
-    private void mdm$reorderPacks(final Collection<String> ids,
+    private void mdm$injectDependencies(final Collection<String> ids,
             final CallbackInfoReturnable<List<Pack>> cir) {
         Constants.LOG.debug("[PackRepositoryMixin] Ordering packs: " + ids.toString());
         final List<Pack> packs = cir.getReturnValue();
-        cir.setReturnValue(applyPriorityOrder(packs));
+        cir.setReturnValue(injectDependencies(packs));
     }
 
-    private static List<Pack> applyPriorityOrder(final List<Pack> packs) {
+    private static List<Pack> injectDependencies(final List<Pack> packs) {
 
-        // Separate out all packs which were downloaded as dependencies
-        final List<Pack> forcedPacks = new ArrayList<>();
-        final List<Pack> supportPacks = new ArrayList<>();
+        // Sort dependency packs
+        final List<DependencyPack> forcedPacks = new ArrayList<>();
+        final List<DependencyPack> supportPacks = new ArrayList<>();
         int n = 0;
         for (final Pack pack : packs) {
-            final Optional<DependencyInfo.Mode> mode = PackInfoAccessor.getMode(pack);
-            if (mode.isPresent()) {
+            if (pack instanceof final DependencyPack dependency) {
                 n++;
-                switch (mode.orElseThrow()) {
+                switch (dependency.info.mode()) {
                     case FORCED:
-                        forcedPacks.add(pack);
+                        forcedPacks.add(dependency);
                         break;
                     case SUPPORT:
-                        supportPacks.add(pack);
+                        supportPacks.add(dependency);
                         break;
                     default:
                         break;
@@ -61,26 +61,27 @@ public class PackRepositoryMixin {
         result.removeAll(supportPacks);
 
         // Sort forced packs by priority
-        final Comparator<Pack> comparator = Comparator.comparingInt((final Pack pack) ->
-                PackInfoAccessor.getLoadPriority(pack).orElseThrow());
-        forcedPacks.sort(comparator);
+        forcedPacks.sort(Comparator.comparingInt(
+                (final DependencyPack pack) -> pack.info.loadPriority()));
 
         // Remove and re-insert forced packs after built-in packs
         result.removeAll(forcedPacks);
         int i = 0;
         while (i < result.size()) {
-            Pack candidate = result.get(i);
+            final Pack candidate = result.get(i);
             if (candidate.getPackSource() == PackSource.BUILT_IN
                     || (candidate.isRequired() && candidate.getPackSource() == PackSource.DEFAULT)) {
                 i++;
-                Constants.LOG.debug("[PackRepositoryMixin] Forced dependency insert shifted after pack \"" + candidate.getId() + "\" to position " + i);
+                Constants.LOG.debug("[PackRepositoryMixin] Forced dependency insert shifted after pack \""
+                        + candidate.getId() + "\" to position " + i);
             } else {
                 break;
             }
         }
         result.addAll(i, forcedPacks);
-        Constants.LOG.debug("[PackRepositoryMixin] Inserted " + forcedPacks.size() + " forced dependency packs at position " + i);
-        
+        Constants.LOG.debug(
+                "[PackRepositoryMixin] Inserted " + forcedPacks.size() + " forced dependency packs at position " + i);
+
         return result;
     }
 }

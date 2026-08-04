@@ -44,6 +44,9 @@ public final class Config {
     @Since(1.0)
     public boolean promptEnabled = true;
 
+    @Since(1.0)
+    public boolean disableCompatibilityWarnings = false;
+
     private Config() {
     }
 
