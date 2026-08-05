@@ -7,7 +7,7 @@ public interface PlatformEvents {
     /**
      * Event that should be fired once the client reaches the title screen.
      */
-    public static final Event<Void> CLIENT_LOADED = new Event<>();
+    public static final Event.Flag<Void> CLIENT_LOADED = new Event.Flag<>();
 
     /**
      * Event that should be fired whenever a MinecraftServer is created.
