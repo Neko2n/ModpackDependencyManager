@@ -29,14 +29,7 @@ public class DownloadErrorScreen extends ErrorScreen {
 
     public DownloadErrorScreen(final Screen lastScreen, final DownloadResult errorType) {
         this(lastScreen, () -> {
-            switch (errorType) {
-                case NOT_FOUND:
-                    return "dependency-not-found";
-                case SECURITY_BLOCKED:
-                    return "security";
-                default:
-                    return "mod-error";
-            }
+            return errorType.toString().toLowerCase().replace('_', '-');
         });
     }
 

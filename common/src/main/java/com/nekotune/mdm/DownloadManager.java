@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeoutException;
 
 import com.nekotune.mdm.core.Event;
 import com.nekotune.mdm.definition.DependencyInfo;
@@ -170,6 +171,11 @@ public final class DownloadManager {
                                 + "] Download FAILURE; Downloads blocked by security permissions; Check your firewall settings");
                         DOWNLOAD_ERRORS.put(target.slug(), result);
                         break;
+                    case TIMEOUT:
+                        Constants.LOG.warn("[DownloadManager] [Working Thread " + this.threadId()
+                                + "] Download FAILURE; Connection timed out");
+                        DOWNLOAD_ERRORS.put(target.slug(), result);
+                        break;
                     case EXCEPTION:
                         Constants.LOG.error("[DownloadManager] [Working Thread " + this.threadId()
                                 + "] Download FAILURE; An exception occured");
@@ -192,6 +198,9 @@ public final class DownloadManager {
                 } catch (final SecurityException e) {
                     Constants.LOG.error("[DownloadManager#tryDownload] " + e.toString());
                     return DownloadResult.SECURITY_BLOCKED;
+                } catch (final TimeoutException e) {
+                    Constants.LOG.error("[DownloadManager#tryDownload] " + e.toString());
+                    return DownloadResult.TIMEOUT;
                 } catch (final IOException e) {
                     Constants.LOG.error("[DownloadManager#tryDownload] " + e.toString());
                     return DownloadResult.EXCEPTION;
@@ -219,6 +228,7 @@ public final class DownloadManager {
         SUCCESS,
         NOT_FOUND,
         EXCEPTION,
+        TIMEOUT,
         SECURITY_BLOCKED;
     }
 }
