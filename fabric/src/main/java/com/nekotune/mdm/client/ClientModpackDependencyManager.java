@@ -15,7 +15,7 @@ public class ClientModpackDependencyManager implements ClientModInitializer {
     public void onInitializeClient() {
         ClientCommonClass.init();
 
-        ScreenEvents.BEFORE_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
+        ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
             if (screen instanceof TitleScreen) {
                 PlatformEvents.CLIENT_LOADED.controller.post(null);
             }

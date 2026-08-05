@@ -44,8 +44,8 @@ public class ModpackDependencyManager {
     }
 
     @SubscribeEvent
-    public static void onScreenOpening(final ScreenEvent.Opening event) {
-        if (event.getNewScreen() instanceof TitleScreen) {
+    public static void onScreenInitPost(final ScreenEvent.Init.Post event) {
+        if (event.getScreen() instanceof TitleScreen) {
             PlatformEvents.CLIENT_LOADED.controller.post(null);
         }
     }
