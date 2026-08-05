@@ -1,0 +1,154 @@
+{
+  "production": false,
+  "dependencies": [
+    {
+      "type": "CLIENT_RESOURCES",
+      "slug": "fresh-animations",
+      "mirrors": [],
+      "hosts": [
+        "MODRINTH"
+      ],
+      "mode": "OPTIONAL_ENABLED",
+      "loadPriority": 2
+    },
+    {
+      "type": "CLIENT_RESOURCES",
+      "slug": "big-invalid-slug-foxtrot-lyre",
+      "mirrors": [
+        "chat-reporting-helper"
+      ],
+      "hosts": [
+        "MODRINTH"
+      ],
+      "mode": "OPTIONAL_ENABLED",
+      "loadPriority": 1
+    },
+    {
+      "type": "CLIENT_RESOURCES",
+      "slug": "better-leaves",
+      "mirrors": [],
+      "hosts": [
+        "MODRINTH"
+      ],
+      "mode": "OPTIONAL_ENABLED",
+      "loadPriority": 3
+    },
+    {
+      "type": "CLIENT_RESOURCES",
+      "slug": "fast-better-grass",
+      "mirrors": [],
+      "hosts": [
+        "MODRINTH"
+      ],
+      "mode": "OPTIONAL_DISABLED",
+      "loadPriority": 0
+    },
+    {
+      "type": "CLIENT_RESOURCES",
+      "slug": "fancy-crops",
+      "mirrors": [],
+      "hosts": [
+        "MODRINTH"
+      ],
+      "mode": "FORCED",
+      "loadPriority": 1
+    },
+    {
+      "type": "CLIENT_RESOURCES",
+      "slug": "low-fire-pack",
+      "mirrors": [],
+      "hosts": [
+        "MODRINTH"
+      ],
+      "mode": "FORCED",
+      "loadPriority": 3
+    },
+    {
+      "type": "CLIENT_RESOURCES",
+      "slug": "mandalas-gui-dark-mode",
+      "mirrors": [],
+      "hosts": [
+        "MODRINTH"
+      ],
+      "mode": "FORCED",
+      "loadPriority": 2
+    },
+    {
+      "type": "CLIENT_RESOURCES",
+      "slug": "tras-fresh-player",
+      "mirrors": [],
+      "hosts": [
+        "MODRINTH"
+      ],
+      "mode": "SUPPORT",
+      "loadPriority": 0
+    },
+    {
+      "type": "SERVER_DATA",
+      "slug": "veinminer",
+      "mirrors": [],
+      "hosts": [
+        "MODRINTH"
+      ],
+      "mode": "FORCED",
+      "loadPriority": 0
+    },
+    {
+      "type": "SERVER_DATA",
+      "slug": "dungeons-and-taverns",
+      "mirrors": [],
+      "hosts": [
+        "MODRINTH"
+      ],
+      "mode": "OPTIONAL_ENABLED",
+      "loadPriority": 0
+    },
+    {
+      "type": "SERVER_DATA",
+      "slug": "towns-and-towers",
+      "mirrors": [],
+      "hosts": [
+        "MODRINTH"
+      ],
+      "mode": "OPTIONAL_DISABLED",
+      "loadPriority": 0
+    },
+    {
+      "type": "CLIENT_RESOURCES",
+      "slug": "big-invalid-slug-scuba-hamsteak",
+      "mirrors": [],
+      "hosts": [
+        "MODRINTH"
+      ],
+      "mode": "FORCED",
+      "loadPriority": 4
+    },
+    {
+      "type": "SERVER_DATA",
+      "slug": "big-invalid-slug-karate-freezer",
+      "mirrors": [
+        "big-invalid-slug-crab-reeling",
+        "big-invalid-slug-solder-pool"
+      ],
+      "hosts": [
+        "MODRINTH"
+      ],
+      "mode": "SUPPORT",
+      "loadPriority": 2
+    },
+    {
+      "type": "SERVER_DATA",
+      "slug": "%%&@*(#&*))&*#^%&(*&.'][-+--__=?532jk/23r",
+      "mirrors": [],
+      "hosts": [
+        "MODRINTH"
+      ],
+      "mode": "FORCED",
+      "loadPriority": 0
+    }
+  ],
+  "hideForced": false,
+  "warnEnabled": true,
+  "promptEnabled": true,
+  "disableCompatibilityWarnings": false
+}

@@ -16,13 +16,13 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "com.nekotune.mdm.ModpackDependencyManager"
+            "dev.nekotune.mdm.ModpackDependencyManager"
         ],
         "client": [
-            "com.nekotune.mdm.ClientModpackDependencyManager"
+            "dev.nekotune.mdm.ClientModpackDependencyManager"
         ],
         "modmenu": [
-            "com.nekotune.mdm.ModMenuIntegration"
+            "dev.nekotune.mdm.ModMenuIntegration"
         ]
     },
     "mixins": [
