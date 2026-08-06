@@ -1,8 +1,7 @@
 package dev.nekotune.mdm.definition.web.api;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpRequest;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,128 +30,132 @@ public interface ModrinthAPI extends WebAPI {
                         + " (https://github.com/Neko2n/ModpackDependencyManager)"
         };
 
-        public static APIResponse<Path> download(final String fileUrl, final Path downloadTo)
-                throws IOException, InterruptedException, SecurityException {
-            return WebAPI.download(HttpRequest.newBuilder()
-                    .uri(URI.create(fileUrl))
-                    .headers(HEADERS)
-                    .GET()
-                    .build(), downloadTo);
+        public static interface GET {
+
+            public static APIResponse<Versions> versions(final String slug)
+                    throws IOException, InterruptedException, SecurityException {
+                final String url = ModrinthAPI.VERSIONS_URL.formatted(slug);
+                final APIResponse<String> response = WebAPI.request(url, ModrinthAPI.Endpoints.HEADERS,
+                        BodyHandlers.ofString());
+                if (response.statusCode() != 200)
+                    return new APIResponse<>(response.statusCode(), null);
+                return new APIResponse<>(200, GSON.fromJson(response.body(), Versions.class));
+            }
+
+            public static APIResponse<Path> download(final String fileUrl, final Path downloadTo)
+                    throws IOException, InterruptedException, SecurityException {
+                return WebAPI.download(fileUrl, Endpoints.HEADERS, downloadTo);
+            }
         }
 
     }
 
-    public static class ModrinthAPI$versions extends HashSet<ModrinthAPI$version> {
+    public static class Versions extends HashSet<Version> {}
 
-        public static ModrinthAPI$versions fromJson(final String json) {
-            return GSON.fromJson(json, ModrinthAPI$versions.class);
-        }
-    }
-
-    public static record ModrinthAPI$version(
+    public static record Version(
             String name,
             String version_number,
-            Set<ModrinthAPI$dependency> dependencies,
+            Set<Dependency> dependencies,
             Set<String> game_versions,
-            ModrinthAPI$version_type version_type,
-            Set<ModrinthAPI$loader> loaders,
+            Version.VersionType version_type,
+            Set<Version.Loader> loaders,
             boolean featured,
-            ModrinthAPI$status status,
-            ModrinthAPI$requested_status requested_status,
+            Version.Status status,
+            Version.RequestedStatus requested_status,
             String id,
             String project_id,
             String author_id,
             String date_published,
             int downloads,
             String changelog_url,
-            Set<ModrinthAPI$file> files) {
+            Set<File> files) {
 
-        public ModrinthAPI$version {
+        public static enum RequestedStatus {
+            listed,
+            archived,
+            draft,
+            unlisted;
+        }
+
+        public static enum Status {
+            listed,
+            archived,
+            draft,
+            unlisted,
+            scheduled,
+            unknown;
+        }
+
+        public static enum VersionType {
+            release,
+            beta,
+            alpha;
+        }
+
+        public static enum Loader {
+            datapack,
+            minecraft,
+            fabric,
+            forge,
+            neoforge,
+            quilt;
+        }
+
+        public Version {
             loaders = new HashSet<>(loaders.stream().filter(v -> v != null).toList());
         }
     }
 
-    public static record ModrinthAPI$dependency(
+    public static record Dependency(
             String version_id,
             String project_id,
             String file_name,
-            ModrinthAPI$dependency_type dependency_type) {
+            Dependency.DependencyType dependency_type) {
+
+        public static enum DependencyType {
+            required,
+            optional,
+            incompatible,
+            embedded;
+        }
     }
 
-    public static record ModrinthAPI$file(
-            ModrinthAPI$file$hashes hashes,
+    public static record File(
+            File.Hashes hashes,
             String url,
             String filename,
             boolean primary,
             int size,
-            ModrinthAPI$file$file_type file_type) {
+            File.FileType file_type) {
 
-        public ModrinthAPI$file {
-            file_type = file_type != null ? file_type : ModrinthAPI$file$file_type.unknown;
+        public static enum FileType {
+        
+            @SerializedName("required-resource-pack")
+            required_resource_pack,
+        
+            @SerializedName("optional-resource-pack")
+            optional_resource_pack,
+        
+            @SerializedName("sources-jar")
+            sources_jar,
+        
+            @SerializedName("dev-jar")
+            dev_jar,
+        
+            @SerializedName("javadoc-jar")
+            javadoc_jar,
+        
+            unknown,
+            signature;
         }
-    }
 
-    public static record ModrinthAPI$file$hashes(
-            String sha512,
-            String sha1) {
-    }
+        public File {
+            file_type = file_type != null ? file_type : File.FileType.unknown;
+        }
 
-    public static enum ModrinthAPI$file$file_type {
-
-        @SerializedName("required-resource-pack")
-        required_resource_pack,
-
-        @SerializedName("optional-resource-pack")
-        optional_resource_pack,
-
-        @SerializedName("sources-jar")
-        sources_jar,
-
-        @SerializedName("dev-jar")
-        dev_jar,
-
-        @SerializedName("javadoc-jar")
-        javadoc_jar,
-
-        unknown,
-        signature;
-    }
-
-    public static enum ModrinthAPI$loader {
-        datapack,
-        minecraft,
-        fabric,
-        forge,
-        neoforge,
-        quilt;
-    }
-
-    public static enum ModrinthAPI$version_type {
-        release,
-        beta,
-        alpha;
-    }
-
-    public static enum ModrinthAPI$status {
-        listed,
-        archived,
-        draft,
-        unlisted,
-        scheduled,
-        unknown;
-    }
-
-    public static enum ModrinthAPI$requested_status {
-        listed,
-        archived,
-        draft,
-        unlisted;
-    }
-
-    public static enum ModrinthAPI$dependency_type {
-        required,
-        optional,
-        incompatible,
-        embedded;
+        public static record Hashes(
+                String sha512,
+                String sha1) {
+        }
     }
 }

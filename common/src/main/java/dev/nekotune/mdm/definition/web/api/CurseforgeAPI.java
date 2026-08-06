@@ -1,9 +1,6 @@
 package dev.nekotune.mdm.definition.web.api;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Path;
 import java.util.EnumMap;
@@ -52,10 +49,8 @@ public interface CurseforgeAPI extends WebAPI {
 
                 public static APIResponse<SearchResponse> search(final String slug)
                         throws IOException, InterruptedException, SecurityException {
-                    final HttpResponse<String> response = WebAPI.HTTP_CLIENT.send(HttpRequest.newBuilder()
-                            .uri(URI.create(Urls.SEARCH_BY_SLUG.formatted(slug)))
-                            .headers(Endpoints.HEADERS)
-                            .build(), BodyHandlers.ofString());
+                    final String url = Urls.SEARCH_BY_SLUG.formatted(slug);
+                    final APIResponse<String> response = WebAPI.request(url, HEADERS, BodyHandlers.ofString());
                     if (response.statusCode() != 200) {
                         return new APIResponse<>(response.statusCode(), null);
                     }
@@ -65,11 +60,7 @@ public interface CurseforgeAPI extends WebAPI {
 
                 public static APIResponse<Path> download(final String fileUrl, final Path downloadTo)
                         throws IOException, InterruptedException, SecurityException {
-                    return WebAPI.download(HttpRequest.newBuilder()
-                            .uri(URI.create(fileUrl))
-                            .headers(HEADERS)
-                            .GET()
-                            .build(), downloadTo);
+                    return WebAPI.download(fileUrl, HEADERS, downloadTo);
                 }
             }
         }
