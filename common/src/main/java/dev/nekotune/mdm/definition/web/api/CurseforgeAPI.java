@@ -6,7 +6,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +13,6 @@ import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import dev.nekotune.mdm.Constants;
 import dev.nekotune.mdm.definition.web.api.CurseforgeAPI.Responses.GET.mods.SearchResponse;
 import net.minecraft.server.packs.PackType;
 
@@ -31,22 +29,14 @@ public interface CurseforgeAPI extends WebAPI {
             PackType.SERVER_DATA, 6945));
     public static final Gson GSON = new GsonBuilder().create();
 
+    // Just a tracking key, this isn't sensitive information
     public static final String API_KEY = "$2a$10$H0H1nUTWnyquwe63X/2BsuRahDATysk9ub4kI2KgVeuUppffsGLji";
-
-    // private static final Map<PackType, String> CONTENT_TYPE_MAP = new
-    // EnumMap<>(Map.of(
-    // PackType.CLIENT_RESOURCES, "Resource Packs",
-    // PackType.SERVER_DATA, "Data Packs"));
-    // private static final Map<PackType, Integer> CLASS_ID_CACHE = new
-    // EnumMap<>(PackType.class);
 
     public static interface Urls {
         public static final String API = "https://api.curseforge.com/v1";
-        public static final String CATEGORIES = API + "/categories?gameId=" + MINECRAFT_GAME_ID
-                + "&classesOnly=true";
         public static final String SEARCH_BY_SLUG = API + "/mods/search?gameId=" + MINECRAFT_GAME_ID + "&slug=%s";
-        public static final String FILES = API + "/mods/%d/files";
-        public static final String DOWNLOAD = FILES + "/%d/download-url";
+        // public static final String FILES = API + "/mods/%d/files";
+        // public static final String DOWNLOAD = FILES + "/%d/download-url";
     }
 
     public static interface Endpoints {
@@ -70,14 +60,11 @@ public interface CurseforgeAPI extends WebAPI {
                         return new APIResponse<>(response.statusCode(), null);
                     }
                     final SearchResponse searchResponse = GSON.fromJson(response.body(), SearchResponse.class);
-                    Constants.LOG
-                            .debug("[MARKER] Search response: " + Arrays.deepToString(searchResponse.data.toArray()));
                     return new APIResponse<>(200, searchResponse);
                 }
 
-                public static APIResponse<Path> download(final int modId, final int fileId, final Path downloadTo)
+                public static APIResponse<Path> download(final String fileUrl, final Path downloadTo)
                         throws IOException, InterruptedException, SecurityException {
-                    final String fileUrl = Urls.DOWNLOAD.formatted(modId, fileId);
                     return WebAPI.download(HttpRequest.newBuilder()
                             .uri(URI.create(fileUrl))
                             .headers(HEADERS)
@@ -91,6 +78,10 @@ public interface CurseforgeAPI extends WebAPI {
     public static interface Responses {
         public static interface GET {
             public static interface mods {
+
+                public static record DataResponse(
+                        String data) {
+                }
 
                 public static record SearchResponse(
                         List<Mod> data) {

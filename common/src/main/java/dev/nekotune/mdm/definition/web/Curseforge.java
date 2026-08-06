@@ -15,14 +15,14 @@ public class Curseforge extends WebHost {
     @Override
     public APIResponse<Path> GET(final String slug, final PackType packType, final Path downloadTo)
             throws IOException, InterruptedException, SecurityException {
-        final APIResponse<ModFileIdPair> fileId = resolveFileId(slug, packType);
-        if (fileId.statusCode() != 200) {
-            return new APIResponse<>(fileId.statusCode(), null);
+        final var file = resolveFileId(slug, packType);
+        if (file.statusCode() != 200) {
+            return new APIResponse<>(file.statusCode(), null);
         }
-        return Endpoints.GET.mods.download(fileId.body().modId, fileId.body().fileId, downloadTo);
+        return Endpoints.GET.mods.download(file.body().downloadUrl(), downloadTo);
     }
 
-    private APIResponse<ModFileIdPair> resolveFileId(final String slug, final PackType packType)
+    private APIResponse<Responses.GET.mods.File> resolveFileId(final String slug, final PackType packType)
             throws IOException, InterruptedException, SecurityException {
 
         // Get the mod project data
@@ -61,15 +61,14 @@ public class Curseforge extends WebHost {
                     return false;
                 }).toList();
         if (!matchesGameVersion.isEmpty()) {
-            return new APIResponse<>(200, new ModFileIdPair(mod.id(), matchesGameVersion.getFirst().id()));
+            return new APIResponse<>(200, matchesGameVersion.getFirst());
         }
 
-        // Fallback: return primary version
-        return new APIResponse<>(200, new ModFileIdPair(mod.id(), mod.mainFileId()));
-    }
-
-    private static record ModFileIdPair(
-            int modId,
-            int fileId) {
+        // Fallback: return main file
+        for (final var file : files) {
+            if (file.id() == mod.mainFileId())
+                return new APIResponse<>(200, file);
+        }
+        return new APIResponse<>(200, files.getFirst());
     }
 }

@@ -27,7 +27,8 @@ public interface ModrinthAPI extends WebAPI {
     public static interface Endpoints {
 
         public static final String[] HEADERS = new String[] {
-                "User-Agent", "dev.nekotune." + Constants.MOD_ID + " (nekotune2n@gmail.com)"
+                "User-Agent", "dev.nekotune." + Constants.MOD_ID
+                        + " (https://github.com/Neko2n/ModpackDependencyManager)"
         };
 
         public static APIResponse<Path> download(final String fileUrl, final Path downloadTo)
