@@ -1,6 +1,7 @@
 package dev.nekotune.mdm;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -16,7 +17,7 @@ import java.util.concurrent.TimeoutException;
 import dev.nekotune.mdm.core.Event;
 import dev.nekotune.mdm.definition.DependencyInfo;
 import dev.nekotune.mdm.definition.web.WebHost;
-import dev.nekotune.mdm.definition.web.WebHost.APIResponse;
+import dev.nekotune.mdm.definition.web.api.WebAPI.APIResponse;
 
 public final class DownloadManager {
 
@@ -191,18 +192,17 @@ public final class DownloadManager {
 
             // Attempt to download file from all websites
             for (final DependencyInfo.Host host : target.hosts()) {
-                final APIResponse<byte[]> response;
-
+                final APIResponse<Path> response;
                 try {
                     response = host.get().download(target);
                 } catch (final SecurityException e) {
-                    Constants.LOG.error("[DownloadManager$tryDownload] " + e.toString());
+                    Constants.LOG.error("[DownloadManager$tryDownload] An exception occured", e);
                     return DownloadResult.SECURITY_BLOCKED;
                 } catch (final TimeoutException e) {
-                    Constants.LOG.error("[DownloadManager$tryDownload] " + e.toString());
+                    Constants.LOG.error("[DownloadManager$tryDownload] An exception occured", e);
                     return DownloadResult.TIMED_OUT;
                 } catch (final IOException e) {
-                    Constants.LOG.error("[DownloadManager$tryDownload] " + e.toString());
+                    Constants.LOG.error("[DownloadManager$tryDownload] An exception occured", e);
                     return DownloadResult.EXCEPTION;
                 }
 

@@ -4,15 +4,15 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-
 import dev.nekotune.mdm.Constants;
 import dev.nekotune.mdm.definition.web.api.ModrinthAPI;
 import dev.nekotune.mdm.definition.web.api.ModrinthAPI.*;
-
+import dev.nekotune.mdm.definition.web.api.WebAPI;
+import dev.nekotune.mdm.definition.web.api.WebAPI.APIResponse;
 import net.minecraft.server.packs.PackType;
 
 public final class Modrinth extends WebHost {
@@ -23,28 +23,15 @@ public final class Modrinth extends WebHost {
     }
 
     @Override
-    protected APIResponse<byte[]> GET(final String slug,
-            final PackType packType) throws IOException, InterruptedException,
+    protected APIResponse<Path> GET(final String slug,
+            final PackType packType, final Path downloadTo) throws IOException, InterruptedException,
             SecurityException {
         final APIResponse<String> fileUrl = resolveFileURL(slug, packType);
         Constants.LOG.debug("[WebFetch$Modrinth] Queried file URL, got " + fileUrl.statusCode() + ": " + fileUrl.body());
         if (fileUrl.statusCode() != 200) {
-            return new APIResponse<>(fileUrl.statusCode(), new byte[] {});
+            return new APIResponse<>(fileUrl.statusCode(), null);
         }
-        final HttpResponse<byte[]> response = Constants.HTTP_CLIENT.send(
-                HttpRequest.newBuilder()
-                        .uri(URI.create(fileUrl.body()))
-                        .headers(requestHeaders().entrySet().stream()
-                                .flatMap(e -> Arrays.asList(e.getKey(), e.getValue()).stream())
-                                .toArray(String[]::new))
-                        .build(),
-                HttpResponse.BodyHandlers.ofByteArray());
-        Constants.LOG.debug("[WebFetch$Modrinth] Queried for file, got " + response.statusCode());
-        return new APIResponse<>(response.statusCode(), response.body());
-    }
-
-    private Map<String, String> requestHeaders() {
-        return Map.of("User-Agent", "dev.nekotune." + Constants.MOD_ID + " (nekotune2n@gmail.com)");
+        return ModrinthAPI.Endpoints.download(fileUrl.body(), downloadTo);
     }
 
     private APIResponse<String> resolveFileURL(final String slug, final PackType packType)
@@ -141,7 +128,7 @@ public final class Modrinth extends WebHost {
 
     private HttpResponse<String> fetchString(final String url)
             throws IOException, InterruptedException, SecurityException {
-        final HttpResponse<String> response = Constants.HTTP_CLIENT.send(
+        final HttpResponse<String> response = WebAPI.HTTP_CLIENT.send(
                 HttpRequest.newBuilder().uri(URI.create(url)).build(),
                 HttpResponse.BodyHandlers.ofString());
         return response;

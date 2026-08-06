@@ -1,5 +1,9 @@
 package dev.nekotune.mdm.definition.web.api;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpRequest;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -7,14 +11,38 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 
-public class ModrinthAPI {
+import dev.nekotune.mdm.Constants;
+
+/**
+ * A portion of the Modrinth developer API translated into Java.
+ * This does not contain the full Modrinth API; it only contains what's needed
+ * for the mod to work.
+ */
+public interface ModrinthAPI extends WebAPI {
 
     public static final String VERSIONS_URL = "https://api.modrinth.com/v2/project/%s/version";
-    
-    private static final Gson GSON = new GsonBuilder().create();
+
+    public static final Gson GSON = new GsonBuilder().create();
+
+    public static interface Endpoints {
+
+        public static final String[] HEADERS = new String[] {
+                "User-Agent", "dev.nekotune." + Constants.MOD_ID + " (nekotune2n@gmail.com)"
+        };
+
+        public static APIResponse<Path> download(final String fileUrl, final Path downloadTo)
+                throws IOException, InterruptedException, SecurityException {
+            return WebAPI.download(HttpRequest.newBuilder()
+                    .uri(URI.create(fileUrl))
+                    .headers(HEADERS)
+                    .GET()
+                    .build(), downloadTo);
+        }
+
+    }
 
     public static class ModrinthAPI$versions extends HashSet<ModrinthAPI$version> {
-        
+
         public static ModrinthAPI$versions fromJson(final String json) {
             return GSON.fromJson(json, ModrinthAPI$versions.class);
         }
@@ -37,7 +65,7 @@ public class ModrinthAPI {
             int downloads,
             String changelog_url,
             Set<ModrinthAPI$file> files) {
-        
+
         public ModrinthAPI$version {
             loaders = new HashSet<>(loaders.stream().filter(v -> v != null).toList());
         }
@@ -57,7 +85,7 @@ public class ModrinthAPI {
             boolean primary,
             int size,
             ModrinthAPI$file$file_type file_type) {
-        
+
         public ModrinthAPI$file {
             file_type = file_type != null ? file_type : ModrinthAPI$file$file_type.unknown;
         }
@@ -72,10 +100,10 @@ public class ModrinthAPI {
 
         @SerializedName("required-resource-pack")
         required_resource_pack,
-        
+
         @SerializedName("optional-resource-pack")
         optional_resource_pack,
-        
+
         @SerializedName("sources-jar")
         sources_jar,
 
@@ -84,7 +112,7 @@ public class ModrinthAPI {
 
         @SerializedName("javadoc-jar")
         javadoc_jar,
-        
+
         unknown,
         signature;
     }
