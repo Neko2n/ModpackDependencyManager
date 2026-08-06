@@ -11,8 +11,6 @@ public class Constants {
 	public static final String MOD_NAME = "Modpack Dependency Manager";
 	public static final Logger LOG = LoggerFactory.getLogger(MOD_NAME);
 
-	public static final int TOKEN_COLOR = 0xFFF5AA42;
-
 	/**
 	 * The versions of Minecraft that this mod can run on.
 	 */

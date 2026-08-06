@@ -7,7 +7,5 @@
     "mdm.screen.downloaderror.message.security-blocked": "Blocked by security settings.\nPlease check your firewall and DNS configuration, and try re-launching.",
     "mdm.screen.downloaderror.message.timed-out": "Timed out while downloading modpack resources.\nResources will be downloaded on your next launch.",
     "mdm.screen.downloaderror.message.exception": "Exception in Modpack Dependency Manager (mdm)\nThis should never happen.",
-    "mdm.screen.downloaderror.message.not-found": "Invalid dependencies could not be downloaded.\nPlease report this to the modpack author.",
-    
-    "mdm.meta.pack-source": "MODPACK"
+    "mdm.screen.downloaderror.message.not-found": "Invalid dependencies could not be downloaded.\nPlease report this to the modpack author."
 }

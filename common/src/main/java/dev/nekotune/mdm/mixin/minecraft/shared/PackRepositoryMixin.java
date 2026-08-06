@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -13,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import dev.nekotune.mdm.Constants;
 import dev.nekotune.mdm.definition.DependencyPack;
+import dev.nekotune.mdm.definition.DependencyPack.ModpackResources;
 import dev.nekotune.mdm.definition.DependencyPackSource;
 
 import net.minecraft.server.packs.PackType;
@@ -45,7 +47,7 @@ public class PackRepositoryMixin {
     }
 
     /**
-     * Automatically enforce pack order of FORCED packs
+     * Automatically enforce pack order of dependency packs
      */
     @Inject(method = "rebuildSelected", at = @At("RETURN"), cancellable = true)
     private void mdm$reorderDependencies(final Collection<String> ids,
@@ -57,11 +59,16 @@ public class PackRepositoryMixin {
     private static List<Pack> reorderDependencies(final List<Pack> packs) {
 
         // Sort dependency packs into lists
+        final List<DependencyPack> modpackResources = new ArrayList<>();
         final List<DependencyPack> forced = new ArrayList<>();
         final List<DependencyPack> support = new ArrayList<>();
         for (final Pack pack : packs) {
             if (!(pack instanceof final DependencyPack dependency))
                 continue;
+            if (pack instanceof final ModpackResources resources) {
+                modpackResources.add(resources);
+                continue;
+            }
             switch (dependency.info.mode()) {
                 case FORCED:
                     forced.add(dependency);
@@ -82,6 +89,9 @@ public class PackRepositoryMixin {
         forced.sort(Comparator.comparingInt(
                 (final DependencyPack pack) -> pack.info.loadPriority()));
 
+        // Modpack resources load after forced dependencies
+        forced.addAll(modpackResources);
+
         // Remove and re-insert forced packs after built-in packs
         result.removeAll(forced);
         int i = 0;
@@ -99,7 +109,7 @@ public class PackRepositoryMixin {
         result.addAll(i, forced);
         Constants.LOG.debug("[PackRepositoryMixin] Inserted " + forced.size()
                 + " forced dependency packs at position " + i);
-
+        
         return result;
     }
 }

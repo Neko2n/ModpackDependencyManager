@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import dev.nekotune.mdm.Config;
 import dev.nekotune.mdm.definition.DependencyInfo;
 import dev.nekotune.mdm.definition.DependencyPack;
-
+import dev.nekotune.mdm.definition.DependencyPack.ModpackResources;
 import net.minecraft.client.gui.screens.packs.PackSelectionModel;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
@@ -26,6 +26,10 @@ public abstract class PackSelectionModelMixin {
     }
 
     private static boolean isVisible(final PackRepository repository, final Pack pack) {
+
+        // Hide modpack resources
+        if (pack instanceof ModpackResources)
+            return false;
 
         // Hide hidden dependency packs depending on configuration settings
         if (pack instanceof final DependencyPack dependency) {

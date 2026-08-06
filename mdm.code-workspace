@@ -21,16 +21,20 @@
             "textMateRules": [
                 {
                     "scope": [
+                        "source.json punctuation.definition",
+                        "source.json constant.language",
                         "storage.type.primitive.java",
-                        "entity.name.type.enum.java",
-                        "constant.numeric",
-                        "constant.language.java",
-                        "keyword.control.java",
-                        "storage.modifier.java",
-                        "storage.type.function.arrow.java",
-                        "punctuation.definition.annotation-arguments",
+                        "source.java entity.name.type.enum",
+                        "source.java constant.numeric",
+                        "source.java constant.language",
+                        "source.java keyword.control",
+                        "source.java storage.modifier",
+                        "source.java storage.type.function.arrow",
+                        "source.java punctuation.definition.annotation-arguments",
                         "storage.type.annotation.java",
-                        "punctuation.definition.annotation.java"
+                        "source.java punctuation.definition.annotation",
+                        "source.java storage.modifier.package",
+                        "source.java keyword.operator.assignment"
                     ],
                     "settings": {
                         "fontStyle": "bold"
@@ -38,46 +42,54 @@
                 },
                 {
                     "scope": [
-                        "keyword.control.java",
-                        "storage.modifier.java"
+                        "source.java keyword.other",
+                        "source.java keyword.control",
+                        "source.java storage.modifier",
+                        "source.java storage.type.function.arrow"
                     ],
                     "settings": {
                         "foreground": "#e06c75"
                     }
                 },
                 {
-                    "scope": "keyword.control.throw.java",
+                    "scope": [
+                        "keyword.control.throw.java",
+                        "source.java meta.throwables storage.modifier",
+                        "source.java constant.language.null.java"
+                    ],
                     "settings": {
-                        "foreground": "#e06c75"
+                        "foreground": "#CC5030",
+                        "fontStyle": "bold"
                     }
                 },
                 {
-                    "scope": "keyword.control.new.java",
+                    "scope": [
+                        "source.java keyword.control.new"
+                    ],
                     "settings": {
                         "foreground": "#C586C0"
                     }
                 },
                 {
                     "scope": [
-                        "entity.name.type.class.java",
-                        "entity.name.type.interface.java"
+                        "source.java entity.name.type.class",
+                        "source.java entity.name.type.interface"
                     ],
                     "settings": {
                         "foreground": "#9eb8d7"
                     }
                 },
                 {
-                    "scope": "entity.name.function.java",
+                    "scope": "source.java entity.name.function",
                     "settings": {
                         "foreground": "#61AFEF"
                     }
                 },
                 {
                     "scope": [
-                        "punctuation.separator",
-                        "punctuation.bracket",
-                        "keyword.control.ternary",
-                        "variable.parameter.java"
+                        "source.java punctuation.separator",
+                        "source.java punctuation.bracket",
+                        "source.java variable.parameter"
                     ],
                     "settings": {
                         "foreground": "#bcbcbc"
@@ -85,9 +97,9 @@
                 },
                 {
                     "scope": [
-                        "punctuation.definition.annotation-arguments",
+                        "source.java punctuation.definition.annotation-arguments",
                         "storage.type.annotation.java",
-                        "punctuation.definition.annotation.java"
+                        "source.java punctuation.definition.annotation"
                     ],
                     "settings": {
                         "foreground": "#eacc6a"
@@ -95,10 +107,10 @@
                 },
                 {
                     "scope": [
-                        "constant.numeric",
+                        "source.java constant.numeric",
                         "storage.type.primitive.java",
-                        "entity.name.type.enum.java",
-                        "constant.language.java"
+                        "source.java entity.name.type.enum",
+                        "source.java constant.language"
                     ],
                     "settings": {
                         "foreground": "#D19A66"
@@ -106,8 +118,18 @@
                 },
                 {
                     "scope": [
-                        "string.quoted.double.java",
-                        "string.quoted.single.java"
+                        "source.java keyword.operator.increment-decrement",
+                        "source.java keyword.operator.arithmetic"
+                    ],
+                    "settings": {
+                        "foreground": "#C586C0"
+                    }
+                },
+                {
+                    "scope": [
+                        "support.type.property-name.json",
+                        "source.java string.quoted.double",
+                        "source.java string.quoted.single"
                     ],
                     "settings": {
                         "foreground": "#79c388"
@@ -115,7 +137,7 @@
                 },
                 {
                     "scope": [
-                        "comment.line"
+                        "source.java comment.line"
                     ],
                     "settings": {
                         "fontStyle": "italic"
@@ -123,8 +145,26 @@
                 },
                 {
                     "scope": [
-                        "comment.line",
-                        "comment.line punctuation.definition.comment"
+                        "source.java meta.method-call entity.name.function",
+                        "source.java meta.function-call entity.name.function"
+                    ],
+                    "settings": {
+                        "foreground": "#e0cc9a"
+                    }
+                },
+                {
+                    "scope": [
+                        "source.java meta.method.identifier entity.name.function"
+                    ],
+                    "settings": {
+                        "foreground": "#eacc6a"
+                    }
+                },
+                {
+                    "scope": [
+                        "source.java punctuation.terminator",
+                        "source.java comment.line",
+                        "source.java comment.line punctuation.definition.comment"
                     ],
                     "settings": {
                         "foreground": "#525967"
@@ -132,55 +172,97 @@
                 },
                 {
                     "scope": [
-                        "comment.block",
-                        "comment.block punctuation.definition.comment"
+                        "source.json punctuation.separator",
+                        "source.java punctuation.section",
+                        "source.java punctuation.bracket",
+                        "source.java punctuation.separator.delimiter",
+                        "source.java punctuation.definition.parameters",
+                        "source.java comment.block",
+                        "source.java comment.block punctuation.definition.comment"
                     ],
                     "settings": {
                         "foreground": "#727a8a"
                     }
                 },
                 {
-                    "scope": "support.class.java",
+                    "scope": [
+                        "source.java variable.other",
+                        "source.java storage.modifier.import"
+                    ],
+                    "settings": {
+                        "foreground": "#bcbcbc"
+                    }
+                },
+                {
+                    "scope": [
+                        "source.java support.class",
+                        "source.java storage.type"
+                    ],
                     "settings": {
                         "foreground": "#9eb8d7"
+                    }
+                },
+                {
+                    "scope": [
+                        "source.java keyword"
+                    ],
+                    "settings": {
+                        "foreground": "#bcbcbc"
                     }
                 }
             ]
         },
         "editor.semanticTokenColorCustomizations": {
             "rules": {
-                "class": "#9eb8d7",
-                "class.constructor": {
+                "class:java": "#9eb8d7",
+                "class.constructor:java": {
                     "bold": true
                 },
-                "class.declaration": {
+                "class.declaration:java": {
                     "foreground": "#ebace5",
                     "bold": false,
                 },
-                "interface": "#9eb8d7",
-                "enum": "#9eb8d7",
-                "enumMember": {
+                "interface:java": "#9eb8d7",
+                "enum:java": "#9eb8d7",
+                "enumMember:java": {
                     "foreground": "#6e8bc4",
                     "bold": true,
                 },
-                "function": "#efa861",
-                "method": "#e0cc9a",
-                "method.declaration": "#eacc6a",
-                "namespace": {
+                "namespace:java": {
                     "foreground": "#bcbcbc",
                     "bold": true
                 },
-                "namespace.importDeclaration": {
+                "namespace.importDeclaration:java": {
                     "bold": false
                 },
-                "parameter": "#c6b6b2",
-                "parameter.readonly": "#a6a1c7",
-                "property": "#bcbcbc",
-                "property.readonly": "#6e8bc4",
-                "variable": "#bcbcbc",
-                "variable.readonly": "#8e9fc2",
-                "keyword": "#e06c75",
-                "modifier": "#e06c75"
+                "method:java": "#e0cc9a",
+                "method.declaration:java": "#eacc6a",
+                "parameter:java": {
+                    "foreground": "#c6b6b2",
+                    "italic": true
+                },
+                "parameter.readonly:java": {
+                    "foreground": "#a6a1c7",
+                    "italic": false
+                },
+                "property:java": {
+                    "foreground": "#bcdcec",
+                    "italic": true
+                },
+                "property.readonly:java": {
+                    "foreground": "#6e8bc4",
+                    "italic": false
+                },
+                "variable:java": {
+                    "foreground": "#bcdcec",
+                    "italic": true
+                },
+                "variable.readonly:java": {
+                    "foreground": "#8e9fc2",
+                    "italic": false
+                },
+                "keyword:java": "#e06c75",
+                "modifier:java": "#e06c75"
             }
         },
         "java.import.gradle.java.home": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.11.10-hotspot"

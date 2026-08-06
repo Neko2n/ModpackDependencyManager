@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -93,7 +92,7 @@ public final class Config {
                 while (true) {
                     backupPath = FILE_PATH.resolveSibling(
                             FILE_PATH.getFileName() + "-" + i + ".bak");
-                    if (!Files.exists(backupPath, LinkOption.NOFOLLOW_LINKS)) {
+                    if (!Files.exists(backupPath)) {
                         break;
                     }
                     i++;

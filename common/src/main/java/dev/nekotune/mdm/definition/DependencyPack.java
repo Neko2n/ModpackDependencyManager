@@ -2,37 +2,43 @@ package dev.nekotune.mdm.definition;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.EnumMap;
+import java.util.List;
 import java.util.Optional;
 
 import dev.nekotune.mdm.Config;
-import dev.nekotune.mdm.Constants;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.FilePackResources;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackSelectionConfig;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackCompatibility;
 import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.world.flag.FeatureFlagSet;
 
 /**
  * Custom Pack implementation for modpack dependencies.
  */
 public class DependencyPack extends Pack {
 
+	public static final int TOKEN_COLOR = 0xFFF5AA42;
+
+    private static final Component BADGE = Component.literal(" (modpack)")
+            .withStyle(ChatFormatting.BOLD);
+
     /**
-     * Custom source type for modpack-loaded dependency packs.
-     * Has a unique badge and color.
+     * Custom source type decorator for modpack-loaded dependency packs.
      */
-    public static final PackSource PACK_SOURCE = PackSource.create((final Component component) -> {
-        return Component.translatable("mdm.meta.pack-source",
-                component, Component.literal("modpack"))
-                .withStyle(ChatFormatting.BOLD)
-                .withColor(Constants.TOKEN_COLOR);
+    public static final PackSource SOURCE = PackSource.create((final Component name) -> {
+        return Component.empty().append(name)
+                .append(BADGE).withColor(TOKEN_COLOR);
     }, true);
-    
+
     public final DependencyInfo info;
 
     protected DependencyPack(final DependencyInfo info, final PackLocationInfo location,
@@ -51,8 +57,7 @@ public class DependencyPack extends Pack {
      */
     public static DependencyPack from(final DependencyInfo info) throws IOException {
         final var location = new PackLocationInfo(info.packId(),
-                Component.literal(info.fileName()), PACK_SOURCE,
-                Optional.empty());
+                Component.literal(info.title()), SOURCE, Optional.empty());
         final Pack.ResourcesSupplier supplier;
         if (Files.isDirectory(info.packDir())) {
             supplier = new PathPackResources.PathResourcesSupplier(info.packDir());
@@ -64,7 +69,6 @@ public class DependencyPack extends Pack {
         if (meta == null) {
             throw new IOException("File metadata could not be read for dependency " + info.toString());
         }
-        
         final boolean required = info.mode() == DependencyInfo.Mode.FORCED;
         final Position pos = required ? Position.BOTTOM : Position.TOP;
         final var selectionConfig = new PackSelectionConfig(required, pos, required);
@@ -81,5 +85,61 @@ public class DependencyPack extends Pack {
     @Override
     public Component getTitle() {
         return Component.literal(info.title());
+    }
+
+    public static final class ModpackResources extends DependencyPack {
+
+        /**
+         * The directory which holds modpack resources.
+         */
+        private static final Path PATH = Path.of("resources");
+        private static final Path ASSETS = PATH.resolve("assets");
+        private static final Path DATA = PATH.resolve("data");
+
+        private static final EnumMap<PackType, ModpackResources> cache = new EnumMap<>(PackType.class);
+
+        private ModpackResources(final DependencyInfo info) {
+            super(info, ModpackResources$Info.LOCATION, ModpackResources$Info.SUPPLIER,
+                    ModpackResources$Info.META, ModpackResources$Info.SELECTION_CONFIG);
+        }
+
+        /**
+         * Builds a dependency pack from the local modpack resources folder.
+         * Caches the result, so future calls will return an existing object.
+         * 
+         * @return Dependency pack object.
+         */
+        public static ModpackResources get(final PackType packType) throws IOException {
+            if (cache.containsKey(packType)) {
+                return cache.get(packType);
+            }
+            return define(packType);
+        }
+
+        private static ModpackResources define(final PackType packType) throws IOException {
+            if (!Files.exists(DATA)) {
+                Files.createDirectories(DATA);
+            }
+            if (!Files.exists(ASSETS)) {
+                Files.createDirectories(ASSETS);
+            }
+            final var info = new DependencyInfo(packType, ModpackResources$Info.ID, List.of(), List.of(),
+                    DependencyInfo.Mode.FORCED, 0);
+            final ModpackResources instance = new ModpackResources(info);
+            cache.put(packType, instance);
+            return instance;
+        }
+
+        private static final class ModpackResources$Info {
+            public static final String ID = "modpack";
+            public static final Component NAME = Component.literal("modpack resources");
+            public static final PackLocationInfo LOCATION = new PackLocationInfo(ID,
+                    NAME, PackSource.BUILT_IN, Optional.empty());
+            public static final Pack.ResourcesSupplier SUPPLIER = new PathPackResources.PathResourcesSupplier(PATH);
+            public static final Metadata META = new Metadata(NAME, PackCompatibility.COMPATIBLE,
+                    FeatureFlagSet.of(), List.of());
+            public static final PackSelectionConfig SELECTION_CONFIG = new PackSelectionConfig(
+                    true, Position.BOTTOM, true);
+        }
     }
 }

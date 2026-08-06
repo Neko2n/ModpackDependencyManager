@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.util.function.Consumer;
 import dev.nekotune.mdm.Config;
 import dev.nekotune.mdm.Constants;
+import dev.nekotune.mdm.definition.DependencyPack.ModpackResources;
 import dev.nekotune.mdm.mixin.minecraft.shared.PackRepositoryMixin;
 
 import net.minecraft.server.packs.PackType;
@@ -26,6 +27,8 @@ public class DependencyPackSource implements RepositorySource {
 
     @Override
     public void loadPacks(final Consumer<Pack> onLoad) {
+
+        // Load web dependencies
         for (final DependencyInfo dependency : Config.INSTANCE.dependencies) {
             if (dependency.type() != this.packType)
                 continue;
@@ -39,6 +42,13 @@ public class DependencyPackSource implements RepositorySource {
             } catch (final IOException e) {
                 Constants.LOG.error("Failed to load pack for dependency: " + dependency, e);
             }
+        }
+
+        // Load modpack resources
+        try {
+            onLoad.accept(ModpackResources.get(this.packType));
+        } catch (final IOException e) {
+            Constants.LOG.error("Failed to load modpack resources", e);
         }
     }
 }
