@@ -42,4 +42,23 @@ neoForge {
     }
 }
 
+repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
+}
+
+dependencies {
+    runtimeOnly "maven.modrinth:TiF5QWZY:zVaOQTh5" // Respack Opts
+    runtimeOnly "maven.modrinth:WKwQAwke:U2XgYJpS" // Lib JF (required by Respack Opts)
+}
+
 sourceSets.main.resources { srcDir 'src/generated/resources' }

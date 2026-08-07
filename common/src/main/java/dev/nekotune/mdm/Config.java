@@ -125,5 +125,6 @@ public final class Config {
                     }
                     return true;
                 }).toList());
+        config.save();
     }
 }

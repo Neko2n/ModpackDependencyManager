@@ -29,7 +29,7 @@ public class ServerCommonClass {
         PlatformEvents.SERVER_CLOSING.hook.connect(ServerCommonClass::serverClosing);
 
         // Automatically enable OPTIONAL_ENABLED server packs
-        DownloadManager.onDownloadFinished.connect(() -> {
+        DownloadManager.onDownloadsFinished.connect(() -> {
             Constants.LOG.debug("[ServerCommonClass] onDownloadFinished called");
             running.ifPresent((final MinecraftServer server) -> {
                 final PackRepository repo = server.getPackRepository();

@@ -16,11 +16,12 @@ public class ReloadPromptScreen extends AlertScreen {
             .withStyle(ChatFormatting.BOLD);
 
     public static final Component MESSAGE = Component
-            .translatable(ID + ".message");
+            .translatable(ID + ".message.1")
+            .append(Component.literal("\n"))
+            .append(Component.translatable(ID + ".message.2"));
 
     public static final Component BUTTON = Component
-            .translatable(ID + ".button")
-            .withStyle(ChatFormatting.BOLD);
+            .translatable(ID + ".button");
 
     public ReloadPromptScreen(final Runnable callback) {
         super(() -> {

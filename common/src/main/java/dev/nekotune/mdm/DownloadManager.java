@@ -21,10 +21,12 @@ import dev.nekotune.mdm.definition.web.api.WebAPI.APIResponse;
 
 public final class DownloadManager {
 
-    private static final Event<Void> downloadFinished = new Event<>();
-    public static final Event.Hook<Void> onDownloadFinished = downloadFinished.hook;
+    private static final Event<Void> downloadsFinished = new Event<>();
+    public static final Event.Hook<Void> onDownloadsFinished = downloadsFinished.hook;
 
     private static volatile DownloadState state = DownloadState.NOT_STARTED;
+    private static volatile int remaining = 0;
+    private static volatile int total = 0;
 
     public static enum DownloadState {
         NOT_STARTED,
@@ -35,6 +37,14 @@ public final class DownloadManager {
 
     public static DownloadState getState() {
         return state;
+    }
+
+    public static int getRemaining() {
+        return remaining;
+    }
+
+    public static int getTotal() {
+        return total;
     }
 
     /**
@@ -84,8 +94,8 @@ public final class DownloadManager {
                 Constants.LOG.error(e.toString());
                 state = DownloadState.INTERRUPTED;
             }
-            downloadFinished.controller.post(null);
-            downloadFinished.controller.clear();
+            downloadsFinished.controller.post(null);
+            downloadsFinished.controller.clear();
         });
         return threads;
     }
@@ -99,6 +109,8 @@ public final class DownloadManager {
                 map.put(host, new WorkerThread(this,
                         targets.stream().filter(host::matches).toList()));
             }
+            total = targets.size();
+            remaining = total;
         }
 
         public Map<DependencyInfo.Host, WorkerThread> toMap() {
@@ -125,10 +137,6 @@ public final class DownloadManager {
             this.targets = Set.copyOf(targets);
         }
 
-        private void exit() {
-            latch.countDown();
-        }
-
         @Override
         public void run() {
             for (final DependencyInfo target : targets) {
@@ -146,13 +154,13 @@ public final class DownloadManager {
                 final DownloadResult result;
                 try {
                     result = tryDownload(target);
-                } catch (final InterruptedException e) {
-                    DOWNLOAD_ERRORS.put(target.slug(), DownloadResult.EXCEPTION);
-                    exit();
-                    this.interrupt();
-                    return;
+                    remaining--;
                 } catch (final Exception e) {
-                    Constants.LOG.error("[HOT MAMA] ", e);
+                    DOWNLOAD_ERRORS.put(target.slug(), DownloadResult.EXCEPTION);
+                    remaining--;
+                    latch.countDown();
+                    Constants.LOG.error("[DownloadManager$WorkerThread] An exception occured", e);
+                    this.interrupt();
                     return;
                 }
                 switch (result) {
@@ -184,7 +192,7 @@ public final class DownloadManager {
                         break;
                 }
             }
-            exit();
+            latch.countDown();
         }
 
         private static DownloadResult tryDownload(final DependencyInfo target)

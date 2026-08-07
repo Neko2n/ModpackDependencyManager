@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -16,8 +17,8 @@ import dev.nekotune.mdm.Constants;
 import dev.nekotune.mdm.DownloadManager;
 import dev.nekotune.mdm.DownloadManager.DownloadResult;
 import dev.nekotune.mdm.client.gui.DownloadErrorScreen;
-import dev.nekotune.mdm.client.gui.DownloadWaitScreen;
 import dev.nekotune.mdm.client.gui.ReloadPromptScreen;
+import dev.nekotune.mdm.client.gui.loading.DownloadWaitOverlay;
 import dev.nekotune.mdm.platform.PlatformEvents;
 
 import net.minecraft.client.Minecraft;
@@ -31,28 +32,13 @@ public class ClientCommonClass {
         PlatformEvents.CLIENT_LOADED.hook.connect(ClientCommonClass::clientLoaded);
 
         // Enable OPTIONAL_ENABLED client packs by default
-        DownloadManager.onDownloadFinished.connect(() -> {
+        DownloadManager.onDownloadsFinished.connect(() -> {
             final Minecraft mc = Minecraft.getInstance();
             CommonClass.enableDownloadedOptionals(mc.getResourcePackRepository(), PackType.CLIENT_RESOURCES);
             final IntegratedServer server = mc.getSingleplayerServer();
             if (server != null) {
                 CommonClass.enableDownloadedOptionals(server.getPackRepository(), PackType.SERVER_DATA);
             }
-        });
-
-        // If the download wait screen is showing when the download finishes,
-        // change it to the reload prompt.
-        DownloadManager.onDownloadFinished.connect(() -> {
-            Constants.LOG.debug("[ClientCommonClass] onDownloadFinished called");
-            setScreenAtomic(mc -> {
-                if (mc.screen instanceof final DownloadWaitScreen waitScreen) {
-                    return waitScreen.covering;
-                }
-                if (PlatformEvents.CLIENT_LOADED.state()) {
-                    return downloadFinishedScreen(mc);
-                }
-                return mc.screen;
-            });
         });
     }
 
@@ -61,31 +47,44 @@ public class ClientCommonClass {
      * Call site is loader-dependent.
      */
     public static void clientLoaded() {
-        Constants.LOG.debug("[ClientCommonClass] clientLoaded called");
+        Constants.LOG.debug("[Client] clientLoaded called");
+
+        // Thread safety for race condition between event connection and switch case
+        final var canRun = new AtomicBoolean(true);
+        final Runnable showFinishedScreen = () -> {
+            if (canRun.getAcquire()) {
+                setScreenAtomic(ClientCommonClass::downloadFinishedScreen);
+                if (!Config.INSTANCE.promptEnabled) {
+                    Minecraft.getInstance().reloadResourcePacks();
+                }
+            }
+            canRun.setRelease(false);
+        };
+        DownloadManager.onDownloadsFinished.connect(showFinishedScreen);
 
         switch (DownloadManager.getState()) {
-
-            // Handle if any dependencies were successfully downloaded
-            case FINISHED:
-                setScreenAtomic(ClientCommonClass::downloadFinishedScreen);
+            case FINISHED: {
+                showFinishedScreen.run();
                 break;
-
+            }
             // If dependencies haven't finished downloading,
-            // show the dependency download progress screen.
+            // show the dependency download progress overlay.
             case NOT_STARTED:
-            case STARTED:
-                setScreenAtomic(mc -> new DownloadWaitScreen(downloadFinishedScreen(mc)));
+            case STARTED: {
+                final Minecraft mc = Minecraft.getInstance();
+                mc.setOverlay(new DownloadWaitOverlay(mc, false));
                 break;
-
+            }
             // If the download thread was interrupted,
             // show the internal error screen.
-            case INTERRUPTED:
+            case INTERRUPTED: {
                 setScreenAtomic(mc -> {
                     final Screen lastScreen = mc.screen;
                     return new DownloadErrorScreen(DownloadResult.EXCEPTION, List.of(),
                             button -> setScreenAtomic(() -> lastScreen));
                 });
                 break;
+            }
         }
     }
 
@@ -135,10 +134,12 @@ public class ClientCommonClass {
         mc.execute(() -> {
             setScreenAtomic$lock.acquireUninterruptibly();
             final Screen screen = factory.apply(mc);
-            if (screen instanceof ReloadPromptScreen && !Config.INSTANCE.promptEnabled)
+            if (screen instanceof ReloadPromptScreen && !Config.INSTANCE.promptEnabled) {
+                setScreenAtomic$lock.release();
                 return;
-            Constants.LOG.debug("[ClientCommonClass] Setting screen to " + screen.getClass().getName());
-            Minecraft.getInstance().setScreen(screen);
+            }
+            Constants.LOG.debug("[Client] Setting screen to " + screen.getClass().getName());
+            mc.setScreen(screen);
             setScreenAtomic$lock.release();
         });
     }

@@ -90,9 +90,6 @@ public final class CommonClass {
             }
             report = (report + "]").replace(", ]", " ]");
             Constants.LOG.debug(report);
-
-            // Save state to config file
-            Config.INSTANCE.save();
         }
     }
 }

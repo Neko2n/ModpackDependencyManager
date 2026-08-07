@@ -11,8 +11,9 @@ public class Event<T> {
     public final Hook<T> hook = new Hook<>(this);
     public final Controller<T> controller = new Controller<>(this);
 
-    protected void connect(final Consumer<T> runnable) {
+    protected Connection connect(final Consumer<T> runnable) {
         this.connections.add(runnable);
+        return new Connection(() -> this.connections.remove(runnable));
     }
 
     protected void post(final T packet) {
@@ -26,12 +27,12 @@ public class Event<T> {
     }
 
     public static record Hook<T>(Event<T> event) {
-        public final void connect(final Consumer<T> consumer) {
-            this.event.connect(consumer);
+        public final Connection connect(final Consumer<T> consumer) {
+            return this.event.connect(consumer);
         }
 
-        public final void connect(final Runnable runnable) {
-            this.event.connect($ -> runnable.run());
+        public final Connection connect(final Runnable runnable) {
+            return this.event.connect($ -> runnable.run());
         }
     }
 
@@ -53,10 +54,11 @@ public class Event<T> {
         }
 
         @Override
-        protected void connect(final Consumer<T> runnable) {
+        protected Connection connect(final Consumer<T> runnable) {
             if (!state) {
-                super.connect(runnable);
+                return super.connect(runnable);
             }
+            return new Connection(() -> {});
         }
 
         @Override
@@ -66,6 +68,19 @@ public class Event<T> {
                 super.post(packet);
                 this.clear();
             }
+        }
+    }
+
+    public static class Connection {
+
+        private final Runnable onDisconnect;
+
+        private Connection(final Runnable onDisconnect) {
+            this.onDisconnect = onDisconnect;
+        }
+
+        public void disconnect() {
+            onDisconnect.run();
         }
     }
 }
