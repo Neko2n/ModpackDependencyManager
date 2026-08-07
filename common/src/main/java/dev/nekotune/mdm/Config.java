@@ -50,6 +50,12 @@ public final class Config {
     @Since(1.0)
     public boolean disableCompatibilityWarnings = false;
 
+    @Since(1.0)
+    public Offset buttonOffset = new Offset(0, 0);
+
+    public static record Offset(int x, int y) {
+    }
+
     private Config() {
     }
 

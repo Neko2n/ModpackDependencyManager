@@ -1,9 +1,9 @@
 package dev.nekotune.mdm.client;
 
-import dev.nekotune.mdm.client.gui.ConfigScreen;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 
+import dev.nekotune.mdm.client.gui.config.ConfigScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screens.Screen;

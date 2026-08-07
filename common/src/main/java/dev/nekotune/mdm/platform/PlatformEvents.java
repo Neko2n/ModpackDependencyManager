@@ -1,13 +1,14 @@
 package dev.nekotune.mdm.platform;
 
 import dev.nekotune.mdm.core.Event;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.server.MinecraftServer;
 
 public interface PlatformEvents {
     /**
-     * Event that should be fired once the client reaches the title screen.
+     * Event that should be fired when a screen is opened.
      */
-    public static final Event.Flag<Void> CLIENT_LOADED = new Event.Flag<>();
+    public static final Event<Screen> SCREEN_INIT = new Event<>();
 
     /**
      * Event that should be fired whenever a MinecraftServer is created.

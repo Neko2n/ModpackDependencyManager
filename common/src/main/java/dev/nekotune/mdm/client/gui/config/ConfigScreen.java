@@ -1,4 +1,4 @@
-package dev.nekotune.mdm.client.gui;
+package dev.nekotune.mdm.client.gui.config;
 
 import dev.nekotune.mdm.Constants;
 import net.minecraft.ChatFormatting;

@@ -19,17 +19,24 @@ import dev.nekotune.mdm.DownloadManager.DownloadResult;
 import dev.nekotune.mdm.client.gui.DownloadErrorScreen;
 import dev.nekotune.mdm.client.gui.ReloadPromptScreen;
 import dev.nekotune.mdm.client.gui.loading.DownloadWaitOverlay;
+import dev.nekotune.mdm.core.Event;
 import dev.nekotune.mdm.platform.PlatformEvents;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.server.packs.PackType;
 
 public class ClientCommonClass {
 
     public static void init() {
-        PlatformEvents.CLIENT_LOADED.hook.connect(ClientCommonClass::clientLoaded);
+        final Event.Connection connection = PlatformEvents.SCREEN_INIT.hook.connect(screen -> {
+            if (screen instanceof TitleScreen) {
+                connection.disconnect();
+                clientLoaded();
+            }
+        });
 
         // Enable OPTIONAL_ENABLED client packs by default
         DownloadManager.onDownloadsFinished.connect(() -> {
