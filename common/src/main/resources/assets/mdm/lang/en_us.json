@@ -1,10 +1,10 @@
 {
-    "mdm.screen.config.title": "Modpack Dependency Settings",
+    "mdm.screen.config.title": "Modpack Dependency Manager",
     "mdm.screen.reloadprompt.title": "Modpack Resources Downloaded",
     "mdm.screen.reloadprompt.message.1": "New resources have been downloaded.",
     "mdm.screen.reloadprompt.message.2": "A reload is required to apply them.",
     "mdm.screen.reloadprompt.button": "Reload",
-    "mdm.screen.downloadwait.progress": "Downloading modpack dependencies",
+    "mdm.screen.downloadwait.progress": "Downloading modpack resources",
     "mdm.screen.downloaderror.title": "Error Downloading Modpack Resources",
     "mdm.screen.downloaderror.message.security-blocked.1": "Blocked by security settings.",
     "mdm.screen.downloaderror.message.security-blocked.2": "Please check your firewall and DNS configuration, and try re-launching.",
@@ -12,6 +12,6 @@
     "mdm.screen.downloaderror.message.timed-out.2": "Resources will be downloaded on your next launch.",
     "mdm.screen.downloaderror.message.exception.1": "Exception in Modpack Dependency Manager (mdm)",
     "mdm.screen.downloaderror.message.exception.2": "This should never happen.",
-    "mdm.screen.downloaderror.message.not-found.1": "Invalid dependencies could not be downloaded.",
+    "mdm.screen.downloaderror.message.not-found.1": "404: Invalid resources could not be downloaded.",
     "mdm.screen.downloaderror.message.not-found.2": "Please report this to the modpack author."
 }
