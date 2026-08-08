@@ -15,8 +15,8 @@ public abstract class AbstractConfigScreen extends Screen {
 
     public static interface Components {
         public static final String KEY = Constants.MOD_ID + ".screen.config";
-        public static final Component CLOSE_BUTTON = Component
-                .translatableWithFallback(KEY + ".button.close", "Save & Exit");
+        public static final Component EXIT_BUTTON = Component
+                .translatableWithFallback(KEY + ".button.exit", "Save & Exit");
     }
 
     public final Screen lastScreen;
@@ -28,14 +28,14 @@ public abstract class AbstractConfigScreen extends Screen {
         
         public final AbstractConfigScreen screen;
         private final Supplier<Integer> barHeight;
-        public final Button closeButton;
+        public final Button exitButton;
         public final Button backButton;
 
         public ScreenObjects(final AbstractConfigScreen screen) {
             this.screen = screen;
             this.barHeight = () -> screen.height / 6;
-            this.backButton = new PageButton(8, 8, false, screen::onClose, false);
-            this.closeButton = Button.builder(Components.CLOSE_BUTTON, screen::onClose)
+            this.backButton = new PageButton(8, 8, false, $ -> screen.onClose(), false);
+            this.exitButton = Button.builder(Components.EXIT_BUTTON, $ -> screen.exit())
                     .size(150, 20)
                     .pos(screen.width / 2 - 75, screen.height - barHeight.get() / 2 - 10)
                     .build();
@@ -53,7 +53,7 @@ public abstract class AbstractConfigScreen extends Screen {
             // Draw bar contents
             guiGraphics.drawCenteredString(screen.font, screen.title,
                     screen.width / 2, barHeight / 2, 0xFFFFFFFF);
-            closeButton.render(guiGraphics, mouseX, mouseY, partialTick);
+            exitButton.render(guiGraphics, mouseX, mouseY, partialTick);
             if (screen.shouldCloseOnEsc()) {
                 backButton.render(guiGraphics, mouseX, mouseY, partialTick);
             }
@@ -70,7 +70,7 @@ public abstract class AbstractConfigScreen extends Screen {
         super.init();
         final ScreenObjects screenObjects = new ScreenObjects(this);
         this.screenObjects = Optional.of(screenObjects);
-        this.addWidget(screenObjects.closeButton);
+        this.addWidget(screenObjects.exitButton);
         if (this.shouldCloseOnEsc()) {
             this.addWidget(screenObjects.backButton);
         }
@@ -85,11 +85,21 @@ public abstract class AbstractConfigScreen extends Screen {
 
     @Override
     public void onClose() {
-        Config.INSTANCE.save();
         this.minecraft.setScreen(lastScreen);
     }
 
-    private void onClose(final Button button) {
-        this.onClose();
+    @Override
+    public void removed() {
+        if (!(this.minecraft.screen instanceof AbstractConfigScreen)) {
+            Config.INSTANCE.save();
+        }
+    }
+
+    public void exit() {
+        if (this.lastScreen instanceof final AbstractConfigScreen configScreen) {
+            configScreen.exit();
+        } else {
+            this.onClose();
+        }
     }
 }
