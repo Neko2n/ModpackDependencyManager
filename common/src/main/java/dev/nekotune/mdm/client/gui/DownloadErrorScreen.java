@@ -41,6 +41,7 @@ public class DownloadErrorScreen extends Screen {
         this(causes, errorType.toString().toLowerCase().replace('_', '-'), callback);
     }
 
+    @Override
     protected void init() {
         super.init();
         this.addRenderableWidget(Button.builder(CommonComponents.GUI_CONTINUE, this.callback)

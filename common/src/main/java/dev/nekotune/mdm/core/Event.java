@@ -2,6 +2,7 @@ package dev.nekotune.mdm.core;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class Event<T> {
@@ -17,7 +18,7 @@ public class Event<T> {
     }
 
     protected void post(final T packet) {
-        for (final Consumer<T> connection : this.connections) {
+        for (final Consumer<T> connection : Set.copyOf(this.connections)) {
             connection.accept(packet);
         }
     }
@@ -27,6 +28,14 @@ public class Event<T> {
     }
 
     public static record Hook<T>(Event<T> event) {
+        public final Connection connect(final BiConsumer<T, Connection> consumer) {
+            final var holder = new Object() {
+                public Connection connection;
+            };
+            holder.connection = this.event.connect(t -> consumer.accept(t, holder.connection));
+            return holder.connection;
+        }
+
         public final Connection connect(final Consumer<T> consumer) {
             return this.event.connect(consumer);
         }
@@ -58,7 +67,8 @@ public class Event<T> {
             if (!state) {
                 return super.connect(runnable);
             }
-            return new Connection(() -> {});
+            return new Connection(() -> {
+            });
         }
 
         @Override

@@ -19,7 +19,7 @@ import net.minecraft.network.chat.Component;
 public class ConfigButton extends Button {
 
     public ConfigButton(final int x, final int y) {
-        super(x, y, 20, 20, Component.literal("s"), ConfigButton::click, Button.DEFAULT_NARRATION);
+        super(x, y, 20, 20, Component.empty(), ConfigButton::click, Button.DEFAULT_NARRATION);
     }
 
     public static void click(final Button button) {
@@ -40,7 +40,7 @@ public class ConfigButton extends Button {
      * @param listeners GUI listeners to try registering the button to
      * @param adder Function to add the newly created button widget to the GUI
      */
-    public static void setupConfigButton(final Minecraft mc,
+    public static void init(final Minecraft mc,
             final List<? extends GuiEventListener> listeners,
             final Consumer<ConfigButton> adder) {
         if (!(mc.screen instanceof TitleScreen || mc.screen instanceof PauseScreen))

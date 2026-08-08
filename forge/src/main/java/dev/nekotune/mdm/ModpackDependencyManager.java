@@ -1,11 +1,10 @@
 package dev.nekotune.mdm;
 
 import dev.nekotune.mdm.client.ClientCommonClass;
-import dev.nekotune.mdm.client.gui.ConfigScreen;
+import dev.nekotune.mdm.client.gui.config.ConfigScreen;
 import dev.nekotune.mdm.platform.PlatformEvents;
 import dev.nekotune.mdm.platform.Services;
 
-import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -45,9 +44,7 @@ public class ModpackDependencyManager {
 
     @SubscribeEvent
     public static void onScreenInitPost(final ScreenEvent.Init.Post event) {
-        if (event.getScreen() instanceof TitleScreen) {
-            PlatformEvents.CLIENT_LOADED.controller.post(null);
-        }
+        PlatformEvents.SCREEN_INIT.controller.post(event.getScreen());
     }
 
     @SubscribeEvent

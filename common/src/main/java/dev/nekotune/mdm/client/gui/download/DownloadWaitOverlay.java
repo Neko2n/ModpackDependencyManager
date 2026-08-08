@@ -1,4 +1,4 @@
-package dev.nekotune.mdm.client.gui.loading;
+package dev.nekotune.mdm.client.gui.download;
 
 import java.util.Optional;
 

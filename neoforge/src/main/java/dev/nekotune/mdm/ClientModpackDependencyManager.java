@@ -3,7 +3,6 @@ package dev.nekotune.mdm;
 import dev.nekotune.mdm.client.ClientCommonClass;
 import dev.nekotune.mdm.platform.PlatformEvents;
 
-import net.minecraft.client.gui.screens.TitleScreen;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
@@ -20,8 +19,6 @@ public class ClientModpackDependencyManager {
 
     @SubscribeEvent
     public void onScreenInitPost(final ScreenEvent.Init.Post event) {
-        if (event.getScreen() instanceof TitleScreen) {
-            PlatformEvents.CLIENT_LOADED.controller.post(null);
-        }
+        PlatformEvents.SCREEN_INIT.controller.post(event.getScreen());
     }
 }

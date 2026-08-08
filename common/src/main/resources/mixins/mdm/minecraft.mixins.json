@@ -9,7 +9,8 @@
     "shared.PackRepositoryMixin"
   ],
   "client": [
-    "client.PackSelectionModelMixin"
+    "client.PackSelectionModelMixin",
+    "client.ScreenAccessor"
   ],
   "server": [],
   "injectors": {

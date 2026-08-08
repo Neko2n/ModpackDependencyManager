@@ -18,8 +18,9 @@ import dev.nekotune.mdm.DownloadManager;
 import dev.nekotune.mdm.DownloadManager.DownloadResult;
 import dev.nekotune.mdm.client.gui.DownloadErrorScreen;
 import dev.nekotune.mdm.client.gui.ReloadPromptScreen;
-import dev.nekotune.mdm.client.gui.loading.DownloadWaitOverlay;
-import dev.nekotune.mdm.core.Event;
+import dev.nekotune.mdm.client.gui.config.ConfigButton;
+import dev.nekotune.mdm.client.gui.download.DownloadWaitOverlay;
+import dev.nekotune.mdm.mixin.minecraft.client.ScreenAccessor;
 import dev.nekotune.mdm.platform.PlatformEvents;
 
 import net.minecraft.client.Minecraft;
@@ -31,10 +32,17 @@ import net.minecraft.server.packs.PackType;
 public class ClientCommonClass {
 
     public static void init() {
-        final Event.Connection connection = PlatformEvents.SCREEN_INIT.hook.connect(screen -> {
+        PlatformEvents.SCREEN_INIT.hook.connect((screen, connection) -> {
             if (screen instanceof TitleScreen) {
                 connection.disconnect();
                 clientLoaded();
+            }
+        });
+        PlatformEvents.SCREEN_INIT.hook.connect(screen -> {
+            if (screen instanceof final TitleScreen titleScreen) {
+                ConfigButton.init(Minecraft.getInstance(), titleScreen.children(), (final ConfigButton button) -> {
+                    ((ScreenAccessor) titleScreen).mdm$invokeAddRenderableWidget(button);
+                });
             }
         });
 
