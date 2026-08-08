@@ -1,7 +1,7 @@
 package dev.nekotune.mdm;
 
 import dev.nekotune.mdm.client.ClientCommonClass;
-import dev.nekotune.mdm.client.gui.config.ConfigScreen;
+import dev.nekotune.mdm.client.gui.config.MainConfigScreen;
 import dev.nekotune.mdm.platform.PlatformEvents;
 import dev.nekotune.mdm.platform.Services;
 
@@ -38,7 +38,7 @@ public class ModpackDependencyManager {
         context.registerExtensionPoint(
                 ConfigScreenHandler.ConfigScreenFactory.class,
                 () -> new ConfigScreenHandler.ConfigScreenFactory((mc, lastScreen) -> {
-                    return new ConfigScreen(lastScreen);
+                    return new MainConfigScreen(lastScreen);
                 }));
     }
 

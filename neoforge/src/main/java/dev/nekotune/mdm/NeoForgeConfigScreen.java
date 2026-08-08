@@ -1,6 +1,6 @@
 package dev.nekotune.mdm;
 
-import dev.nekotune.mdm.client.gui.config.ConfigScreen;
+import dev.nekotune.mdm.client.gui.config.MainConfigScreen;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.neoforged.api.distmarker.Dist;
@@ -20,6 +20,6 @@ public final class NeoForgeConfigScreen implements IConfigScreenFactory {
     @Override
     public Screen createScreen(final ModContainer mod,
             final Screen lastScreen) {
-        return new ConfigScreen(lastScreen);
+        return new MainConfigScreen(lastScreen);
     }
 }

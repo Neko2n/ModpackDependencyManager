@@ -40,12 +40,12 @@ public class DownloadErrorScreen extends Screen {
         this.message = Component.translatable(PATH + ".message." + message + ".1")
                 .append(Component.literal("\n"))
                 .append(Component.translatable(PATH + ".message." + message + ".2"));
-        MutableComponent causesBuilder = Component.translatable(PATH + ".causes")
-                .withStyle(ChatFormatting.BOLD);
+        MutableComponent causesBuilder = Component.empty().append(Component.translatable(PATH + ".causes")
+                .withStyle(ChatFormatting.BOLD));
         for (final String cause : causes) {
             causesBuilder = causesBuilder.append(Component.literal("\n"))
                     .append(Component.literal(cause)
-                            .withStyle(Style.EMPTY.withColor(ChatFormatting.RED).withBold(false)));
+                            .setStyle(Style.EMPTY.withColor(ChatFormatting.RED)));
         }
         this.causes = causesBuilder;
         this.callback = callback;
@@ -85,7 +85,7 @@ public class DownloadErrorScreen extends Screen {
             yPos += widgets.message.getHeight() + 20;
             widgets.causes.setPosition(this.width / 2 - widgets.causes.getWidth() / 2, yPos);
             yPos += widgets.causes.getHeight() + 20;
-            widgets.button.setPosition(this.width / 2 - widgets.button.getWidth() / 2, Math.max(this.height - 20, yPos));
+            widgets.button.setPosition(this.width / 2 - widgets.button.getWidth() / 2, Math.min(this.height - 20, yPos));
         });
     }
 

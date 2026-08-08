@@ -3,7 +3,7 @@ package dev.nekotune.mdm.client;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 
-import dev.nekotune.mdm.client.gui.config.ConfigScreen;
+import dev.nekotune.mdm.client.gui.config.MainConfigScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screens.Screen;
@@ -12,12 +12,12 @@ import net.minecraft.client.gui.screens.Screen;
 public class ModMenuIntegration implements ModMenuApi {
 
     @Override
-    public ConfigScreenFactory<ConfigScreen> getModConfigScreenFactory() {
+    public ConfigScreenFactory<MainConfigScreen> getModConfigScreenFactory() {
         return new ConfigScreenFactory<>(){
 
             @Override
-            public ConfigScreen create(final Screen lastScreen) {
-                return new ConfigScreen(lastScreen);
+            public MainConfigScreen create(final Screen lastScreen) {
+                return new MainConfigScreen(lastScreen);
             }
         };
     }

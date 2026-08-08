@@ -5,19 +5,16 @@ import java.util.function.Supplier;
 
 import dev.nekotune.mdm.Config;
 import dev.nekotune.mdm.Constants;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.PageButton;
 import net.minecraft.network.chat.Component;
 
-public class ConfigScreen extends Screen {
+public abstract class AbstractConfigScreen extends Screen {
 
     public static interface Components {
         public static final String KEY = Constants.MOD_ID + ".screen.config";
-        public static final Component TITLE = Component
-                .translatableWithFallback(KEY + ".title", Constants.MOD_NAME)
-                .withStyle(ChatFormatting.BOLD);
         public static final Component CLOSE_BUTTON = Component
                 .translatableWithFallback(KEY + ".button.close", "Save & Exit");
     }
@@ -26,17 +23,22 @@ public class ConfigScreen extends Screen {
 
     public Optional<ScreenObjects> screenObjects = Optional.empty();
 
-    private static final class ScreenObjects {
+    protected static final class ScreenObjects {
         private static final int BAR_BG_COLOR = 0x65000000;
-
-        public final ConfigScreen screen;
-        public final Button closeButton;
+        
+        public final AbstractConfigScreen screen;
         private final Supplier<Integer> barHeight;
+        public final Button closeButton;
+        public final Button backButton;
 
-        public ScreenObjects(final ConfigScreen screen, final Button closeButton) {
+        public ScreenObjects(final AbstractConfigScreen screen) {
             this.screen = screen;
-            this.closeButton = closeButton;
             this.barHeight = () -> screen.height / 6;
+            this.backButton = new PageButton(8, 8, false, screen::onClose, false);
+            this.closeButton = Button.builder(Components.CLOSE_BUTTON, screen::onClose)
+                    .size(150, 20)
+                    .pos(screen.width / 2 - 75, screen.height - barHeight.get() / 2 - 10)
+                    .build();
         }
 
         public void render(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
@@ -51,23 +53,27 @@ public class ConfigScreen extends Screen {
             // Draw bar contents
             guiGraphics.drawCenteredString(screen.font, screen.title,
                     screen.width / 2, barHeight / 2, 0xFFFFFFFF);
-            this.closeButton.setPosition(screen.width / 2 - this.closeButton.getWidth() / 2,
-                    screen.height - barHeight / 2 - this.closeButton.getHeight() / 2);
+            closeButton.render(guiGraphics, mouseX, mouseY, partialTick);
+            if (screen.shouldCloseOnEsc()) {
+                backButton.render(guiGraphics, mouseX, mouseY, partialTick);
+            }
         }
     }
 
-    public ConfigScreen(final Screen lastScreen) {
-        super(Components.TITLE);
+    protected AbstractConfigScreen(final Component title, final Screen lastScreen) {
+        super(title);
         this.lastScreen = lastScreen;
     }
 
     @Override
     protected void init() {
         super.init();
-        final ScreenObjects screenObjects = new ScreenObjects(this,
-                Button.builder(Components.CLOSE_BUTTON, this::onClose).build());
+        final ScreenObjects screenObjects = new ScreenObjects(this);
         this.screenObjects = Optional.of(screenObjects);
-        this.addRenderableWidget(screenObjects.closeButton);
+        this.addWidget(screenObjects.closeButton);
+        if (this.shouldCloseOnEsc()) {
+            this.addWidget(screenObjects.backButton);
+        }
     }
 
     @Override
@@ -83,12 +89,7 @@ public class ConfigScreen extends Screen {
         this.minecraft.setScreen(lastScreen);
     }
 
-    private void onClose(Button button) {
+    private void onClose(final Button button) {
         this.onClose();
-    }
-
-    @Override
-    public boolean shouldCloseOnEsc() {
-        return true;
     }
 }

@@ -18,12 +18,13 @@ import dev.nekotune.mdm.DownloadManager;
 import dev.nekotune.mdm.DownloadManager.DownloadResult;
 import dev.nekotune.mdm.client.gui.DownloadErrorScreen;
 import dev.nekotune.mdm.client.gui.ReloadPromptScreen;
-import dev.nekotune.mdm.client.gui.config.ConfigButton;
+import dev.nekotune.mdm.client.gui.config.ConfigButtonHandler;
 import dev.nekotune.mdm.client.gui.download.DownloadWaitOverlay;
 import dev.nekotune.mdm.mixin.minecraft.client.ScreenAccessor;
 import dev.nekotune.mdm.platform.PlatformEvents;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.SpriteIconButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.server.IntegratedServer;
@@ -40,7 +41,7 @@ public class ClientCommonClass {
         });
         PlatformEvents.SCREEN_INIT.hook.connect(screen -> {
             if (screen instanceof final TitleScreen titleScreen) {
-                ConfigButton.init(Minecraft.getInstance(), titleScreen.children(), (final ConfigButton button) -> {
+                ConfigButtonHandler.init(Minecraft.getInstance(), titleScreen.children(), (final SpriteIconButton button) -> {
                     ((ScreenAccessor) titleScreen).mdm$invokeAddRenderableWidget(button);
                 });
             }
@@ -95,7 +96,7 @@ public class ClientCommonClass {
             case INTERRUPTED: {
                 setScreenAtomic(mc -> {
                     final Screen lastScreen = mc.screen;
-                    return new DownloadErrorScreen(DownloadResult.EXCEPTION, List.of(),
+                    return new DownloadErrorScreen(DownloadResult.EXCEPTION, List.of("InterruptedException"),
                             button -> setScreenAtomic(() -> lastScreen));
                 });
                 break;
