@@ -84,7 +84,7 @@ public class DownloadErrorScreen extends Screen {
             yPos += widgets.message.getHeight() + 20;
             widgets.causes.setPosition(this.width / 2 - widgets.causes.getWidth() / 2, yPos);
             yPos += widgets.causes.getHeight() + 20;
-            widgets.button.setPosition(this.width / 2 - widgets.button.getWidth() / 2, yPos);
+            widgets.button.setPosition(this.width / 2 - widgets.button.getWidth() / 2, Math.max(this.height - 20, yPos));
         });
     }
 
