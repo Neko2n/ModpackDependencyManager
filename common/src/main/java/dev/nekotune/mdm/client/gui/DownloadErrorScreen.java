@@ -13,6 +13,7 @@ import net.minecraft.client.gui.components.MultiLineTextWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 public class DownloadErrorScreen extends Screen {
 
@@ -21,18 +22,31 @@ public class DownloadErrorScreen extends Screen {
     public static final Component TITLE = Component.translatable(PATH + ".title")
             .withStyle(ChatFormatting.RED, ChatFormatting.BOLD);
 
+    private static record Widgets(
+            Button button,
+            MultiLineTextWidget message,
+            MultiLineTextWidget causes) {
+    }
+
     private final Component message;
+    public final Component causes;
     private final Button.OnPress callback;
-    private Optional<MultiLineTextWidget> messageWidget = Optional.empty();
-    public final List<String> causes;
+    private Optional<Widgets> widgets = Optional.empty();
 
     private DownloadErrorScreen(final List<String> causes, final String message,
             final Button.OnPress callback) {
         super(TITLE);
-        this.causes = causes;
         this.message = Component.translatable(PATH + ".message." + message + ".1")
                 .append(Component.literal("\n"))
                 .append(Component.translatable(PATH + ".message." + message + ".2"));
+        MutableComponent causesBuilder = Component.translatable(PATH + ".causes")
+                .withStyle(ChatFormatting.BOLD);
+        for (final String cause : causes) {
+            causesBuilder = causesBuilder.append(Component.literal("\n"))
+                    .append(Component.literal(cause)
+                            .withStyle(ChatFormatting.RED));
+        }
+        this.causes = causesBuilder;
         this.callback = callback;
     }
 
@@ -44,22 +58,33 @@ public class DownloadErrorScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        this.addRenderableWidget(Button.builder(CommonComponents.GUI_CONTINUE, this.callback)
-                .bounds(this.width / 2 - 100, 140, 200, 20).build());
-        this.messageWidget = Optional.of(this.addRenderableWidget(
+        final var buttonWidget = this.addRenderableWidget(Button.builder(CommonComponents.GUI_CONTINUE, this.callback)
+                .size(200, 20)
+                .build());
+        final var messageWidget = this.addRenderableWidget(
                 new MultiLineTextWidget(this.message, this.font)
                         .setCentered(true)
-                        .setColor(0xFFFFFFFF)));
+                        .setColor(0xFFFFFFFF));
+        final var causesWidget = this.addRenderableWidget(
+                new MultiLineTextWidget(this.causes, this.font)
+                        .setCentered(true)
+                        .setColor(0xFFFFFFFF));
+        this.widgets = Optional.of(new Widgets(buttonWidget, messageWidget, causesWidget));
     }
 
     @Override
     public void render(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
             final float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        final int yPos = this.height / 4;
-        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, yPos, 0xFFFFFFFF);
-        this.messageWidget.ifPresent((final MultiLineTextWidget widget) -> {
-            widget.setPosition(this.width / 2 - widget.getWidth() / 2, yPos + 20);
+        final int titlePosY = this.height / 4;
+        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, titlePosY, 0xFFFFFFFF);
+        this.widgets.ifPresent((final Widgets widgets) -> {
+            int yPos = titlePosY + 20;
+            widgets.message.setPosition(this.width / 2 - widgets.message.getWidth() / 2, yPos);
+            yPos += widgets.message.getHeight() + 20;
+            widgets.causes.setPosition(this.width / 2 - widgets.causes.getWidth() / 2, yPos);
+            yPos += widgets.causes.getHeight() + 20;
+            widgets.button.setPosition(this.width / 2 - widgets.button.getWidth() / 2, yPos);
         });
     }
 

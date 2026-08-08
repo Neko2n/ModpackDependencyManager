@@ -13,5 +13,6 @@
     "mdm.screen.downloaderror.message.exception.1": "Exception in Modpack Dependency Manager (mdm)",
     "mdm.screen.downloaderror.message.exception.2": "This should never happen.",
     "mdm.screen.downloaderror.message.not-found.1": "404: Invalid resources could not be downloaded.",
-    "mdm.screen.downloaderror.message.not-found.2": "Please report this to the modpack author."
+    "mdm.screen.downloaderror.message.not-found.2": "Please report this to the modpack author.",
+    "mdm.screen.downloaderror.causes": "Caused by:"
 }
