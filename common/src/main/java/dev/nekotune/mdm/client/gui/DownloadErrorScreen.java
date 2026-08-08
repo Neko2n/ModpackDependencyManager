@@ -14,6 +14,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 
 public class DownloadErrorScreen extends Screen {
 
@@ -44,7 +45,7 @@ public class DownloadErrorScreen extends Screen {
         for (final String cause : causes) {
             causesBuilder = causesBuilder.append(Component.literal("\n"))
                     .append(Component.literal(cause)
-                            .withStyle(ChatFormatting.RED));
+                            .withStyle(Style.EMPTY.withColor(ChatFormatting.RED).withBold(false)));
         }
         this.causes = causesBuilder;
         this.callback = callback;
