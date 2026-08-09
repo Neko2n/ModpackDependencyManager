@@ -1,5 +1,7 @@
 package dev.nekotune.mdm.client.gui.config;
 
+import java.util.function.Consumer;
+
 import dev.nekotune.mdm.Config;
 import dev.nekotune.mdm.client.gui.config.widgets.SettingsListWidget;
 import net.minecraft.client.gui.Font;
@@ -10,11 +12,16 @@ import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.network.chat.Component;
 
 public enum ConfigScreenSetting implements SettingsListWidget.Setting {
-    PRODUCTION(new InputElement.Toggle(Config.INSTANCE.production)),
-    HIDE_FORCED(new InputElement.Toggle(Config.INSTANCE.hideForced)),
-    WARN_ENABLED(new InputElement.Toggle(Config.INSTANCE.warnEnabled)),
-    PROMPT_ENABLED(new InputElement.Toggle(Config.INSTANCE.promptEnabled)),
-    DISABLE_COMPATIBILITY_WARNINGS(new InputElement.Toggle(Config.INSTANCE.disableCompatibilityWarnings));
+    PRODUCTION(new InputElement.Toggle(Config.INSTANCE.production,
+            value -> Config.INSTANCE.production = value)),
+    HIDE_FORCED(new InputElement.Toggle(Config.INSTANCE.hideForced,
+            value -> Config.INSTANCE.hideForced = value)),
+    WARN_ENABLED(new InputElement.Toggle(Config.INSTANCE.warnEnabled,
+            value -> Config.INSTANCE.warnEnabled = value)),
+    PROMPT_ENABLED(new InputElement.Toggle(Config.INSTANCE.promptEnabled,
+            value -> Config.INSTANCE.promptEnabled = value)),
+    DISABLE_COMPATIBILITY_WARNINGS(new InputElement.Toggle(Config.INSTANCE.disableCompatibilityWarnings,
+            value -> Config.INSTANCE.disableCompatibilityWarnings = value));
 
     private static final String KEY = AbstractConfigScreen.Components.KEY + ".settings";
 
@@ -43,9 +50,11 @@ public enum ConfigScreenSetting implements SettingsListWidget.Setting {
     private static abstract class InputElement<T> {
 
         protected T value;
+        protected final Consumer<T> onValueChanged;
 
-        public InputElement(final T defaultValue) {
-            value = defaultValue;
+        public InputElement(final T defaultValue, final Consumer<T> onValueChanged) {
+            this.value = defaultValue;
+            this.onValueChanged = onValueChanged;
         }
 
         public abstract LayoutElement create(final Font font);
@@ -54,8 +63,8 @@ public enum ConfigScreenSetting implements SettingsListWidget.Setting {
          * Simple input button representing a boolean setting.
          */
         public static final class Toggle extends InputElement<Boolean> {
-            public Toggle(final boolean defaultValue) {
-                super(defaultValue);
+            public Toggle(final boolean defaultValue, final Consumer<Boolean> onValueChanged) {
+                super(defaultValue, onValueChanged);
             }
 
             @Override
@@ -63,6 +72,7 @@ public enum ConfigScreenSetting implements SettingsListWidget.Setting {
                 return Button.builder(getMessage(),
                         (final Button button) -> {
                             value = !value;
+                            onValueChanged.accept(value);
                             button.setMessage(getMessage());
                         }).width(60)
                         .build();
