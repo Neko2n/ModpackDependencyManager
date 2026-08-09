@@ -23,13 +23,10 @@ public class MainConfigScreen extends AbstractConfigScreen {
     }
 
     @Override
-    protected SettingsListWidget buildScrollList() {
-        final int scrollListWidth = this.width - SCROLL_LIST_PADDING * 2;
-        var listBuilder = new SettingsListWidget.ListContent.Builder(scrollListWidth, this.font);
+    protected SettingsListWidget.ListContent buildScrollList(SettingsListWidget.ListContent.Builder builder) {
         for (final var setting : ConfigScreenSettings.values()) {
-            listBuilder = listBuilder.addSetting(setting);
+           builder = builder.addSetting(setting);
         }
-        return new SettingsListWidget(SCROLL_LIST_PADDING, this.barHeight.get(),
-                scrollListWidth, this.height - barHeight.get() * 2, listBuilder.build());
+        return builder.build();
     }
 }

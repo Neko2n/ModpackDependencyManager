@@ -34,10 +34,13 @@ public abstract class AbstractConfigScreen extends Screen {
                 .size(150, 20)
                 .pos(this.width / 2 - 75, this.height - barHeight.get() / 2 - 10)
                 .build();
-        this.scrollList = buildScrollList();
+        final int scrollListWidth = this.width - SCROLL_LIST_PADDING * 2;
+        final var listBuilder = new SettingsListWidget.ListContent.Builder(scrollListWidth, this.font);
+        this.scrollList = new SettingsListWidget(SCROLL_LIST_PADDING, this.barHeight.get(),
+                scrollListWidth, this.height - barHeight.get() * 2, buildScrollList(listBuilder));
     }
 
-    protected abstract SettingsListWidget buildScrollList();
+    protected abstract SettingsListWidget.ListContent buildScrollList(SettingsListWidget.ListContent.Builder builder);
 
     @Override
     protected void init() {
