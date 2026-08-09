@@ -27,7 +27,7 @@ public abstract class AbstractConfigScreen extends Screen {
     protected static final class ScreenObjects {
         private static final int BAR_BG_COLOR = 0x65000000;
         private static final int SCROLL_LIST_PADDING = 80;
-        
+
         private final Supplier<Integer> barHeight;
         public final AbstractConfigScreen screen;
         public final Button exitButton;
@@ -44,11 +44,8 @@ public abstract class AbstractConfigScreen extends Screen {
                     .build();
             final int scrollListWidth = screen.width - SCROLL_LIST_PADDING * 2;
             var listBuilder = new SettingsListWidget.ListContent.Builder(scrollListWidth, screen.font);
-            for (int i = 0; i < 20; i++) {
-                listBuilder = listBuilder.addSetting(Component.literal("Setting Title"),
-                        Button.builder(Component.literal(i % 2 == 0 ? "ON" : "OFF"), $ -> {})
-                                .width(50)
-                                .build());
+            for (final var setting : ConfigScreenSetting.values()) {
+                listBuilder = listBuilder.addSetting(setting);
             }
             this.scrollList = new SettingsListWidget(SCROLL_LIST_PADDING, barHeight.get(),
                     scrollListWidth, screen.height - barHeight.get() * 2, listBuilder.build());
@@ -104,16 +101,13 @@ public abstract class AbstractConfigScreen extends Screen {
 
     @Override
     public void onClose() {
+        Config.INSTANCE.save();
         this.minecraft.setScreen(lastScreen);
     }
 
-    @Override
-    public void removed() {
-        if (!(this.minecraft.screen instanceof AbstractConfigScreen)) {
-            Config.INSTANCE.save();
-        }
-    }
-
+    /**
+     * Closes all config screens, returning to the last screen which wasn't a config screen.
+     */
     public void exit() {
         if (this.lastScreen instanceof final AbstractConfigScreen configScreen) {
             configScreen.exit();

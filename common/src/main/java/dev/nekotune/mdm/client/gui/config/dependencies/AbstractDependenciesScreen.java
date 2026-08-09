@@ -1,5 +1,7 @@
-package dev.nekotune.mdm.client.gui.config;
+package dev.nekotune.mdm.client.gui.config.dependencies;
 
+import dev.nekotune.mdm.client.gui.config.AbstractConfigScreen;
+import dev.nekotune.mdm.client.gui.config.MainConfigScreen;
 import net.minecraft.network.chat.Component;
 
 public abstract class AbstractDependenciesScreen extends AbstractConfigScreen {
