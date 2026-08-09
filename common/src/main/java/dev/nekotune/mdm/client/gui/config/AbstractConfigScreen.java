@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import dev.nekotune.mdm.Config;
 import dev.nekotune.mdm.Constants;
+import dev.nekotune.mdm.client.gui.config.widgets.SettingsListWidget;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -25,30 +26,47 @@ public abstract class AbstractConfigScreen extends Screen {
 
     protected static final class ScreenObjects {
         private static final int BAR_BG_COLOR = 0x65000000;
+        private static final int SCROLL_LIST_PADDING = 80;
         
-        public final AbstractConfigScreen screen;
         private final Supplier<Integer> barHeight;
+        public final AbstractConfigScreen screen;
         public final Button exitButton;
         public final Button backButton;
+        public final SettingsListWidget scrollList;
 
         public ScreenObjects(final AbstractConfigScreen screen) {
-            this.screen = screen;
             this.barHeight = () -> screen.height / 6;
+            this.screen = screen;
             this.backButton = new PageButton(8, 8, false, $ -> screen.onClose(), false);
             this.exitButton = Button.builder(Components.EXIT_BUTTON, $ -> screen.exit())
                     .size(150, 20)
                     .pos(screen.width / 2 - 75, screen.height - barHeight.get() / 2 - 10)
                     .build();
+            final int scrollListWidth = screen.width - SCROLL_LIST_PADDING * 2;
+            var listBuilder = new SettingsListWidget.ListContent.Builder(scrollListWidth, screen.font);
+            for (int i = 0; i < 20; i++) {
+                listBuilder = listBuilder.addSetting(Component.literal("Setting Title"),
+                        Button.builder(Component.literal(i % 2 == 0 ? "ON" : "OFF"), $ -> {})
+                                .width(50)
+                                .build());
+            }
+            this.scrollList = new SettingsListWidget(SCROLL_LIST_PADDING, barHeight.get(),
+                    scrollListWidth, screen.height - barHeight.get() * 2, listBuilder.build());
         }
 
         public void render(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
                 final float partialTick) {
             // Draw scroll layout contents
+            scrollList.render(guiGraphics, mouseX, mouseY, partialTick);
 
             // Draw bars
             final int barHeight = this.barHeight.get();
-            guiGraphics.fill(0, 0, screen.width, barHeight, BAR_BG_COLOR);
-            guiGraphics.fill(0, screen.height, screen.width, screen.height - barHeight, BAR_BG_COLOR);
+            guiGraphics.fill(0, 0, screen.width, barHeight - 1, BAR_BG_COLOR);
+            guiGraphics.fill(0, screen.height, screen.width, screen.height - barHeight + 1, BAR_BG_COLOR);
+            guiGraphics.hLine(0, screen.width, barHeight - 1, 0x95000000);
+            guiGraphics.hLine(0, screen.width, barHeight, 0x55FFFFFF);
+            guiGraphics.hLine(0, screen.width, screen.height - barHeight, 0x95000000);
+            guiGraphics.hLine(0, screen.width, screen.height - barHeight - 1, 0x55FFFFFF);
 
             // Draw bar contents
             guiGraphics.drawCenteredString(screen.font, screen.title,
@@ -70,6 +88,7 @@ public abstract class AbstractConfigScreen extends Screen {
         super.init();
         final ScreenObjects screenObjects = new ScreenObjects(this);
         this.screenObjects = Optional.of(screenObjects);
+        this.addWidget(screenObjects.scrollList);
         this.addWidget(screenObjects.exitButton);
         if (this.shouldCloseOnEsc()) {
             this.addWidget(screenObjects.backButton);
