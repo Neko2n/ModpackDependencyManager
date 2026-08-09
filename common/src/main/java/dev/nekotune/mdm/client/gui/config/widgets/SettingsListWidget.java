@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractScrollWidget;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.Layout;
@@ -80,6 +81,20 @@ public class SettingsListWidget extends AbstractScrollWidget {
     }
 
     @Override
+    public boolean charTyped(final char codePoint, final int modifiers) {
+        final boolean handled = this.handleElementInteract(this.content.container(), widget ->
+                widget.isFocused() && widget.charTyped(codePoint, modifiers));
+        return super.charTyped(codePoint, modifiers) || handled;
+    }
+
+    @Override
+    public boolean keyPressed(final int keyCode, final int scanCode, final int modifiers) {
+        final boolean handled = this.handleElementInteract(this.content.container(), widget ->
+                widget.isFocused() && widget.keyPressed(keyCode, scanCode, modifiers));
+        return super.keyPressed(keyCode, scanCode, modifiers) || handled;
+    }
+
+    @Override
     public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
         if (!this.visible)
             return false;
@@ -95,35 +110,38 @@ public class SettingsListWidget extends AbstractScrollWidget {
         if (!this.withinContentAreaPoint(mouseX, mouseY))
             return false;
 
-        final boolean handled = this.handleElementClick(this.content.container(),
-                widget -> widget.mouseClicked(mouseX, mouseY, button));
+        final boolean handled = this.handleElementInteract(this.content.container(),
+                widget -> {
+                    final boolean widget$handled = widget.mouseClicked(mouseX, mouseY, button);
+                    if (widget instanceof EditBox)
+                        widget.setFocused(widget$handled);
+                    return widget$handled;
+                });
         return super.mouseClicked(mouseX, mouseY, button) || handled;
     }
 
     @Override
     public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {
-        final boolean handled = this.handleElementClick(this.content.container(),
+        final boolean handled = this.handleElementInteract(this.content.container(),
                 widget -> widget.mouseReleased(mouseX, mouseY, button));
         return super.mouseReleased(mouseX, mouseY, button) || handled;
     }
 
     /**
-     * Helper method to handle click detection for child widgets.
-     * @param element The element to handle click detection for. Recursively handles its widgets.
+     * Helper method to handle interaction detection for child widgets.
+     * @param element The element to handle interaction detection for. Recursively handles its widgets.
      * @param handler The handler function to apply.
      * @return True if any widgets were handled, false otherwise.
      */
-    private boolean handleElementClick(final LayoutElement element, final Function<AbstractWidget, Boolean> handler) {
+    private boolean handleElementInteract(final LayoutElement element, final Function<AbstractWidget, Boolean> handler) {
+        if (element instanceof final AbstractWidget widget)
+            return handler.apply(widget);
         final AtomicBoolean handled = new AtomicBoolean(false);
-        element.visitWidgets((final AbstractWidget widget) -> {
-            if (handler.apply(widget)) {
+        element.visitWidgets((final AbstractWidget child) -> {
+            if (handleElementInteract(child, handler)) {
                 handled.set(true);
             }
         });
-        if (!(element instanceof final AbstractWidget widget))
-            return true;
-        if (handler.apply(widget))
-            handled.set(true);
         return handled.get();
     }
 

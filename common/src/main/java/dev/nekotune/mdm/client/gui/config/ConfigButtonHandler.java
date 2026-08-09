@@ -62,6 +62,8 @@ public class ConfigButtonHandler {
             final Consumer<SpriteIconButton> adder) {
         if (!(mc.screen instanceof TitleScreen || mc.screen instanceof PauseScreen))
             return;
+        if (Config.INSTANCE.production)
+            return;
         for (final GuiEventListener listener : listeners) {
             if (!(listener instanceof final AbstractWidget widget))
                 continue;
@@ -70,8 +72,8 @@ public class ConfigButtonHandler {
                 continue;
             final int spacing = 4;
             final var offset = Config.INSTANCE.buttonOffset;
-            final int x = widget.getX() + widget.getWidth() + spacing + offset.x();
-            final int y = widget.getY() + offset.y();
+            final int x = widget.getX() + widget.getWidth() + spacing + offset.x;
+            final int y = widget.getY() + offset.y;
             final var button = BUTTON.get();
             button.setPosition(x, y);
             adder.accept(button);

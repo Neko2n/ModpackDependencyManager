@@ -13,6 +13,8 @@
     "mdm.screen.config.settings.prompt-enabled.tooltip": "Enables/disables the reload prompt that shows after successfully downloading dependencies. If disabled, the game will automatically reload.",
     "mdm.screen.config.settings.disable-compatibility-warnings": "Disable Compatibility Warnings",
     "mdm.screen.config.settings.disable-compatibility-warnings.tooltip": "Enables/disables Minecraft's version compatibility warnings for dependency packs.",
+    "mdm.screen.config.settings.button-offset": "Title Screen Button Offset",
+    "mdm.screen.config.settings.button-offset.tooltip": "Moves the title screen button. Useful if it's overlapping with another mod's button.",
     
     "mdm.screen.reloadprompt.title": "Modpack Resources Downloaded",
     "mdm.screen.reloadprompt.message.1": "New resources have been downloaded.",

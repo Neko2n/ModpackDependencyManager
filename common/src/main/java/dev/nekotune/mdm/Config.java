@@ -53,7 +53,13 @@ public final class Config {
     @Since(1.0)
     public Offset buttonOffset = new Offset(0, 0);
 
-    public static record Offset(int x, int y) {
+    public static final class Offset {
+        public int x;
+        public int y;
+        public Offset(final int x, final int y) {
+            this.x = x;
+            this.y = y;
+        }
     }
 
     private Config() {

@@ -44,7 +44,7 @@ public abstract class AbstractConfigScreen extends Screen {
                     .build();
             final int scrollListWidth = screen.width - SCROLL_LIST_PADDING * 2;
             var listBuilder = new SettingsListWidget.ListContent.Builder(scrollListWidth, screen.font);
-            for (final var setting : ConfigScreenSetting.values()) {
+            for (final var setting : ConfigScreenSettings.values()) {
                 listBuilder = listBuilder.addSetting(setting);
             }
             this.scrollList = new SettingsListWidget(SCROLL_LIST_PADDING, barHeight.get(),
