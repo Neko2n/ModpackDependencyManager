@@ -25,6 +25,7 @@ public class SettingsListWidget extends AbstractScrollWidget {
             final ListContent content) {
         super(x, y, width, height, Component.empty());
         this.content = content;
+        updateContent();
     }
 
     @Override
@@ -38,15 +39,28 @@ public class SettingsListWidget extends AbstractScrollWidget {
     }
 
     @Override
-    protected void renderContents(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
+    protected void setScrollAmount(final double scrollAmount) {
+        super.setScrollAmount(scrollAmount);
+        updateContent();
+    }
+
+    @Override
+    public void renderWidget(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
             final float partialTick) {
-        final int x = this.getX() + this.innerPadding() + HORIZONTAL_PADDING;
-        final int y = this.getY() + this.innerPadding();
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate((double) x, (double) y, 0.0d);
+        if (!this.visible)
+            return;
+        this.renderBackground(guiGraphics);
+        guiGraphics.enableScissor(this.getX() + 1, this.getY() + 1,
+                this.getX() + this.width - 1, this.getY() + this.height - 1);
         this.content.container()
                 .visitWidgets(widget -> widget.render(guiGraphics, mouseX, mouseY, partialTick));
-        guiGraphics.pose().popPose();
+        guiGraphics.disableScissor();
+        this.renderDecorations(guiGraphics);
+    }
+
+    @Override
+    protected final void renderContents(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
+            final float partialTick) {
     }
 
     @Override
@@ -56,6 +70,14 @@ public class SettingsListWidget extends AbstractScrollWidget {
     @Override
     protected void updateWidgetNarration(final NarrationElementOutput narrationOutput) {
         narrationOutput.add(NarratedElementType.TITLE, this.content.narration());
+    }
+
+    protected void updateContent() {
+        final int baseX = this.getX() + this.innerPadding() + HORIZONTAL_PADDING;
+        final int scrolledY = this.getY() + this.innerPadding() - ((int) this.scrollAmount());
+        this.content.container().setX(baseX);
+        this.content.container().setY(scrolledY);
+        this.content.container().arrangeElements();
     }
 
     public static record ListContent(Layout container, Component narration) {
