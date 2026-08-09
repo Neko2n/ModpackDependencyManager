@@ -113,6 +113,9 @@ public final class Config {
     }
 
     private static void sanitize(final Config config) {
+        if (config.dependencies.size() > 100) {
+            throw new IllegalStateException("Too many web dependencies. For user safety, downloads are capped at 100.");
+        }
         config.dependencies = new ArrayList<>(config.dependencies.stream()
                 .distinct()
                 .filter((final DependencyInfo dependency) -> {
