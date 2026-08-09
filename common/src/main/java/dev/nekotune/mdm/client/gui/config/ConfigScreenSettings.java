@@ -1,14 +1,13 @@
 package dev.nekotune.mdm.client.gui.config;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import dev.nekotune.mdm.Config;
 import dev.nekotune.mdm.client.gui.config.widgets.SettingsListWidget;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.StringWidget;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.network.chat.Component;
@@ -25,37 +24,33 @@ public enum ConfigScreenSettings implements SettingsListWidget.Setting {
     DISABLE_COMPATIBILITY_WARNINGS(new InputElement.Toggle(Config.INSTANCE.disableCompatibilityWarnings,
             value -> Config.INSTANCE.disableCompatibilityWarnings = value)),
     BUTTON_OFFSET(new InputElement.InputInts(
-            new int[]{Config.INSTANCE.buttonOffset.x, Config.INSTANCE.buttonOffset.y},
+            new int[] { Config.INSTANCE.buttonOffset.x, Config.INSTANCE.buttonOffset.y },
             value -> {
                 Config.INSTANCE.buttonOffset.x = value[0];
                 Config.INSTANCE.buttonOffset.y = value[1];
             }));
 
-    private static final String KEY = AbstractConfigScreen.Components.KEY + ".settings";
+    private static final String KEY = AbstractConfigScreen.KEY + ".settings";
 
-    public final InputElement<?> inputElement;
-    private final String translationKey;
+    public final Function<Font, LayoutElement> inputElement;
+    private final String translationKey = KEY + "."
+            + this.name().toLowerCase().replace('_', '-');
 
-    private ConfigScreenSettings(final InputElement<?> inputElement) {
+    private ConfigScreenSettings(final Function<Font, LayoutElement> inputElement) {
         this.inputElement = inputElement;
-        this.translationKey = this.name().toLowerCase().replace('_', '-');
     }
 
     @Override
-    public StringWidget createLabel(final Font font) {
-        final String key = KEY + "." + translationKey;
-        final var widget = new StringWidget(Component.translatable(key), font);
-        final Tooltip tooltip = Tooltip.create(Component.translatable(key + ".tooltip"));
-        widget.setTooltip(tooltip);
-        return widget;
+    public String translationKey() {
+        return translationKey;
     }
 
     @Override
     public LayoutElement createInput(final Font font) {
-        return inputElement.create(font);
+        return inputElement.apply(font);
     }
 
-    private static abstract class InputElement<T> {
+    private static abstract class InputElement<T> implements Function<Font, LayoutElement> {
 
         protected T value;
         protected final Consumer<T> onValueChanged;
@@ -64,8 +59,6 @@ public enum ConfigScreenSettings implements SettingsListWidget.Setting {
             this.value = defaultValue;
             this.onValueChanged = onValueChanged;
         }
-
-        public abstract LayoutElement create(final Font font);
 
         /**
          * Simple input button representing a boolean setting.
@@ -76,7 +69,7 @@ public enum ConfigScreenSettings implements SettingsListWidget.Setting {
             }
 
             @Override
-            public LayoutElement create(final Font font) {
+            public LayoutElement apply(final Font font) {
                 return Button.builder(getMessage(),
                         (final Button button) -> {
                             value = !value;
@@ -104,7 +97,7 @@ public enum ConfigScreenSettings implements SettingsListWidget.Setting {
             }
 
             @Override
-            public LayoutElement create(final Font font) {
+            public LayoutElement apply(final Font font) {
                 final LinearLayout layout = LinearLayout.horizontal();
                 for (int i = 0; i < this.size; i++) {
                     final var editBox = new EditBox(font, 40, 20, Component.empty());
@@ -116,7 +109,8 @@ public enum ConfigScreenSettings implements SettingsListWidget.Setting {
                         try {
                             this.value[i$immutable] = Integer.parseInt(text);
                             this.onValueChanged.accept(this.value);
-                        } catch (final NumberFormatException e) {}
+                        } catch (final NumberFormatException e) {
+                        }
                     });
                     layout.addChild(editBox);
                 }

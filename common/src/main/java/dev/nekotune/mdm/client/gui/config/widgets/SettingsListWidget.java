@@ -10,6 +10,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.Layout;
 import net.minecraft.client.gui.layouts.LayoutElement;
@@ -182,10 +183,19 @@ public class SettingsListWidget extends AbstractScrollWidget {
             }
 
             public Builder addSetting(final Setting setting) {
+                return addElement(new Setting.Label(setting.translationKey(), font),
+                        setting.createInput(font));
+            }
+
+            public Builder addWidget(final String translationKey, final AbstractWidget widget) {
+                return addElement(new Setting.Label(translationKey, font), widget);
+            }
+
+            private Builder addElement(final StringWidget label, final LayoutElement element) {
                 final var holder = new FrameLayout(width, ELEMENT_HEIGHT);
-                holder.addChild(setting.createLabel(font),
+                holder.addChild(label,
                         settings -> settings.alignHorizontallyLeft().alignVerticallyMiddle());
-                holder.addChild(setting.createInput(font),
+                holder.addChild(element,
                         settings -> settings.alignHorizontallyRight().alignVerticallyMiddle());
                 holder.arrangeElements();
                 this.container.addChild(holder,
@@ -203,8 +213,17 @@ public class SettingsListWidget extends AbstractScrollWidget {
 
     public static interface Setting {
 
-        public StringWidget createLabel(final Font font);
+        public String translationKey();
 
         public LayoutElement createInput(final Font font);
+
+        public static final class Label extends StringWidget {
+
+            private Label(final String key, final Font font) {
+                super(Component.translatable(key), font);
+                final Tooltip tooltip = Tooltip.create(Component.translatable(key + ".tooltip"));
+                this.setTooltip(tooltip);
+            }
+        }
     }
 }
