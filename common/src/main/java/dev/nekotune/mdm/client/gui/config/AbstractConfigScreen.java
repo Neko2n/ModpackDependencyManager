@@ -15,6 +15,8 @@ public abstract class AbstractConfigScreen extends Screen {
     public static final String KEY = Constants.MOD_ID + ".screen.config";
     public static final Component EXIT_BUTTON = Component
             .translatableWithFallback(KEY + ".button.exit", "Save & Exit");
+    public static final Component APPLY_BUTTON = Component
+            .translatableWithFallback(KEY + ".button.apply", "Apply");
     protected static final int SCROLL_LIST_PADDING = 80;
     private static final int BAR_BG_COLOR = 0x65000000;
 
@@ -27,7 +29,7 @@ public abstract class AbstractConfigScreen extends Screen {
         super(title);
         this.lastScreen = lastScreen;
         this.barHeight = () -> this.height / 6;
-        this.backButton = Button.builder(EXIT_BUTTON, $ -> this.exit())
+        this.backButton = Button.builder(Component.empty(), $ -> this.onClose())
                 .size(150, 20)
                 .pos(this.width / 2 - 75, this.height - barHeight.get() / 2 - 10)
                 .build();
@@ -66,6 +68,11 @@ public abstract class AbstractConfigScreen extends Screen {
         // Draw bar contents
         guiGraphics.drawCenteredString(this.font, this.title,
                 this.width / 2, barHeight / 2, 0xFFFFFFFF);
+        if (this.lastScreen instanceof AbstractConfigScreen) {
+            backButton.setMessage(APPLY_BUTTON);
+        } else {
+            backButton.setMessage(EXIT_BUTTON);
+        }
         backButton.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
@@ -73,16 +80,5 @@ public abstract class AbstractConfigScreen extends Screen {
     public void onClose() {
         Config.INSTANCE.save();
         this.minecraft.setScreen(lastScreen);
-    }
-
-    /**
-     * Closes all config screens, returning to the last screen which wasn't a config screen.
-     */
-    public void exit() {
-        if (this.lastScreen instanceof final AbstractConfigScreen configScreen) {
-            configScreen.exit();
-        } else {
-            this.onClose();
-        }
     }
 }
