@@ -1,5 +1,6 @@
 {
     "mdm.screen.config.main.title": "Modpack Dependency Manager",
+    "mdm.screen.config.button.apply": "Apply",
     "mdm.screen.config.button.exit": "Save & Exit",
     "mdm.screen.config.settings.button.resource-packs": "Resource Packs",
     "mdm.screen.config.settings.button.resource-packs.tooltip": "Configure resource pack dependencies",
