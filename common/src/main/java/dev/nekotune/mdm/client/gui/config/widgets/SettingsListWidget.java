@@ -3,6 +3,7 @@ package dev.nekotune.mdm.client.gui.config.widgets;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractScrollWidget;
@@ -83,15 +84,15 @@ public class SettingsListWidget extends AbstractScrollWidget {
 
     @Override
     public boolean charTyped(final char codePoint, final int modifiers) {
-        final boolean handled = this.handleElementInteract(this.content.container(), widget ->
-                widget.isFocused() && widget.charTyped(codePoint, modifiers));
+        final boolean handled = this.handleElementInteract(this.content.container(),
+                widget -> widget.isFocused() && widget.charTyped(codePoint, modifiers));
         return super.charTyped(codePoint, modifiers) || handled;
     }
 
     @Override
     public boolean keyPressed(final int keyCode, final int scanCode, final int modifiers) {
-        final boolean handled = this.handleElementInteract(this.content.container(), widget ->
-                widget.isFocused() && widget.keyPressed(keyCode, scanCode, modifiers));
+        final boolean handled = this.handleElementInteract(this.content.container(),
+                widget -> widget.isFocused() && widget.keyPressed(keyCode, scanCode, modifiers));
         return super.keyPressed(keyCode, scanCode, modifiers) || handled;
     }
 
@@ -130,11 +131,14 @@ public class SettingsListWidget extends AbstractScrollWidget {
 
     /**
      * Helper method to handle interaction detection for child widgets.
-     * @param element The element to handle interaction detection for. Recursively handles its widgets.
+     * 
+     * @param element The element to handle interaction detection for. Recursively
+     *                handles its widgets.
      * @param handler The handler function to apply.
      * @return True if any widgets were handled, false otherwise.
      */
-    private boolean handleElementInteract(final LayoutElement element, final Function<AbstractWidget, Boolean> handler) {
+    private boolean handleElementInteract(final LayoutElement element,
+            final Function<AbstractWidget, Boolean> handler) {
         if (element instanceof final AbstractWidget widget)
             return handler.apply(widget);
         final AtomicBoolean handled = new AtomicBoolean(false);
@@ -159,6 +163,7 @@ public class SettingsListWidget extends AbstractScrollWidget {
 
     /**
      * Data type representing the widget's list object.
+     * 
      * @param container The container layout holding the list's contents.
      * @param narration The narration to be applied to the list's contents.
      */
@@ -182,21 +187,35 @@ public class SettingsListWidget extends AbstractScrollWidget {
                 this.container.addChild(SpacerElement.height(PADDING / 2));
             }
 
-            public Builder addSetting(final Setting setting) {
-                return addElement(new Setting.Label(setting.translationKey(), font),
-                        setting.createInput(font));
+            public Builder addButton(final String translationKey, final Button.OnPress onPress) {
+                final Button button = Button
+                        .builder(Component.translatable(translationKey)
+                                .withStyle(ChatFormatting.BOLD), onPress)
+                        .size(width, ELEMENT_HEIGHT)
+                        .tooltip(Tooltip.create(Component.translatable(translationKey + ".tooltip")))
+                        .build();
+                final var left = new LayoutElement[] { button };
+                return addLine(left, new LayoutElement[] {});
             }
 
-            public Builder addWidget(final String translationKey, final AbstractWidget widget) {
-                return addElement(new Setting.Label(translationKey, font), widget);
+            public Builder addSetting(final String translationKey, final LayoutElement element) {
+                final var label = new StringWidget(Component.translatable(translationKey), font);
+                label.setTooltip(Tooltip.create(Component.translatable(translationKey + ".tooltip")));
+                final var left = new LayoutElement[] { label };
+                final var right = new LayoutElement[] { element };
+                return addLine(left, right);
             }
 
-            private Builder addElement(final StringWidget label, final LayoutElement element) {
+            private Builder addLine(final LayoutElement[] left, final LayoutElement[] right) {
                 final var holder = new FrameLayout(width, ELEMENT_HEIGHT);
-                holder.addChild(label,
-                        settings -> settings.alignHorizontallyLeft().alignVerticallyMiddle());
-                holder.addChild(element,
-                        settings -> settings.alignHorizontallyRight().alignVerticallyMiddle());
+                for (final LayoutElement element : left) {
+                    holder.addChild(element,
+                            settings -> settings.alignHorizontallyLeft().alignVerticallyMiddle());
+                }
+                for (final LayoutElement element : right) {
+                    holder.addChild(element,
+                            settings -> settings.alignHorizontallyRight().alignVerticallyMiddle());
+                }
                 holder.arrangeElements();
                 this.container.addChild(holder,
                         settings -> settings.paddingBottom(PADDING / 2).paddingTop(PADDING / 2));
@@ -207,22 +226,6 @@ public class SettingsListWidget extends AbstractScrollWidget {
                 this.container.addChild(SpacerElement.height(PADDING / 2));
                 this.container.arrangeElements();
                 return new ListContent(this.container, this.narration);
-            }
-        }
-    }
-
-    public static interface Setting {
-
-        public String translationKey();
-
-        public LayoutElement createInput(final Font font);
-
-        public static final class Label extends StringWidget {
-
-            private Label(final String key, final Font font) {
-                super(Component.translatable(key), font);
-                final Tooltip tooltip = Tooltip.create(Component.translatable(key + ".tooltip"));
-                this.setTooltip(tooltip);
             }
         }
     }

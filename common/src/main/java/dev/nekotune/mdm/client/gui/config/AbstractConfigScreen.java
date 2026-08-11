@@ -8,7 +8,6 @@ import dev.nekotune.mdm.client.gui.config.widgets.SettingsListWidget;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.PageButton;
 import net.minecraft.network.chat.Component;
 
 public abstract class AbstractConfigScreen extends Screen {
@@ -21,7 +20,6 @@ public abstract class AbstractConfigScreen extends Screen {
 
     protected final Supplier<Integer> barHeight;
     public final Screen lastScreen;
-    public final Button exitButton;
     public final Button backButton;
     public final SettingsListWidget scrollList;
 
@@ -29,8 +27,7 @@ public abstract class AbstractConfigScreen extends Screen {
         super(title);
         this.lastScreen = lastScreen;
         this.barHeight = () -> this.height / 6;
-        this.backButton = new PageButton(8, 8, false, $ -> this.onClose(), false);
-        this.exitButton = Button.builder(EXIT_BUTTON, $ -> this.exit())
+        this.backButton = Button.builder(EXIT_BUTTON, $ -> this.exit())
                 .size(150, 20)
                 .pos(this.width / 2 - 75, this.height - barHeight.get() / 2 - 10)
                 .build();
@@ -46,10 +43,7 @@ public abstract class AbstractConfigScreen extends Screen {
     protected void init() {
         super.init();
         this.addWidget(scrollList);
-        this.addWidget(exitButton);
-        if (this.shouldCloseOnEsc()) {
-            this.addWidget(backButton);
-        }
+        this.addWidget(backButton);
     }
 
     @Override
@@ -72,10 +66,7 @@ public abstract class AbstractConfigScreen extends Screen {
         // Draw bar contents
         guiGraphics.drawCenteredString(this.font, this.title,
                 this.width / 2, barHeight / 2, 0xFFFFFFFF);
-        exitButton.render(guiGraphics, mouseX, mouseY, partialTick);
-        if (this.shouldCloseOnEsc()) {
-            backButton.render(guiGraphics, mouseX, mouseY, partialTick);
-        }
+        backButton.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     @Override
