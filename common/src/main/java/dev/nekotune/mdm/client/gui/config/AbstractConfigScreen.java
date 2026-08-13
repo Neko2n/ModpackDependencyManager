@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import dev.nekotune.mdm.Config;
 import dev.nekotune.mdm.Constants;
+import dev.nekotune.mdm.client.gui.config.widgets.ScrollListContent;
 import dev.nekotune.mdm.client.gui.config.widgets.SettingsListWidget;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -34,12 +35,13 @@ public abstract class AbstractConfigScreen extends Screen {
                 .pos(this.width / 2 - 75, this.height - barHeight.get() / 2 - 10)
                 .build();
         final int scrollListWidth = this.width - SCROLL_LIST_PADDING * 2;
-        final var listBuilder = new SettingsListWidget.ListContent.Builder(scrollListWidth, this.font);
+        final var listBuilder = new ScrollListContent.Builder(scrollListWidth, this.font);
+        buildScrollList(listBuilder);
         this.scrollList = new SettingsListWidget(SCROLL_LIST_PADDING, this.barHeight.get(),
-                scrollListWidth, this.height - barHeight.get() * 2, buildScrollList(listBuilder));
+                scrollListWidth, this.height - barHeight.get() * 2, listBuilder.build());
     }
 
-    protected abstract SettingsListWidget.ListContent buildScrollList(SettingsListWidget.ListContent.Builder builder);
+    protected abstract void buildScrollList(final ScrollListContent.Builder builder);
 
     @Override
     protected void init() {

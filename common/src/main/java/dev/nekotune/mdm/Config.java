@@ -3,9 +3,7 @@ package dev.nekotune.mdm;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -56,6 +54,7 @@ public final class Config {
     public static final class Offset {
         public int x;
         public int y;
+
         public Offset(final int x, final int y) {
             this.x = x;
             this.y = y;
@@ -131,12 +130,10 @@ public final class Config {
                     final Set<String> slugs = new HashSet<>(dependency.mirrors());
                     slugs.add(dependency.slug());
                     for (final String slug : slugs) {
-                        try {
-                            Paths.get(slug);
-                        } catch (final InvalidPathException e) {
-                            Constants.LOG.warn("[Config] Invalid slug \"" + slug + "\"; removing entry");
-                            return false;
-                        }
+                        if (DependencyInfo.SLUG_VALIDATOR.test(slug))
+                            continue;
+                        Constants.LOG.warn("[Config] Invalid slug \"" + slug + "\"; removing entry");
+                        return false;
                     }
                     return true;
                 }).toList());

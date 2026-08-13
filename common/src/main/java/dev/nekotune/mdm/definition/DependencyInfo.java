@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import dev.nekotune.mdm.Constants;
@@ -32,13 +34,22 @@ public record DependencyInfo(
         PackType type,
         String slug,
         List<String> mirrors,
-        List<DependencyInfo.Host> hosts,
+        Set<DependencyInfo.Host> hosts,
         Mode mode,
         int loadPriority) {
 
+    /**
+     * Validates a given slug string.
+     * This validator must ensure that the slug is a valid path.
+     */
+    public static final Predicate<String> SLUG_VALIDATOR = (final String slug) -> {
+        return (slug.isEmpty() || slug.matches("^[\\w-]+$"))
+            && slug.length() <= 50;
+    };
+
     public DependencyInfo {
         mirrors = mirrors != null ? mirrors : List.of();
-        hosts = hosts != null ? hosts : List.of();
+        hosts = hosts != null ? hosts : Set.of();
         mode = mode != null ? mode : Mode.OPTIONAL_DISABLED;
         if (slug == null && mirrors.size() > 0) {
             slug = mirrors.removeFirst();

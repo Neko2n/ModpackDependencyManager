@@ -1,0 +1,92 @@
+package dev.nekotune.mdm.client.gui.config.widgets;
+
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.layouts.FrameLayout;
+import net.minecraft.client.gui.layouts.Layout;
+import net.minecraft.client.gui.layouts.LayoutElement;
+import net.minecraft.client.gui.layouts.LinearLayout;
+import net.minecraft.client.gui.layouts.SpacerElement;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+
+/**
+ * Data type representing the widget's list object.
+ * 
+ * @param container The container layout holding the list's contents.
+ * @param narration The narration label for the container.
+ */
+public record ScrollListContent(Layout container, Component narration) {
+
+    private static final int PADDING = 16;
+    private static final int ELEMENT_HEIGHT = Button.DEFAULT_HEIGHT;
+
+    public static class Builder {
+        private final Font font;
+        private final int width;
+        private final LinearLayout container;
+        private final MutableComponent narration = Component.empty();
+
+        public Builder(final int width, final Font font) {
+            this.font = font;
+            this.width = width - SettingsListWidget.HORIZONTAL_PADDING * 2;
+            this.container = LinearLayout.vertical();
+            this.container.defaultCellSetting().alignHorizontallyCenter();
+            this.container.addChild(SpacerElement.width(this.width));
+            this.container.addChild(SpacerElement.height(PADDING / 2));
+        }
+
+        public Builder addButton(final String translationKey, final Button.OnPress onPress) {
+            final Button button = Button
+                    .builder(Component.translatable(translationKey)
+                            .withStyle(ChatFormatting.BOLD), onPress)
+                    .size(width, ELEMENT_HEIGHT)
+                    .tooltip(Tooltip.create(Component.translatable(translationKey + ".tooltip")))
+                    .build();
+            final var left = new LayoutElement[] { button };
+            return addLine(left, new LayoutElement[] {});
+        }
+
+        public Builder addSetting(final String translationKey, final LayoutElement element) {
+            final var label = new StringWidget(Component.translatable(translationKey), font);
+            label.setTooltip(Tooltip.create(Component.translatable(translationKey + ".tooltip")));
+            final var left = new LayoutElement[] { label };
+            final var right = new LayoutElement[] { element };
+            return addLine(left, right);
+        }
+
+        public Builder addLine(final LayoutElement[] left, final LayoutElement[] right) {
+            final var holder = new FrameLayout(width, ELEMENT_HEIGHT);
+            for (final LayoutElement element : left) {
+                holder.addChild(element,
+                        settings -> settings.alignHorizontallyLeft().alignVerticallyMiddle());
+            }
+            for (final LayoutElement element : right) {
+                holder.addChild(element,
+                        settings -> settings.alignHorizontallyRight().alignVerticallyMiddle());
+            }
+            holder.arrangeElements();
+            this.container.addChild(holder,
+                    settings -> settings.paddingBottom(PADDING / 2).paddingTop(PADDING / 2));
+            return this;
+        }
+        public Builder addLine(final LayoutElement left, final LayoutElement right) {
+            return this.addLine(new LayoutElement[]{left}, new LayoutElement[]{right});
+        }
+        public Builder addElement(final LayoutElement element) {
+            return this.addLine(new LayoutElement[]{element}, new LayoutElement[]{});
+        }
+        public Builder addElements(final LayoutElement[] elements) {
+            return this.addLine(elements, new LayoutElement[]{});
+        }
+
+        public ScrollListContent build() {
+            this.container.addChild(SpacerElement.height(PADDING / 2));
+            this.container.arrangeElements();
+            return new ScrollListContent(this.container, this.narration);
+        }
+    }
+}
