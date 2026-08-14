@@ -30,7 +30,7 @@ public class DependencyEditScreen extends AbstractConfigScreen {
     private static final int BG_COLOR = 0xBB000000;
 
     private final Consumer<DependencyInfo> apply;
-    private final DependencyInfo original;
+    private final DependencyInfo editing;
     private final Component subtitle;
     private SettingsWidgets settingsWidgets;
     private Button applyButton = Button.builder(Component.empty(), $ -> {
@@ -54,7 +54,7 @@ public class DependencyEditScreen extends AbstractConfigScreen {
         }
         this.subtitle = subtitle;
         this.apply = apply;
-        this.original = dependency;
+        this.editing = dependency;
     }
 
     @Override
@@ -90,7 +90,7 @@ public class DependencyEditScreen extends AbstractConfigScreen {
                 hosts.add(DependencyInfo.Host.MODRINTH);
             }
             this.apply.accept(new DependencyInfo(
-                    this.original.type(),
+                    this.editing.type(),
                     this.settingsWidgets.slug().getValue(),
                     this.settingsWidgets.mirrors().getValues(),
                     hosts,
@@ -146,20 +146,22 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             SelectionInput<DependencyInfo.Mode> mode,
             EditBox loadPriority) {
 
-        public static SettingsWidgets create(final DependencyEditScreen screen) {
+        public static SettingsWidgets create(final DependencyEditScreen editScreen) {
 
             // Primary slug setting
-            final var slugEditBox = new EditBox(screen.font, Button.DEFAULT_WIDTH, Button.DEFAULT_HEIGHT,
-                    Component.literal(screen.original.slug()));
+            final var slugEditBox = new EditBox(editScreen.font, Button.DEFAULT_WIDTH, Button.DEFAULT_HEIGHT,
+                    Component.literal(editScreen.editing.slug()));
+            slugEditBox.setValue(editScreen.editing.slug());
             slugEditBox.setFilter(DependencyInfo.SLUG_VALIDATOR);
-            slugEditBox.setResponder(text -> screen.applyButton.active = true);
+            slugEditBox.setResponder(text -> editScreen.applyButton.active = true);
 
             // Mirror slugs setting
-            final var mirrorsList = new LinkedListInput(0, 0, screen.innerWidth(), screen.height, screen.font,
+            final var mirrorsList = new LinkedListInput(0, 0, editScreen.innerWidth(), editScreen.height, editScreen.font,
                     Component.translatable(KEY + ".mirrors"));
-            mirrorsList.setResponder(values -> screen.applyButton.active = true);
+            mirrorsList.setValues(editScreen.editing.mirrors());
+            mirrorsList.setResponder(values -> editScreen.applyButton.active = true);
             mirrorsList.setFilter(DependencyInfo.SLUG_VALIDATOR);
-            mirrorsList.onCollapsedChanged = $ -> screen.rebuildSettings();
+            mirrorsList.onCollapsedChanged = $ -> editScreen.rebuildSettings();
 
             // Hosts setting
             final EnumMap<DependencyInfo.Host, ToggleInput.IconToggle> hostToggles = new EnumMap<>(
@@ -169,10 +171,10 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             hostsLayout.spacing(4);
             final String tooltipKey = hostsKey + ".%s.tooltip";
             for (final DependencyInfo.Host host : DependencyInfo.Host.values()) {
-                final boolean enabled = screen.original.hosts().contains(host);
+                final boolean enabled = editScreen.editing.hosts().contains(host);
                 final var toggleInput = new ToggleInput.IconToggle(
                         ToggleSprites.Hosts.get(host), enabled,
-                        newValue -> screen.applyButton.active = true);
+                        newValue -> editScreen.applyButton.active = true);
                 hostToggles.put(host, toggleInput);
                 final String hostTooltipKey = tooltipKey.formatted(host.name()
                         .toLowerCase().replace('_', '-'));
@@ -183,15 +185,16 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             // Mode setting
             final var modeInput = new SelectionInput<DependencyInfo.Mode>(0, 0,
                     Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT,
-                    Set.of(DependencyInfo.Mode.values()), screen.original.mode(),
-                    $ -> screen.applyButton.active = true);
+                    Set.of(DependencyInfo.Mode.values()), editScreen.editing.mode(),
+                    $ -> editScreen.applyButton.active = true);
 
             // Load priority setting
-            final var loadPriorityEditBox = new EditBox(screen.font, Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT,
-                    Component.literal(String.valueOf(screen.original.loadPriority())));
+            final var loadPriorityEditBox = new EditBox(editScreen.font, Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT,
+                    Component.literal(String.valueOf(editScreen.editing.loadPriority())));
+            loadPriorityEditBox.setValue(String.valueOf(editScreen.editing.loadPriority()));
             loadPriorityEditBox.setFilter(text -> text.isEmpty()
                     || (text.matches("^\\d+$") && text.length() <= 3));
-            loadPriorityEditBox.setResponder(text -> screen.applyButton.active = true);
+            loadPriorityEditBox.setResponder(text -> editScreen.applyButton.active = true);
 
             return new SettingsWidgets(slugEditBox, mirrorsList, hostToggles, modeInput, loadPriorityEditBox);
         }

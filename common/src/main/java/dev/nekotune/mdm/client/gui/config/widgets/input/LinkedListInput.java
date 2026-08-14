@@ -17,6 +17,7 @@ import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
+// TODO Fix widget being completely broken (not rendering, not collapsing, etc.)
 public class LinkedListInput extends AbstractScrollWidget {
 
     private static final int BG_COLOR = 0x75000000;
@@ -45,7 +46,7 @@ public class LinkedListInput extends AbstractScrollWidget {
         this.font = font;
         this.header = new ListHeaderWidget(x, y, width, Button.DEFAULT_HEIGHT,
                 message, font, () -> this.collapsed);
-        this.addButton = Button.builder(Components.ADD, $ -> this.addNewItem())
+        this.addButton = Button.builder(Components.ADD, $ -> this.addNewItem(""))
                 .size(Button.DEFAULT_HEIGHT * 2, Button.DEFAULT_HEIGHT)
                 .build();
         refreshContents();
@@ -53,6 +54,13 @@ public class LinkedListInput extends AbstractScrollWidget {
 
     public List<String> getValues() {
         return items.stream().map(editBox -> editBox.getValue()).toList();
+    }
+
+    public void setValues(final Collection<String> values) {
+        items.clear();
+        for (final String value : values) {
+            this.addNewItem(value);
+        }
     }
 
     public void setFilter(final Predicate<String> validator) {
@@ -81,10 +89,12 @@ public class LinkedListInput extends AbstractScrollWidget {
         this.content = contentBuilder.build();
     }
 
-    protected void addNewItem() {
+    protected void addNewItem(final String value) {
         final EditBox newItem = new EditBox(this.font, Button.DEFAULT_WIDTH, Button.DEFAULT_HEIGHT,
                 Component.empty());
         newItem.setFilter(this.inputValidator);
+        if (this.inputValidator.test(value))
+            newItem.setValue(value);
         newItem.setResponder((final String text) -> {
             this.responder.accept(getValues());
         });
