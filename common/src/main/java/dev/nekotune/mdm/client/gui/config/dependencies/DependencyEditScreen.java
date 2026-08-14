@@ -41,15 +41,17 @@ public class DependencyEditScreen extends Screen {
     private final Component subtitle;
     private final DependenciesScreen below;
     private final Consumer<DependencyInfo> apply;
-    private final Button applyButton;
     private final SettingsListWidget settings;
-    private final Supplier<DependencyInfo> modifiedDependency;
+    private final DependencyInfo original;
+    private Button applyButton = Button.builder(Component.empty(), $ -> {
+    }).build();
 
     protected DependencyEditScreen(final DependenciesScreen below,
             final DependencyInfo dependency, final Consumer<DependencyInfo> apply) {
         super(TITLE);
         this.below = below;
         this.apply = apply;
+        this.original = dependency;
 
         final MutableComponent subtitle = Component.empty();
         switch (dependency.type()) {
@@ -64,18 +66,27 @@ public class DependencyEditScreen extends Screen {
         }
         this.subtitle = subtitle;
 
+        this.settings = new SettingsListWidget(0, 0, 0, 0);
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+
         final var listBuilder = new ScrollListContent.Builder(innerWidth.get(), this.font);
 
         // Primary slug setting
         final var slugEditBox = new EditBox(font, Button.DEFAULT_WIDTH, Button.DEFAULT_HEIGHT,
-                Component.literal(dependency.slug()));
+                Component.literal(this.original.slug()));
         slugEditBox.setFilter(DependencyInfo.SLUG_VALIDATOR);
+        slugEditBox.setResponder(text -> this.applyButton.active = true);
         listBuilder.addSetting(KEY + ".settings.slug", slugEditBox);
 
         // Mirror slugs setting
         final var mirrorsLabel = new StringWidget(Component.translatable(KEY + ".settings.mirrors"), font);
         final var mirrorsList = new LinkedListInput(0, 0, innerWidth.get(), height, font,
                 Component.empty());
+        mirrorsList.setResponder(values -> this.applyButton.active = true);
         mirrorsList.setFilter(DependencyInfo.SLUG_VALIDATOR);
         final LinearLayout mirrorsLayout = LinearLayout.vertical();
         mirrorsLayout.spacing(4);
@@ -89,11 +100,14 @@ public class DependencyEditScreen extends Screen {
         hostsLayout.spacing(4);
         final String tooltipKey = hostsKey + ".%s.tooltip";
         for (final DependencyInfo.Host host : DependencyInfo.Host.values()) {
-            final boolean enabled = dependency.hosts().contains(host);
+            final boolean enabled = this.original.hosts().contains(host);
             this.hostToggles.put(host, enabled);
             final var toggleInput = new ToggleInput.IconToggle(
                     ToggleSprites.Hosts.get(host), enabled,
-                    newValue -> this.hostToggles.put(host, newValue));
+                    newValue -> {
+                        this.hostToggles.put(host, newValue);
+                        this.applyButton.active = true;
+                    });
             final String hostTooltipKey = tooltipKey.formatted(host.name()
                     .toLowerCase().replace('_', '-'));
             toggleInput.setTooltip(Tooltip.create(Component.translatable(hostTooltipKey)));
@@ -105,21 +119,25 @@ public class DependencyEditScreen extends Screen {
         final String modeKey = KEY + ".settings.mode";
         final var modeInput = new SelectionInput<DependencyInfo.Mode>(0, 0,
                 Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT,
-                Set.of(DependencyInfo.Mode.values()), dependency.mode());
+                Set.of(DependencyInfo.Mode.values()), this.original.mode(),
+                $ -> this.applyButton.active = true);
         listBuilder.addSetting(modeKey, modeInput);
 
         // Load priority setting
         final var loadPriorityEditBox = new EditBox(font, Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT,
-                Component.literal(String.valueOf(dependency.loadPriority())));
+                Component.literal(String.valueOf(this.original.loadPriority())));
         loadPriorityEditBox.setFilter(text -> text.isEmpty()
                 || (text.matches("^\\d+$") && text.length() <= 3));
+        loadPriorityEditBox.setResponder(text -> this.applyButton.active = true);
         listBuilder.addSetting(KEY + ".settings.load-priority", loadPriorityEditBox);
 
-        // Build settings list
-        this.settings = new SettingsListWidget(0, 0, innerWidth.get(), innerHeight.get(),
-                listBuilder.build());
+        // Commit settings widgets into the settings scroll list
+        settings.setContent(listBuilder.build());
+        settings.setSize(this.innerWidth.get(), this.innerHeight.get());
 
-        this.modifiedDependency = () -> {
+        // Button to apply changes
+        final Button.OnPress onApplyPressed = $ -> {
+            this.applyButton.active = false;
             int loadPriority = 0;
             try {
                 loadPriority = Integer.valueOf(loadPriorityEditBox.getValue());
@@ -130,27 +148,20 @@ public class DependencyEditScreen extends Screen {
             if (hosts.isEmpty()) {
                 hosts.add(DependencyInfo.Host.MODRINTH);
             }
-            return new DependencyInfo(
-                    dependency.type(),
+            this.apply.accept(new DependencyInfo(
+                    this.original.type(),
                     slugEditBox.getValue(),
                     mirrorsList.getValues(),
                     hosts,
                     modeInput.getValue(),
-                    loadPriority);
+                    loadPriority));
         };
-
         this.applyButton = Button.builder(
-                Component.translatableWithFallback(KEY + ".button.apply", "Apply"),
-                (final Button button) -> {
-                    button.active = false;
-                    this.apply.accept(this.modifiedDependency.get());
-                }).size(Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT)
+                Component.translatableWithFallback(KEY + ".button.apply", "Apply"), onApplyPressed)
+                .size(Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT)
                 .build();
-    }
 
-    @Override
-    protected void init() {
-        super.init();
+        // Arrange widgets into rendered screen layout
         final LinearLayout layout = LinearLayout.vertical();
         layout.addChild(SpacerElement.width(width));
         layout.addChild(new StringWidget(this.title, font));

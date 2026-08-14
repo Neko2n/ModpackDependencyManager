@@ -40,12 +40,12 @@ public class MainConfigScreen extends AbstractConfigScreen {
         builder.addButton(KEY + ".button.server-data", (final Button button) -> {
             this.minecraft.setScreen(new DependenciesScreen(this, PackType.SERVER_DATA));
         });
-        MainSettings.PRODUCTION.appendTo(builder, font);
-        MainSettings.HIDE_FORCED.appendTo(builder, font);
-        MainSettings.WARN_ENABLED.appendTo(builder, font);
-        MainSettings.PROMPT_ENABLED.appendTo(builder, font);
-        MainSettings.DISABLE_COMPATIBILITY_WARNINGS.appendTo(builder, font);
-        MainSettings.BUTTON_OFFSET.appendTo(builder, font);
+        MainSettings.PRODUCTION.appendTo(builder, this.font);
+        MainSettings.HIDE_FORCED.appendTo(builder, this.font);
+        MainSettings.WARN_ENABLED.appendTo(builder, this.font);
+        MainSettings.PROMPT_ENABLED.appendTo(builder, this.font);
+        MainSettings.DISABLE_COMPATIBILITY_WARNINGS.appendTo(builder, this.font);
+        MainSettings.BUTTON_OFFSET.appendTo(builder, this.font);
     }
 
     public static enum MainSettings {

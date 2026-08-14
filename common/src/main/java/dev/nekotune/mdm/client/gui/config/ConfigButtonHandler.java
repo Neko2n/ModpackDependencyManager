@@ -25,7 +25,8 @@ import net.minecraft.resources.ResourceLocation;
  */
 public class ConfigButtonHandler {
 
-    protected static final ResourceLocation SPRITE = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "config/button");
+    protected static final ResourceLocation SPRITE = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID,
+            "config/button");
     protected static final Tooltip TOOLTIP = Tooltip.create(MainConfigScreen.TITLE.copy()
             .setStyle(Style.EMPTY));
 

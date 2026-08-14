@@ -13,8 +13,8 @@ public class SelectionInput<T extends Enum<T>> extends Button {
     private int index = 0;
 
     public SelectionInput(final int x, final int y, final int width, final int height,
-            final Set<T> values, final T defaultValue) {
-        super(x, y, width, height, Component.empty(), $ -> {}, Button.DEFAULT_NARRATION);
+            final Set<T> values, final T defaultValue, final Button.OnPress onPress) {
+        super(x, y, width, height, Component.empty(), onPress, Button.DEFAULT_NARRATION);
         this.values = new LinkedList<>(values);
         this.index = this.values.indexOf(defaultValue);
         this.setMessage(this.getMessage());

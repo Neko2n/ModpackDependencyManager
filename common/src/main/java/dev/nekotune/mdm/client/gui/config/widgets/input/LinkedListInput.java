@@ -1,7 +1,9 @@
 package dev.nekotune.mdm.client.gui.config.widgets.input;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import dev.nekotune.mdm.client.gui.config.widgets.ScrollListContent;
@@ -29,6 +31,7 @@ public class LinkedListInput extends AbstractScrollWidget {
 
     private Font font;
     private Predicate<String> inputValidator = $ -> true;
+    private Consumer<Collection<String>> responder = $ -> {};
     private final LinkedList<EditBox> items = new LinkedList<>();
     private final ListHeaderWidget header;
     private final Button addButton;
@@ -53,6 +56,13 @@ public class LinkedListInput extends AbstractScrollWidget {
 
     public void setFilter(final Predicate<String> validator) {
         this.inputValidator = validator;
+        for (final EditBox item : this.items) {
+            item.setFilter(validator);
+        }
+    }
+
+    public void setResponder(final Consumer<Collection<String>> responder) {
+        this.responder = responder;
     }
 
     protected void refreshContents() {
@@ -74,6 +84,9 @@ public class LinkedListInput extends AbstractScrollWidget {
         final EditBox newItem = new EditBox(this.font, Button.DEFAULT_WIDTH, Button.DEFAULT_HEIGHT,
                 Component.empty());
         newItem.setFilter(this.inputValidator);
+        newItem.setResponder((final String text) -> {
+            this.responder.accept(getValues());
+        });
         this.items.add(newItem);
         refreshContents();
     }

@@ -23,6 +23,7 @@ public abstract class AbstractConfigScreen extends Screen {
 
     private final SettingsListWidget scrollList;
     protected final Supplier<Integer> barHeight;
+    protected final Supplier<Integer> scrollListWidth;
     public final Screen lastScreen;
     public final Button backButton;
 
@@ -30,22 +31,18 @@ public abstract class AbstractConfigScreen extends Screen {
         super(title);
         this.lastScreen = lastScreen;
         this.barHeight = () -> this.height / 6;
+        this.scrollListWidth = () -> this.width - SCROLL_LIST_PADDING * 2;
         this.backButton = Button.builder(Component.empty(), $ -> this.onClose())
                 .size(150, 20)
-                .pos(this.width / 2 - 75, this.height - barHeight.get() / 2 - 10)
                 .build();
-        final int scrollListWidth = this.width - SCROLL_LIST_PADDING * 2;
-        final var listBuilder = new ScrollListContent.Builder(scrollListWidth, this.font);
-        buildScrollList(listBuilder);
-        this.scrollList = new SettingsListWidget(SCROLL_LIST_PADDING, this.barHeight.get(),
-                scrollListWidth, this.height - barHeight.get() * 2, listBuilder.build());
+        this.scrollList = new SettingsListWidget(0, 0, 0, 0);
     }
 
     protected abstract void buildScrollList(final ScrollListContent.Builder builder);
 
     protected final void rebuildScrollList() {
-        final int scrollListWidth = this.width - SCROLL_LIST_PADDING * 2;
-        final var listBuilder = new ScrollListContent.Builder(scrollListWidth, this.font);
+        this.scrollList.setPosition(SCROLL_LIST_PADDING, this.barHeight.get());
+        final var listBuilder = new ScrollListContent.Builder(this.scrollListWidth.get(), this.font);
         buildScrollList(listBuilder);
         this.scrollList.setContent(listBuilder.build());
     }
@@ -53,6 +50,7 @@ public abstract class AbstractConfigScreen extends Screen {
     @Override
     protected void init() {
         super.init();
+        this.rebuildScrollList();
         this.addWidget(scrollList);
         this.addWidget(backButton);
     }
@@ -61,7 +59,7 @@ public abstract class AbstractConfigScreen extends Screen {
     public void render(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
             final float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        
+
         // Draw scroll layout contents
         scrollList.render(guiGraphics, mouseX, mouseY, partialTick);
 
@@ -82,6 +80,7 @@ public abstract class AbstractConfigScreen extends Screen {
         } else {
             backButton.setMessage(EXIT_BUTTON);
         }
+        backButton.setPosition(this.width / 2 - 75, this.height - this.barHeight.get() / 2 - 10);
         backButton.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 

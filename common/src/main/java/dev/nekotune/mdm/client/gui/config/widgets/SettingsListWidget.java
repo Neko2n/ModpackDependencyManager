@@ -21,11 +21,9 @@ public class SettingsListWidget extends AbstractScrollWidget {
 
     protected ScrollListContent content;
 
-    public SettingsListWidget(final int x, final int y, final int width, final int height,
-            final ScrollListContent content) {
+    public SettingsListWidget(final int x, final int y, final int width, final int height) {
         super(x, y, width, height, Component.empty());
-        this.content = content;
-        updateContent();
+        this.content = null;
     }
 
     @Override
