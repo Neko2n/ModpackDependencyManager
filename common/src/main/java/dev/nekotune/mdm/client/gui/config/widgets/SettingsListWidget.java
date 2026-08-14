@@ -19,7 +19,7 @@ public class SettingsListWidget extends AbstractScrollWidget {
 
     protected static final int HORIZONTAL_PADDING = 12;
 
-    protected final ScrollListContent content;
+    protected ScrollListContent content;
 
     public SettingsListWidget(final int x, final int y, final int width, final int height,
             final ScrollListContent content) {
@@ -52,8 +52,7 @@ public class SettingsListWidget extends AbstractScrollWidget {
         this.renderBackground(guiGraphics);
         guiGraphics.enableScissor(this.getX() + 1, this.getY() + 1,
                 this.getX() + this.width - 1, this.getY() + this.height - 1);
-        this.content.container()
-                .visitWidgets(widget -> widget.render(guiGraphics, mouseX, mouseY, partialTick));
+        this.renderContents(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.disableScissor();
         this.renderDecorations(guiGraphics);
     }
@@ -61,6 +60,8 @@ public class SettingsListWidget extends AbstractScrollWidget {
     @Override
     protected final void renderContents(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
             final float partialTick) {
+        this.content.container()
+                .visitWidgets(widget -> widget.render(guiGraphics, mouseX, mouseY, partialTick));
     }
 
     @Override
@@ -149,5 +150,13 @@ public class SettingsListWidget extends AbstractScrollWidget {
         this.content.container().setX(baseX);
         this.content.container().setY(scrolledY);
         this.content.container().arrangeElements();
+    }
+
+    /**
+     * Sets this scroll list's content to a new value.
+     */
+    public void setContent(final ScrollListContent content) {
+        this.content = content;
+        updateContent();
     }
 }

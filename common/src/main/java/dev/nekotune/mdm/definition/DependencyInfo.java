@@ -47,6 +47,16 @@ public record DependencyInfo(
             && slug.length() <= 50;
     };
 
+    /**
+     * @param packType The type of pack to create information for.
+     * @return The default construction of a DependencyInfo object.
+     */
+    public static final DependencyInfo createDefault(final PackType packType) {
+        return new DependencyInfo(packType, "new-dependency", List.of(),
+                Set.of(DependencyInfo.Host.MODRINTH),
+                DependencyInfo.Mode.OPTIONAL_ENABLED, 0);
+    }
+
     public DependencyInfo {
         mirrors = mirrors != null ? mirrors : List.of();
         hosts = hosts != null ? hosts : Set.of();

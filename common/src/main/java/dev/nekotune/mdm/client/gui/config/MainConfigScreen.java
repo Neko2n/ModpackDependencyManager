@@ -4,7 +4,7 @@ import java.util.function.Function;
 
 import dev.nekotune.mdm.Config;
 import dev.nekotune.mdm.Constants;
-import dev.nekotune.mdm.client.gui.config.dependencies.ResourcePacksScreen;
+import dev.nekotune.mdm.client.gui.config.dependencies.DependenciesScreen;
 import dev.nekotune.mdm.client.gui.config.widgets.ScrollListContent;
 import dev.nekotune.mdm.client.gui.config.widgets.input.ToggleInput;
 import dev.nekotune.mdm.client.gui.config.widgets.input.VectorInput;
@@ -14,6 +14,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.PackType;
 
 public class MainConfigScreen extends AbstractConfigScreen {
 
@@ -33,11 +34,11 @@ public class MainConfigScreen extends AbstractConfigScreen {
 
     @Override
     protected void buildScrollList(final ScrollListContent.Builder builder) {
-        builder.addButton(KEY + ".button.resource-packs", (final Button button) -> {
-            this.minecraft.setScreen(new ResourcePacksScreen(this));
+        builder.addButton(KEY + ".button.client-resources", (final Button button) -> {
+            this.minecraft.setScreen(new DependenciesScreen(this, PackType.CLIENT_RESOURCES));
         });
-        builder.addButton(KEY + ".button.data-packs", (final Button button) -> {
-            // TODO Data packs screen
+        builder.addButton(KEY + ".button.server-data", (final Button button) -> {
+            this.minecraft.setScreen(new DependenciesScreen(this, PackType.SERVER_DATA));
         });
         MainSettings.PRODUCTION.appendTo(builder, font);
         MainSettings.HIDE_FORCED.appendTo(builder, font);

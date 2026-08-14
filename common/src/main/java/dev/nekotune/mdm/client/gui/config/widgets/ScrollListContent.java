@@ -1,5 +1,8 @@
 package dev.nekotune.mdm.client.gui.config.widgets;
 
+import java.util.Collection;
+import java.util.List;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
@@ -46,19 +49,18 @@ public record ScrollListContent(Layout container, Component narration) {
                     .size(width, ELEMENT_HEIGHT)
                     .tooltip(Tooltip.create(Component.translatable(translationKey + ".tooltip")))
                     .build();
-            final var left = new LayoutElement[] { button };
-            return addLine(left, new LayoutElement[] {});
+            return addElement(button);
         }
 
         public Builder addSetting(final String translationKey, final LayoutElement element) {
             final var label = new StringWidget(Component.translatable(translationKey), font);
             label.setTooltip(Tooltip.create(Component.translatable(translationKey + ".tooltip")));
-            final var left = new LayoutElement[] { label };
-            final var right = new LayoutElement[] { element };
+            final List<LayoutElement> left = List.of(label);
+            final List<LayoutElement> right = List.of(element);
             return addLine(left, right);
         }
 
-        public Builder addLine(final LayoutElement[] left, final LayoutElement[] right) {
+        public Builder addLine(final Collection<LayoutElement> left, final Collection<LayoutElement> right) {
             final var holder = new FrameLayout(width, ELEMENT_HEIGHT);
             for (final LayoutElement element : left) {
                 holder.addChild(element,
@@ -74,13 +76,13 @@ public record ScrollListContent(Layout container, Component narration) {
             return this;
         }
         public Builder addLine(final LayoutElement left, final LayoutElement right) {
-            return this.addLine(new LayoutElement[]{left}, new LayoutElement[]{right});
+            return this.addLine(List.of(left), List.of(right));
         }
         public Builder addElement(final LayoutElement element) {
-            return this.addLine(new LayoutElement[]{element}, new LayoutElement[]{});
+            return this.addLine(List.of(element), List.of());
         }
-        public Builder addElements(final LayoutElement[] elements) {
-            return this.addLine(elements, new LayoutElement[]{});
+        public Builder addElements(final Collection<LayoutElement> elements) {
+            return this.addLine(elements, List.of());
         }
 
         public ScrollListContent build() {

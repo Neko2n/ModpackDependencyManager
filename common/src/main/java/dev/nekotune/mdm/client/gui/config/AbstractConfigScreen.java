@@ -21,10 +21,10 @@ public abstract class AbstractConfigScreen extends Screen {
     protected static final int SCROLL_LIST_PADDING = 80;
     private static final int BAR_BG_COLOR = 0x65000000;
 
+    private final SettingsListWidget scrollList;
     protected final Supplier<Integer> barHeight;
     public final Screen lastScreen;
     public final Button backButton;
-    public final SettingsListWidget scrollList;
 
     protected AbstractConfigScreen(final Component title, final Screen lastScreen) {
         super(title);
@@ -42,6 +42,13 @@ public abstract class AbstractConfigScreen extends Screen {
     }
 
     protected abstract void buildScrollList(final ScrollListContent.Builder builder);
+
+    protected final void rebuildScrollList() {
+        final int scrollListWidth = this.width - SCROLL_LIST_PADDING * 2;
+        final var listBuilder = new ScrollListContent.Builder(scrollListWidth, this.font);
+        buildScrollList(listBuilder);
+        this.scrollList.setContent(listBuilder.build());
+    }
 
     @Override
     protected void init() {

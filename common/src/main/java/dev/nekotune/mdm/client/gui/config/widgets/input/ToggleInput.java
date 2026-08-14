@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import dev.nekotune.mdm.client.gui.config.dependencies.ToggleSprites;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -67,11 +68,11 @@ public abstract sealed class ToggleInput extends Button {
         private final ResourceLocation onSprite;
         private final ResourceLocation offSprite;
 
-        public IconToggle(final ResourceLocation onSprite, final ResourceLocation offSprite,
+        public IconToggle(final ToggleSprites sprites,
                 final boolean defaultValue, final Consumer<Boolean> onValueChanged) {
             super(defaultValue, onValueChanged, Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT);
-            this.onSprite = onSprite;
-            this.offSprite = offSprite;
+            this.onSprite = sprites.onSprite();
+            this.offSprite = sprites.offSprite();
         }
 
         @Override

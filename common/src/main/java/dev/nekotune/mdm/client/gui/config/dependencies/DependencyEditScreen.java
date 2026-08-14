@@ -5,7 +5,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import dev.nekotune.mdm.Constants;
 import dev.nekotune.mdm.client.gui.config.widgets.ScrollListContent;
 import dev.nekotune.mdm.client.gui.config.widgets.SettingsListWidget;
 import dev.nekotune.mdm.client.gui.config.widgets.input.LinkedListInput;
@@ -23,41 +22,30 @@ import net.minecraft.client.gui.layouts.SpacerElement;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 
 /**
  * Pop-up screen to edit a dependency.
  */
 public class DependencyEditScreen extends Screen {
 
-    protected static final String KEY = AbstractDependenciesScreen.KEY + ".edit";
+    protected static final String KEY = DependenciesScreen.KEY + ".edit";
     private static final Component TITLE = Component.translatableWithFallback(KEY + ".title", "Edit Dependency")
             .withStyle(ChatFormatting.BOLD);
     private static final int BG_COLOR = 0x75000000;
     private static final int PADDING = 40;
     private static final int SPACING = 20;
 
-    public static record ButtonSprites(ResourceLocation onSprite, ResourceLocation offSprite) {
-        private static final String KEY = DependencyEditScreen.KEY + ".hosts";
-        public static final ButtonSprites MODRINTH = new ButtonSprites(
-                ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, KEY + ".modrinth.on"),
-                ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, KEY + ".modrinth.off"));
-        public static final ButtonSprites CURSEFORGE = new ButtonSprites(
-                ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, KEY + ".curseforge.on"),
-                ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, KEY + ".curseforge.off"));
-    }
-
     protected Supplier<Integer> innerWidth = () -> width - PADDING * 2;
     protected Supplier<Integer> innerHeight = () -> height - PADDING * 2;
     private final EnumMap<DependencyInfo.Host, Boolean> hostToggles = new EnumMap<>(DependencyInfo.Host.class);
     private final Component subtitle;
-    private final AbstractDependenciesScreen below;
+    private final DependenciesScreen below;
     private final Consumer<DependencyInfo> apply;
     private final Button applyButton;
     private final SettingsListWidget settings;
     private final Supplier<DependencyInfo> modifiedDependency;
 
-    protected DependencyEditScreen(final AbstractDependenciesScreen below,
+    protected DependencyEditScreen(final DependenciesScreen below,
             final DependencyInfo dependency, final Consumer<DependencyInfo> apply) {
         super(TITLE);
         this.below = below;
@@ -104,8 +92,8 @@ public class DependencyEditScreen extends Screen {
             final boolean enabled = dependency.hosts().contains(host);
             this.hostToggles.put(host, enabled);
             final var toggleInput = new ToggleInput.IconToggle(
-                    ButtonSprites.MODRINTH.onSprite(), ButtonSprites.MODRINTH.offSprite(),
-                    enabled, newValue -> this.hostToggles.put(host, newValue));
+                    ToggleSprites.Hosts.get(host), enabled,
+                    newValue -> this.hostToggles.put(host, newValue));
             final String hostTooltipKey = tooltipKey.formatted(host.name()
                     .toLowerCase().replace('_', '-'));
             toggleInput.setTooltip(Tooltip.create(Component.translatable(hostTooltipKey)));
@@ -137,11 +125,16 @@ public class DependencyEditScreen extends Screen {
                 loadPriority = Integer.valueOf(loadPriorityEditBox.getValue());
             } catch (final NumberFormatException e) {
             }
+            final Set<DependencyInfo.Host> hosts = Set.copyOf(hostToggles.keySet().stream()
+                    .filter(hostToggles::get).toList());
+            if (hosts.isEmpty()) {
+                hosts.add(DependencyInfo.Host.MODRINTH);
+            }
             return new DependencyInfo(
                     dependency.type(),
                     slugEditBox.getValue(),
                     mirrorsList.getValues(),
-                    Set.copyOf(hostToggles.keySet().stream().filter(hostToggles::get).toList()),
+                    hosts,
                     modeInput.getValue(),
                     loadPriority);
         };
