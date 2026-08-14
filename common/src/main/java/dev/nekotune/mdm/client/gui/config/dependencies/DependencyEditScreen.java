@@ -19,6 +19,8 @@ import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
+// TODO Fix apply button being improperly offset to the left
+// TODO Fix apply button only working the first time it's pressed
 /**
  * Pop-up screen to edit a dependency.
  */

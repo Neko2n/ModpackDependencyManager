@@ -30,6 +30,8 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.server.packs.PackType;
 
+// TODO Add missing lang entries
+// TODO Add missing icon textures
 public class ClientCommonClass {
 
     public static void init() {
