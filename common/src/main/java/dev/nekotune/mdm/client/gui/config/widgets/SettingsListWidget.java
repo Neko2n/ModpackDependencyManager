@@ -17,7 +17,7 @@ import net.minecraft.network.chat.Component;
  */
 public class SettingsListWidget extends AbstractScrollWidget {
 
-    protected static final int HORIZONTAL_PADDING = 12;
+    public static final int HORIZONTAL_PADDING = 12;
 
     protected ScrollListContent content;
 
@@ -116,6 +116,16 @@ public class SettingsListWidget extends AbstractScrollWidget {
         final boolean handled = this.handleElementInteract(this.content.container(),
                 widget -> widget.mouseReleased(mouseX, mouseY, button));
         return super.mouseReleased(mouseX, mouseY, button) || handled;
+    }
+
+    @Override
+    public int innerPadding() {
+        return super.innerPadding();
+    }
+
+    @Override
+    public int totalInnerPadding() {
+        return super.totalInnerPadding();
     }
 
     /**

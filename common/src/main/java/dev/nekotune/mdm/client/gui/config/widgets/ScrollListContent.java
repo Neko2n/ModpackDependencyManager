@@ -35,7 +35,7 @@ public record ScrollListContent(Layout container, Component narration) {
 
         public Builder(final int width, final Font font) {
             this.font = font;
-            this.width = width - SettingsListWidget.HORIZONTAL_PADDING * 2;
+            this.width = width;
             this.container = LinearLayout.vertical();
             this.container.defaultCellSetting().alignHorizontallyCenter();
             this.container.addChild(SpacerElement.width(this.width));
@@ -55,32 +55,39 @@ public record ScrollListContent(Layout container, Component narration) {
         public Builder addSetting(final String translationKey, final LayoutElement element) {
             final var label = new StringWidget(Component.translatable(translationKey), font);
             label.setTooltip(Tooltip.create(Component.translatable(translationKey + ".tooltip")));
-            final List<LayoutElement> left = List.of(label);
-            final List<LayoutElement> right = List.of(element);
-            return addLine(left, right);
+            return addLine(List.of(label), List.of(element));
         }
 
         public Builder addLine(final Collection<LayoutElement> left, final Collection<LayoutElement> right) {
             final var holder = new FrameLayout(width, ELEMENT_HEIGHT);
+
+            final LinearLayout leftGroup = LinearLayout.horizontal();
             for (final LayoutElement element : left) {
-                holder.addChild(element,
-                        settings -> settings.alignHorizontallyLeft().alignVerticallyMiddle());
+                leftGroup.addChild(element, settings -> settings.alignVerticallyMiddle());
             }
+            leftGroup.arrangeElements();
+            holder.addChild(leftGroup, settings -> settings.alignHorizontallyLeft().alignVerticallyMiddle());
+
+            final LinearLayout rightGroup = LinearLayout.horizontal();
             for (final LayoutElement element : right) {
-                holder.addChild(element,
-                        settings -> settings.alignHorizontallyRight().alignVerticallyMiddle());
+                rightGroup.addChild(element, settings -> settings.alignVerticallyMiddle());
             }
+            rightGroup.arrangeElements();
+            holder.addChild(rightGroup, settings -> settings.alignHorizontallyRight().alignVerticallyMiddle());
+
             holder.arrangeElements();
-            this.container.addChild(holder,
-                    settings -> settings.paddingBottom(PADDING / 2).paddingTop(PADDING / 2));
+            this.container.addChild(holder, settings -> settings.paddingBottom(PADDING / 2).paddingTop(PADDING / 2));
             return this;
         }
+
         public Builder addLine(final LayoutElement left, final LayoutElement right) {
             return this.addLine(List.of(left), List.of(right));
         }
+
         public Builder addElement(final LayoutElement element) {
             return this.addLine(List.of(element), List.of());
         }
+
         public Builder addElements(final Collection<LayoutElement> elements) {
             return this.addLine(elements, List.of());
         }

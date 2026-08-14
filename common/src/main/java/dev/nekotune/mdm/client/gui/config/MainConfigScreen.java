@@ -33,7 +33,7 @@ public class MainConfigScreen extends AbstractConfigScreen {
     }
 
     @Override
-    protected void buildScrollList(final ScrollListContent.Builder builder) {
+    protected void populateSettings(final ScrollListContent.Builder builder) {
         builder.addButton(KEY + ".button.client-resources", (final Button button) -> {
             this.minecraft.setScreen(new DependenciesScreen(this, PackType.CLIENT_RESOURCES));
         });

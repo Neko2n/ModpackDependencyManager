@@ -34,13 +34,12 @@ public class DependenciesScreen extends AbstractConfigScreen {
     private static final ResourceLocation DELETE_ICON = ResourceLocation.fromNamespaceAndPath(
             Constants.MOD_ID, "delete");
     private static final Map<PackType, Component> TITLES = new EnumMap<>(Map.of(
-        PackType.CLIENT_RESOURCES, Component
-                .translatableWithFallback(KEY + "client-resources", "Resource Packs")
-                .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
-        PackType.SERVER_DATA, Component
-                .translatableWithFallback(KEY + "server-data", "Data Packs")
-                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)
-    ));
+            PackType.CLIENT_RESOURCES, Component
+                    .translatableWithFallback(KEY + "client-resources", "Resource Packs")
+                    .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
+            PackType.SERVER_DATA, Component
+                    .translatableWithFallback(KEY + "server-data", "Data Packs")
+                    .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
 
     private final Collection<DependencyInfo> original;
     private final LinkedList<DependencyInfo> modifying;
@@ -67,31 +66,32 @@ public class DependenciesScreen extends AbstractConfigScreen {
             this.modifying.replaceAll((final DependencyInfo original) -> {
                 return original == dependency ? modified : original;
             });
-            this.rebuildScrollList();
+            this.rebuildSettings();
         };
         this.minecraft.setScreen(new DependencyEditScreen(this, dependency, injectModified));
     }
 
     @Override
-    protected void buildScrollList(final ScrollListContent.Builder builder) {
+    protected void populateSettings(final ScrollListContent.Builder builder) {
         for (final DependencyInfo dependency : this.modifying) {
             final List<LayoutElement> infoWidgets = new LinkedList<>();
 
             // Display the dependency's title
+            int titleInfoWidth = this.innerWidth() - 4;
             final var titleInfo = new StringWidget(Component.literal(dependency.title()), font);
             infoWidgets.add(titleInfo);
-            infoWidgets.add(SpacerElement.width(4));
 
             // Display the dependency's active hosts as badges next to the title
             for (final DependencyInfo.Host host : dependency.hosts()) {
+                infoWidgets.add(SpacerElement.width(4));
                 final ToggleSprites toggleSprites = ToggleSprites.Hosts.get(host);
                 infoWidgets.add(ImageWidget.sprite(
                         toggleSprites.width(), toggleSprites.height(), toggleSprites.onSprite()));
+                titleInfoWidth -= toggleSprites.width() + 4;
             }
 
             // Button which modifies the dependency's information
-            final Button editButton = SpriteIconButton.builder(
-                    Component.empty(),
+            final Button editButton = SpriteIconButton.builder(Component.empty(),
                     (final Button button) -> editDependency(dependency),
                     true)
                     .size(Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT)
@@ -100,6 +100,7 @@ public class DependenciesScreen extends AbstractConfigScreen {
             editButton.setTooltip(Tooltip.create(
                     Component.translatableWithFallback(KEY + ".edit.tooltip",
                             "Edit dependency")));
+            titleInfoWidth -= editButton.getWidth() + 4;
 
             // Button which deletes the dependency from the list
             final Button deleteButton = SpriteIconButton.builder(
@@ -108,7 +109,7 @@ public class DependenciesScreen extends AbstractConfigScreen {
 
                         // On click, re-build the scroll list with this dependency removed.
                         this.modifying.remove(dependency);
-                        this.rebuildScrollList();
+                        this.rebuildSettings();
                     },
                     true)
                     .size(Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT)
@@ -117,12 +118,16 @@ public class DependenciesScreen extends AbstractConfigScreen {
             deleteButton.setTooltip(Tooltip.create(
                     Component.translatableWithFallback(KEY + ".delete.tooltip",
                             "Delete dependency").withStyle(ChatFormatting.RED)));
+            titleInfoWidth -= deleteButton.getWidth() + 4;
 
             // Arrange the edit & delete buttons
             final List<LayoutElement> buttons = new LinkedList<>();
             buttons.add(editButton);
             buttons.add(SpacerElement.width(4));
             buttons.add(deleteButton);
+
+            // Adjust the title's width to fit
+            titleInfo.setWidth(Math.min(titleInfo.getWidth(), titleInfoWidth));
 
             // Commit the line with information on the left and buttons on the right.
             builder.addLine(infoWidgets, buttons);
@@ -134,9 +139,9 @@ public class DependenciesScreen extends AbstractConfigScreen {
                 (final Button button) -> {
                     final DependencyInfo dependency = DependencyInfo.createDefault(this.packType);
                     this.modifying.add(dependency);
-                    this.rebuildScrollList();
+                    this.rebuildSettings();
                     editDependency(dependency); // Automatically opens the editor for it
-                }).size(Button.DEFAULT_HEIGHT * 3, Button.DEFAULT_HEIGHT)
+                }).size(Button.DEFAULT_HEIGHT * 2, Button.DEFAULT_HEIGHT)
                 .build());
     }
 

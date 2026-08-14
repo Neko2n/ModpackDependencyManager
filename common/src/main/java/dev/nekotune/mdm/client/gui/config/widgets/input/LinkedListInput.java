@@ -37,6 +37,7 @@ public class LinkedListInput extends AbstractScrollWidget {
     private final Button addButton;
     private ScrollListContent content;
     public boolean collapsed = true;
+    public Consumer<Boolean> onCollapsedChanged = $ -> {};
 
     public LinkedListInput(final int x, final int y, final int width, final int height,
             final Font font, final Component message) {
@@ -45,7 +46,7 @@ public class LinkedListInput extends AbstractScrollWidget {
         this.header = new ListHeaderWidget(x, y, width, Button.DEFAULT_HEIGHT,
                 message, font, () -> this.collapsed);
         this.addButton = Button.builder(Components.ADD, $ -> this.addNewItem())
-                .size(Button.DEFAULT_HEIGHT * 3, Button.DEFAULT_HEIGHT)
+                .size(Button.DEFAULT_HEIGHT * 2, Button.DEFAULT_HEIGHT)
                 .build();
         refreshContents();
     }
@@ -101,6 +102,8 @@ public class LinkedListInput extends AbstractScrollWidget {
         boolean handled = super.mouseClicked(mouseX, mouseY, button);
         if (this.header.isMouseOver(mouseX, mouseY)) {
             this.collapsed = !this.collapsed;
+            this.setHeight(this.getInnerHeight());
+            this.onCollapsedChanged.accept(this.collapsed);
             handled = true;
         }
         return handled;
