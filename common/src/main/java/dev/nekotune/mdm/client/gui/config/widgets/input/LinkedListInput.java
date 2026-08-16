@@ -17,6 +17,7 @@ import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
+// TODO Fix widget being totally broken and just taking up space without rendering anything
 public class LinkedListInput extends AbstractScrollWidget {
 
     private static final int BG_COLOR = 0x75000000;
@@ -120,6 +121,26 @@ public class LinkedListInput extends AbstractScrollWidget {
         if (this.header != null) {
             this.header.setY(y);
         }
+    }
+
+    @Override
+    public void setPosition(int x, int y) {
+        this.setX(x);
+        this.setY(y);
+    }
+
+    @Override
+    public void setWidth(int width) {
+        super.setWidth(width);
+        if (this.header != null) {
+            this.header.setWidth(width);
+        }
+    }
+
+    @Override
+    public void setSize(int width, int height) {
+        this.setWidth(width);
+        this.setHeight(height);
     }
 
     @Override

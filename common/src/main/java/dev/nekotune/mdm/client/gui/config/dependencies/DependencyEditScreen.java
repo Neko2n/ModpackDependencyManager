@@ -1,6 +1,7 @@
 package dev.nekotune.mdm.client.gui.config.dependencies;
 
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -85,7 +86,7 @@ public class DependencyEditScreen extends AbstractConfigScreen {
                 loadPriority = Integer.valueOf(this.settingsWidgets.loadPriority().getValue());
             } catch (final NumberFormatException e) {
             }
-            final Set<DependencyInfo.Host> hosts = Set.copyOf(this.settingsWidgets.hosts().keySet().stream()
+            final Set<DependencyInfo.Host> hosts = new HashSet<>(this.settingsWidgets.hosts().keySet().stream()
                     .filter(host -> this.settingsWidgets.hosts().get(host).getValue())
                     .toList());
             if (hosts.isEmpty()) {

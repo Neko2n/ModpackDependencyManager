@@ -12,6 +12,8 @@ import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
+// TODO Fix settings being offset to the right, getting cut off by the scroll bar
+// This bug only happens when elements are too long
 /**
  * Config screen widget which renders modifiable settings in a scrolling list.
  */
