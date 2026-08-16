@@ -50,16 +50,31 @@ public class MainConfigScreen extends AbstractConfigScreen {
     }
 
     public static enum MainSettings {
-        PRODUCTION(font -> new ToggleInput.TextToggle(Config.INSTANCE.production,
-                value -> Config.INSTANCE.production = value)),
-        HIDE_FORCED(font -> new ToggleInput.TextToggle(Config.INSTANCE.hideForced,
-                value -> Config.INSTANCE.hideForced = value)),
-        WARN_ENABLED(font -> new ToggleInput.TextToggle(Config.INSTANCE.warnEnabled,
-                value -> Config.INSTANCE.warnEnabled = value)),
-        PROMPT_ENABLED(font -> new ToggleInput.TextToggle(Config.INSTANCE.promptEnabled,
-                value -> Config.INSTANCE.promptEnabled = value)),
-        DISABLE_COMPATIBILITY_WARNINGS(font -> new ToggleInput.TextToggle(Config.INSTANCE.disableCompatibilityWarnings,
-                value -> Config.INSTANCE.disableCompatibilityWarnings = value)),
+        PRODUCTION(font -> {
+            final var toggle = new ToggleInput.TextToggle(Config.INSTANCE.production);
+            toggle.setResponder(value -> Config.INSTANCE.production = value);
+            return toggle;
+        }),
+        HIDE_FORCED(font -> {
+            final var toggle = new ToggleInput.TextToggle(Config.INSTANCE.hideForced);
+            toggle.setResponder(value -> Config.INSTANCE.hideForced = value);
+            return toggle;
+        }),
+        WARN_ENABLED(font -> {
+            final var toggle = new ToggleInput.TextToggle(Config.INSTANCE.warnEnabled);
+            toggle.setResponder(value -> Config.INSTANCE.warnEnabled = value);
+            return toggle;
+        }),
+        PROMPT_ENABLED(font -> {
+            final var toggle = new ToggleInput.TextToggle(Config.INSTANCE.promptEnabled);
+            toggle.setResponder(value -> Config.INSTANCE.promptEnabled = value);
+            return toggle;
+        }),
+        DISABLE_COMPATIBILITY_WARNINGS(font -> {
+            final var toggle = new ToggleInput.TextToggle(Config.INSTANCE.disableCompatibilityWarnings);
+            toggle.setResponder(value -> Config.INSTANCE.disableCompatibilityWarnings = value);
+            return toggle;
+        }),
         BUTTON_OFFSET(font -> new VectorInput(font,
                 new int[] { Config.INSTANCE.buttonOffset.x, Config.INSTANCE.buttonOffset.y },
                 value -> {

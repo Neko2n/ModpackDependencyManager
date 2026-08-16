@@ -6,7 +6,6 @@ import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import dev.nekotune.mdm.Config;
 import dev.nekotune.mdm.Constants;
@@ -29,10 +28,14 @@ import net.minecraft.server.packs.PackType;
 public class DependenciesScreen extends AbstractConfigScreen {
 
     protected static final String KEY = AbstractConfigScreen.KEY + ".dependencies";
-    private static final ResourceLocation EDIT_ICON = ResourceLocation.fromNamespaceAndPath(
-            Constants.MOD_ID, "edit");
-    private static final ResourceLocation DELETE_ICON = ResourceLocation.fromNamespaceAndPath(
-            Constants.MOD_ID, "delete");
+
+    public static interface Icons {
+        public static final ResourceLocation EDIT = ResourceLocation.fromNamespaceAndPath(
+                Constants.MOD_ID, "icon/edit");
+        public static final ResourceLocation DELETE = ResourceLocation.fromNamespaceAndPath(
+                Constants.MOD_ID, "icon/delete");
+    }
+
     private static final Map<PackType, Component> TITLES = new EnumMap<>(Map.of(
             PackType.CLIENT_RESOURCES, Component
                     .translatableWithFallback(KEY + "client-resources", "Resource Packs")
@@ -54,6 +57,10 @@ public class DependenciesScreen extends AbstractConfigScreen {
         this.packType = packType;
     }
 
+    /**
+     * Injects all modified dependencies into the configuration.
+     * @param modified Ordered list of modified dependencies.
+     */
     protected void apply(final LinkedList<DependencyInfo> modified) {
         Config.INSTANCE.dependencies = new ArrayList<>(Config.INSTANCE.dependencies.stream()
                 .filter(d -> !original.contains(d))
@@ -61,10 +68,18 @@ public class DependenciesScreen extends AbstractConfigScreen {
         Config.INSTANCE.dependencies.addAll(modified);
     }
 
-    protected void editDependency(final DependencyInfo dependency) {
-        final Consumer<DependencyInfo> injectModified = (final DependencyInfo modified) -> {
-            this.modifying.replaceAll((final DependencyInfo original) -> {
-                return original == dependency ? modified : original;
+    /**
+     * Opens the editor screen for the given dependency.
+     * @param dependency The dependency to edit.
+     */
+    private final void editDependency(final DependencyInfo dependency) {
+        final DependencyEditScreen.OnApply injectModified = (final DependencyInfo original,
+                final DependencyInfo modified) -> {
+            this.modifying.replaceAll((final DependencyInfo candidate) -> {
+                if (candidate == original) {
+                    return modified;
+                }
+                return candidate;
             });
             this.rebuildSettings();
         };
@@ -95,7 +110,7 @@ public class DependenciesScreen extends AbstractConfigScreen {
                     (final Button button) -> editDependency(dependency),
                     true)
                     .size(Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT)
-                    .sprite(EDIT_ICON, Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT)
+                    .sprite(Icons.EDIT, Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT)
                     .build();
             editButton.setTooltip(Tooltip.create(
                     Component.translatableWithFallback(KEY + ".edit.tooltip",
@@ -113,7 +128,7 @@ public class DependenciesScreen extends AbstractConfigScreen {
                     },
                     true)
                     .size(Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT)
-                    .sprite(DELETE_ICON, Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT)
+                    .sprite(Icons.DELETE, Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT)
                     .build();
             deleteButton.setTooltip(Tooltip.create(
                     Component.translatableWithFallback(KEY + ".delete.tooltip",

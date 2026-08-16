@@ -158,17 +158,27 @@ public record DependencyInfo(
     }
 
     public static enum Host implements Supplier<WebHost> {
-        CURSEFORGE(Curseforge.INSTANCE),
-        MODRINTH(Modrinth.INSTANCE);
+        CURSEFORGE(Curseforge.INSTANCE, 0xFFF16436),
+        MODRINTH(Modrinth.INSTANCE, 0xFF1BD96A);
 
         public static List<Host> any() {
             return List.of(Host.values());
         }
 
         private final WebHost website;
+        public final String displayName;
+        public final int displayColor;
 
-        private Host(final WebHost website) {
+        private Host(final WebHost website, final int displayColor) {
             this.website = website;
+            this.displayColor = displayColor;
+            String displayName = "";
+            for (final String term : this.name().toLowerCase()
+                    .split("_")) {
+                displayName += term.substring(0, 1).toUpperCase()
+                        + term.substring(1) + " ";
+            }
+            this.displayName = displayName.strip();
         }
 
         public boolean matches(final DependencyInfo target) {

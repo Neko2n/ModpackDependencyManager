@@ -7,7 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 public record ToggleSprites(int width, int height, ResourceLocation onSprite, ResourceLocation offSprite) {
     
     public static interface Hosts {
-        public static final String PATH = "hosts/";
+        public static final String PATH = "icon/";
         public static final ToggleSprites MODRINTH = new ToggleSprites(20, 20,
                 ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, PATH + "modrinth_on"),
                 ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, PATH + "modrinth_off"));

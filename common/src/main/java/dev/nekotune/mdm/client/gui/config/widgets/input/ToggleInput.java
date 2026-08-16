@@ -16,25 +16,26 @@ import net.minecraft.resources.ResourceLocation;
 public abstract sealed class ToggleInput extends Button {
 
     protected boolean value;
-    private final Consumer<Boolean> onValueChanged;
+    private Consumer<Boolean> responder = $ -> {};
 
-    protected ToggleInput(final boolean defaultValue, final Consumer<Boolean> onValueChanged,
-            final int width, final int height) {
+    protected ToggleInput(final boolean defaultValue, final int width, final int height) {
         super(0, 0, width, height, Component.empty(), $ -> {}, Button.DEFAULT_NARRATION);
         this.value = defaultValue;
-        this.onValueChanged = onValueChanged;
-        this.onValueChanged.accept(defaultValue);
     }
 
     public boolean getValue() {
         return value;
     }
 
+    public void setResponder(final Consumer<Boolean> responder) {
+        this.responder = responder;
+    }
+
     @Override
     public void onPress() {
         super.onPress();
         this.value = !this.value;
-        this.onValueChanged.accept(this.value);
+        responder.accept(this.value);
     }
 
     /**
@@ -42,8 +43,8 @@ public abstract sealed class ToggleInput extends Button {
      */
     public static final class TextToggle extends ToggleInput {
 
-        public TextToggle(final boolean defaultValue, final Consumer<Boolean> onValueChanged) {
-            super(defaultValue, onValueChanged, 60, Button.DEFAULT_HEIGHT);
+        public TextToggle(final boolean defaultValue) {
+            super(defaultValue, 60, Button.DEFAULT_HEIGHT);
             this.setMessage(getMessage());
         }
 
@@ -68,9 +69,8 @@ public abstract sealed class ToggleInput extends Button {
         private final ResourceLocation onSprite;
         private final ResourceLocation offSprite;
 
-        public IconToggle(final ToggleSprites sprites,
-                final boolean defaultValue, final Consumer<Boolean> onValueChanged) {
-            super(defaultValue, onValueChanged, Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT);
+        public IconToggle(final ToggleSprites sprites, final boolean defaultValue) {
+            super(defaultValue, Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT);
             this.onSprite = sprites.onSprite();
             this.offSprite = sprites.offSprite();
         }

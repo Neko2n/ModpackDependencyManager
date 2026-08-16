@@ -1,16 +1,21 @@
 package dev.nekotune.mdm.client.gui.config.widgets.input;
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 
 public class SelectionInput<T extends Enum<T>> extends Button {
 
     private final LinkedList<T> values;
     private int index = 0;
+    private Map<T, Tooltip> tooltips = new HashMap<>();
+    private boolean autoTooltips = false;
 
     public SelectionInput(final int x, final int y, final int width, final int height,
             final Set<T> values, final T defaultValue, final Button.OnPress onPress) {
@@ -24,11 +29,18 @@ public class SelectionInput<T extends Enum<T>> extends Button {
         return this.values.get(this.index);
     }
 
+    public void assignTooltip(final T value, final Tooltip tooltip) {
+        tooltips.put(value, tooltip);
+        autoTooltips = true;
+    }
+
     @Override
     public void onPress() {
         super.onPress();
         this.index = (this.index + 1) % this.values.size();
         this.setMessage(this.getMessage());
+        if (autoTooltips)
+            this.setTooltip(this.tooltips.get(this.getValue()));
     }
 
     @Override

@@ -2,7 +2,8 @@ package dev.nekotune.mdm.client.gui.config.dependencies;
 
 import java.util.EnumMap;
 import java.util.Set;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 import dev.nekotune.mdm.client.gui.config.AbstractConfigScreen;
 import dev.nekotune.mdm.client.gui.config.widgets.ScrollListContent.Builder;
@@ -18,9 +19,8 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 
-// TODO Fix apply button being improperly offset to the left
-// TODO Fix apply button only working the first time it's pressed
 /**
  * Pop-up screen to edit a dependency.
  */
@@ -31,31 +31,31 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             .withStyle(ChatFormatting.BOLD);
     private static final int BG_COLOR = 0xBB000000;
 
-    private final Consumer<DependencyInfo> apply;
-    private final DependencyInfo editing;
+    private final DependencyEditScreen.OnApply onApply;
+    private DependencyInfo editing;
     private final Component subtitle;
     private SettingsWidgets settingsWidgets;
     private Button applyButton = Button.builder(Component.empty(), $ -> {
     }).build();
 
     protected DependencyEditScreen(final DependenciesScreen below,
-            final DependencyInfo dependency, final Consumer<DependencyInfo> apply) {
+            final DependencyInfo dependency, final OnApply onApply) {
         super(TITLE, below);
         final MutableComponent subtitle = Component.empty();
         switch (dependency.type()) {
             case CLIENT_RESOURCES:
                 subtitle.append(Component
-                        .translatableWithFallback(KEY + ".subtitle.resource-pack", "Resource Pack")
+                        .translatableWithFallback(KEY + ".subtitle.client-resources", "Resource Pack")
                         .withStyle(ChatFormatting.GREEN));
                 break;
             case SERVER_DATA:
                 subtitle.append(
-                        Component.translatableWithFallback(KEY + ".subtitle.data-pack", "Data Pack")
+                        Component.translatableWithFallback(KEY + ".subtitle.server-data", "Data Pack")
                                 .withStyle(ChatFormatting.GOLD));
                 break;
         }
         this.subtitle = subtitle;
-        this.apply = apply;
+        this.onApply = onApply;
         this.editing = dependency;
     }
 
@@ -91,20 +91,22 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             if (hosts.isEmpty()) {
                 hosts.add(DependencyInfo.Host.MODRINTH);
             }
-            this.apply.accept(new DependencyInfo(
+            final var modified = new DependencyInfo(
                     this.editing.type(),
                     this.settingsWidgets.slug().getValue(),
                     this.settingsWidgets.mirrors().getValues(),
                     hosts,
                     this.settingsWidgets.mode().getValue(),
-                    loadPriority));
+                    loadPriority);
+            this.onApply.accept(this.editing, modified);
+            this.editing = modified;
         };
         this.applyButton = Button.builder(
                 Component.translatableWithFallback(KEY + ".button.apply", "Apply"), onApplyPressed)
                 .size(Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT)
-                .pos(this.width / 2 - (this.applyButton.getWidth() / 2),
-                        this.height - this.barHeight() / 2 - (this.applyButton.getHeight() / 2))
                 .build();
+        this.applyButton.setPosition(this.width / 2 - (this.applyButton.getWidth() / 2),
+                this.height - this.barHeight() / 2 - (this.applyButton.getHeight() / 2));
         this.addRenderableWidget(this.applyButton);
     }
 
@@ -158,7 +160,8 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             slugEditBox.setResponder(text -> editScreen.applyButton.active = true);
 
             // Mirror slugs setting
-            final var mirrorsList = new LinkedListInput(0, 0, editScreen.innerWidth(), editScreen.height, editScreen.font,
+            final var mirrorsList = new LinkedListInput(0, 0, editScreen.innerWidth(), editScreen.height,
+                    editScreen.font,
                     Component.translatable(KEY + ".mirrors"));
             mirrorsList.setValues(editScreen.editing.mirrors());
             mirrorsList.setResponder(values -> editScreen.applyButton.active = true);
@@ -173,14 +176,32 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             hostsLayout.spacing(4);
             final String tooltipKey = hostsKey + ".%s.tooltip";
             for (final DependencyInfo.Host host : DependencyInfo.Host.values()) {
+                
+                // Button tooltip
+                final Function<Boolean, Tooltip> tooltip = state -> {
+                    final String hostTooltipKey = tooltipKey.formatted(host.name()
+                            .toLowerCase().replace('_', '-'));
+                    return Tooltip.create(Component.empty()
+                        .append(Component.translatableWithFallback(hostTooltipKey, host.displayName)
+                                .setStyle(Style.EMPTY
+                                        .withColor(host.displayColor)))
+                        .append(Component.literal("\n"))
+                        .append(Component.literal(state ? "ENABLED" : "DISABLED")
+                                .setStyle(Style.EMPTY
+                                        .withBold(true)
+                                        .withColor(state ? ChatFormatting.GREEN : ChatFormatting.RED))));
+                };
+
+                // Icon button toggle input
                 final boolean enabled = editScreen.editing.hosts().contains(host);
-                final var toggleInput = new ToggleInput.IconToggle(
-                        ToggleSprites.Hosts.get(host), enabled,
-                        newValue -> editScreen.applyButton.active = true);
+                final ToggleInput.IconToggle toggleInput;
+                toggleInput = new ToggleInput.IconToggle(ToggleSprites.Hosts.get(host), enabled);
+                toggleInput.setTooltip(tooltip.apply(enabled));
+                toggleInput.setResponder(newValue -> {
+                    editScreen.applyButton.active = true;
+                    toggleInput.setTooltip(tooltip.apply(newValue));
+                });
                 hostToggles.put(host, toggleInput);
-                final String hostTooltipKey = tooltipKey.formatted(host.name()
-                        .toLowerCase().replace('_', '-'));
-                toggleInput.setTooltip(Tooltip.create(Component.translatable(hostTooltipKey)));
                 hostsLayout.addChild(toggleInput);
             }
 
@@ -189,6 +210,14 @@ public class DependencyEditScreen extends AbstractConfigScreen {
                     Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT,
                     Set.of(DependencyInfo.Mode.values()), editScreen.editing.mode(),
                     $ -> editScreen.applyButton.active = true);
+            for (final DependencyInfo.Mode mode : DependencyInfo.Mode.values()) {
+
+                // Assign informational tooltips to each mode option
+                final String modeKey = mode.name().toLowerCase().replace('_', '-');
+                modeInput.assignTooltip(mode, Tooltip.create(
+                        Component.translatable(KEY + ".mode.tooltip." + modeKey)));
+                modeInput.setTooltip(modeInput.getTooltip()); // Update existing tooltip
+            }
 
             // Load priority setting
             final var loadPriorityEditBox = new EditBox(editScreen.font, Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT,
@@ -200,5 +229,12 @@ public class DependencyEditScreen extends AbstractConfigScreen {
 
             return new SettingsWidgets(slugEditBox, mirrorsList, hostToggles, modeInput, loadPriorityEditBox);
         }
+    }
+
+    @FunctionalInterface
+    public static interface OnApply extends BiConsumer<DependencyInfo, DependencyInfo> {
+        
+        @Override
+        void accept(final DependencyInfo original, final DependencyInfo modified);
     }
 }

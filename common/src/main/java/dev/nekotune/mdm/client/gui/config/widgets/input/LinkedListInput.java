@@ -17,7 +17,6 @@ import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
-// TODO Fix widget being completely broken (not rendering, not collapsing, etc.)
 public class LinkedListInput extends AbstractScrollWidget {
 
     private static final int BG_COLOR = 0x75000000;
@@ -105,6 +104,22 @@ public class LinkedListInput extends AbstractScrollWidget {
     protected void removeItem(final int index) {
         this.items.remove(index);
         refreshContents();
+    }
+
+    @Override
+    public void setX(final int x) {
+        super.setX(x);
+        if (this.header != null) {
+            this.header.setX(x);
+        }
+    }
+
+    @Override
+    public void setY(final int y) {
+        super.setY(y);
+        if (this.header != null) {
+            this.header.setY(y);
+        }
     }
 
     @Override
