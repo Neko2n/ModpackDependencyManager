@@ -29,7 +29,7 @@ public class SettingsListWidget extends AbstractScrollWidget {
     }
 
     @Override
-    protected int getInnerHeight() {
+    public int getInnerHeight() {
         return this.content.container().getHeight();
     }
 

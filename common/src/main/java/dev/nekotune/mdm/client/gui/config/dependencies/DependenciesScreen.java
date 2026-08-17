@@ -93,7 +93,7 @@ public class DependenciesScreen extends AbstractConfigScreen {
             final List<LayoutElement> infoWidgets = new LinkedList<>();
 
             // Display the dependency's title
-            int titleInfoWidth = this.innerWidth() - 4;
+            int titleInfoWidth = this.getInnerWidth() - 4;
             final var titleInfo = new StringWidget(Component.literal(dependency.title()), font);
             infoWidgets.add(titleInfo);
 

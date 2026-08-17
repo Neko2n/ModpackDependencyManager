@@ -161,9 +161,8 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             slugEditBox.setResponder(text -> editScreen.applyButton.active = true);
 
             // Mirror slugs setting
-            final var mirrorsList = new LinkedListInput(0, 0, editScreen.innerWidth(), editScreen.height,
-                    editScreen.font,
-                    Component.translatable(KEY + ".mirrors"));
+            final var mirrorsList = new LinkedListInput(0, 0, editScreen.getInnerWidth(),
+                    editScreen.font, Component.translatable(KEY + ".mirrors"));
             mirrorsList.setValues(editScreen.editing.mirrors());
             mirrorsList.setResponder(values -> editScreen.applyButton.active = true);
             mirrorsList.setFilter(DependencyInfo.SLUG_VALIDATOR);

@@ -40,9 +40,9 @@ public class LinkedListInput extends AbstractScrollWidget {
     public boolean collapsed = true;
     public Consumer<Boolean> onCollapsedChanged = $ -> {};
 
-    public LinkedListInput(final int x, final int y, final int width, final int height,
+    public LinkedListInput(final int x, final int y, final int width,
             final Font font, final Component message) {
-        super(x, y, width, height, message);
+        super(x, y, width, Button.DEFAULT_HEIGHT, message);
         this.font = font;
         this.header = new ListHeaderWidget(x, y, width, Button.DEFAULT_HEIGHT,
                 message, font, () -> this.collapsed);
@@ -90,7 +90,8 @@ public class LinkedListInput extends AbstractScrollWidget {
     }
 
     protected void addNewItem(final String value) {
-        final EditBox newItem = new EditBox(this.font, Button.DEFAULT_WIDTH, Button.DEFAULT_HEIGHT,
+        final int itemWidth = Math.min(Button.DEFAULT_WIDTH, width);
+        final EditBox newItem = new EditBox(this.font, itemWidth, Button.DEFAULT_HEIGHT,
                 Component.empty());
         newItem.setFilter(this.inputValidator);
         if (this.inputValidator.test(value))
@@ -108,42 +109,6 @@ public class LinkedListInput extends AbstractScrollWidget {
     }
 
     @Override
-    public void setX(final int x) {
-        super.setX(x);
-        if (this.header != null) {
-            this.header.setX(x);
-        }
-    }
-
-    @Override
-    public void setY(final int y) {
-        super.setY(y);
-        if (this.header != null) {
-            this.header.setY(y);
-        }
-    }
-
-    @Override
-    public void setPosition(int x, int y) {
-        this.setX(x);
-        this.setY(y);
-    }
-
-    @Override
-    public void setWidth(int width) {
-        super.setWidth(width);
-        if (this.header != null) {
-            this.header.setWidth(width);
-        }
-    }
-
-    @Override
-    public void setSize(int width, int height) {
-        this.setWidth(width);
-        this.setHeight(height);
-    }
-
-    @Override
     public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
         boolean handled = super.mouseClicked(mouseX, mouseY, button);
         if (this.header.isMouseOver(mouseX, mouseY)) {
@@ -157,7 +122,7 @@ public class LinkedListInput extends AbstractScrollWidget {
 
     @Override
     protected int getInnerHeight() {
-        return this.collapsed ? Button.DEFAULT_HEIGHT : this.content.container().getHeight();
+        return this.header.getHeight() + (this.collapsed ? 0 : this.content.container().getHeight());
     }
 
     @Override
@@ -166,6 +131,7 @@ public class LinkedListInput extends AbstractScrollWidget {
         if (!this.visible)
             return;
         this.renderBackground(guiGraphics);
+        this.header.setWidth(this.width);
         this.header.render(guiGraphics, mouseX, mouseY, partialTick);
 
         // Render contents & scroll bar if not collapsed
@@ -181,15 +147,20 @@ public class LinkedListInput extends AbstractScrollWidget {
     @Override
     protected final void renderContents(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
             final float partialTick) {
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(this.getX(), this.getY() + Button.DEFAULT_HEIGHT, 0);
         this.content.container().visitWidgets(
                 widget -> widget.render(guiGraphics, mouseX, mouseY, partialTick));
+        guiGraphics.pose().popPose();
     }
 
     @Override
     protected void renderBackground(final GuiGraphics guiGraphics) {
-        guiGraphics.fill(0, 1, this.width, this.getInnerHeight() - 1, BG_COLOR);
-        guiGraphics.hLine(0, width, 0, BORDER_COLOR);
-        guiGraphics.hLine(0, width, this.getInnerHeight(), BORDER_COLOR);
+        final int x = this.getX();
+        final int y = this.getY();
+        guiGraphics.fill(x, y + 1, x + this.width, y + this.getInnerHeight() - 1, BG_COLOR);
+        guiGraphics.hLine(x, x + width, y, BORDER_COLOR);
+        guiGraphics.hLine(x, x + width, y + this.getInnerHeight(), BORDER_COLOR);
     }
 
     @Override

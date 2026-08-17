@@ -52,7 +52,7 @@ public abstract class AbstractConfigScreen extends Screen {
         this.scrollList.setPosition(SCROLL_LIST_PADDING, this.barHeight());
         this.scrollList.setWidth(this.width - SCROLL_LIST_PADDING * 2);
         this.scrollList.setHeight(this.height - this.barHeight() * 2);
-        final var listBuilder = new ScrollListContent.Builder(this.innerWidth(), this.font);
+        final var listBuilder = new ScrollListContent.Builder(this.getInnerWidth(), this.font);
         populateSettings(listBuilder);
         this.scrollList.setContent(listBuilder.build());
     }
@@ -123,16 +123,16 @@ public abstract class AbstractConfigScreen extends Screen {
     /**
      * @return The width of the inner scroll list.
      */
-    protected int innerWidth() {
-        return this.scrollList.getWidth() - this.scrollList.totalInnerPadding()
-                - SettingsListWidget.HORIZONTAL_PADDING;
+    protected int getInnerWidth() {
+        // TODO Fix this value causing all lists' content to be offset to the right
+        return this.scrollList.getWidth();
     }
 
     /**
      * @return The height of the inner scroll list.
      */
-    protected int innerHeight() {
-        return this.scrollList.getHeight() - this.scrollList.totalInnerPadding();
+    protected int getInnerHeight() {
+        return this.scrollList.getInnerHeight();
     }
 
     @Override
