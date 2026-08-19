@@ -12,14 +12,10 @@ import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
-// TODO Fix settings being offset to the right, getting cut off by the scroll bar
-// This bug only happens when elements are too long
 /**
  * Config screen widget which renders modifiable settings in a scrolling list.
  */
 public class SettingsListWidget extends AbstractScrollWidget {
-
-    public static final int HORIZONTAL_PADDING = 12;
 
     protected ScrollListContent content;
 
@@ -155,7 +151,7 @@ public class SettingsListWidget extends AbstractScrollWidget {
      * Updates the positions/arrangement of the list content.
      */
     protected void updateContent() {
-        final int baseX = this.getX() + this.innerPadding() + HORIZONTAL_PADDING;
+        final int baseX = this.getX() + this.innerPadding();
         final int scrolledY = this.getY() + this.innerPadding() - ((int) this.scrollAmount());
         this.content.container().setX(baseX);
         this.content.container().setY(scrolledY);

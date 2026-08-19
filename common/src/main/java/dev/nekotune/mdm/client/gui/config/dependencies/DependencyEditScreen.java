@@ -46,12 +46,14 @@ public class DependencyEditScreen extends AbstractConfigScreen {
         switch (dependency.type()) {
             case CLIENT_RESOURCES:
                 subtitle.append(Component
-                        .translatableWithFallback(KEY + ".subtitle.client-resources", "Resource Pack")
+                        .translatableWithFallback(KEY + ".subtitle.client-resources",
+                                "Resource Pack")
                         .withStyle(ChatFormatting.GREEN));
                 break;
             case SERVER_DATA:
                 subtitle.append(
-                        Component.translatableWithFallback(KEY + ".subtitle.server-data", "Data Pack")
+                        Component.translatableWithFallback(KEY + ".subtitle.server-data",
+                                "Data Pack")
                                 .withStyle(ChatFormatting.GOLD));
                 break;
         }
@@ -86,7 +88,8 @@ public class DependencyEditScreen extends AbstractConfigScreen {
                 loadPriority = Integer.valueOf(this.settingsWidgets.loadPriority().getValue());
             } catch (final NumberFormatException e) {
             }
-            final Set<DependencyInfo.Host> hosts = new HashSet<>(this.settingsWidgets.hosts().keySet().stream()
+            final Set<DependencyInfo.Host> hosts = new HashSet<>(this.settingsWidgets.hosts().keySet()
+                    .stream()
                     .filter(host -> this.settingsWidgets.hosts().get(host).getValue())
                     .toList());
             if (hosts.isEmpty()) {
@@ -154,11 +157,13 @@ public class DependencyEditScreen extends AbstractConfigScreen {
         public static SettingsWidgets create(final DependencyEditScreen editScreen) {
 
             // Primary slug setting
-            final var slugEditBox = new EditBox(editScreen.font, Button.DEFAULT_WIDTH, Button.DEFAULT_HEIGHT,
+            final var slugEditBox = new EditBox(editScreen.font, Button.DEFAULT_WIDTH,
+                    Button.DEFAULT_HEIGHT,
                     Component.literal(editScreen.editing.slug()));
             slugEditBox.setValue(editScreen.editing.slug());
             slugEditBox.setFilter(DependencyInfo.SLUG_VALIDATOR);
             slugEditBox.setResponder(text -> editScreen.applyButton.active = true);
+            editScreen.addWidget(slugEditBox);
 
             // Mirror slugs setting
             final var mirrorsList = new LinkedListInput(0, 0, editScreen.getInnerWidth(),
@@ -167,6 +172,7 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             mirrorsList.setResponder(values -> editScreen.applyButton.active = true);
             mirrorsList.setFilter(DependencyInfo.SLUG_VALIDATOR);
             mirrorsList.onCollapsedChanged = $ -> editScreen.rebuildSettings();
+            editScreen.addWidget(mirrorsList);
 
             // Hosts setting
             final EnumMap<DependencyInfo.Host, ToggleInput.IconToggle> hostToggles = new EnumMap<>(
@@ -176,20 +182,23 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             hostsLayout.spacing(4);
             final String tooltipKey = hostsKey + ".%s.tooltip";
             for (final DependencyInfo.Host host : DependencyInfo.Host.values()) {
-                
+
                 // Button tooltip
                 final Function<Boolean, Tooltip> tooltip = state -> {
                     final String hostTooltipKey = tooltipKey.formatted(host.name()
                             .toLowerCase().replace('_', '-'));
                     return Tooltip.create(Component.empty()
-                        .append(Component.translatableWithFallback(hostTooltipKey, host.displayName)
-                                .setStyle(Style.EMPTY
-                                        .withColor(host.displayColor)))
-                        .append(Component.literal("\n"))
-                        .append(Component.literal(state ? "ENABLED" : "DISABLED")
-                                .setStyle(Style.EMPTY
-                                        .withBold(true)
-                                        .withColor(state ? ChatFormatting.GREEN : ChatFormatting.RED))));
+                            .append(Component
+                                    .translatableWithFallback(hostTooltipKey,
+                                            host.displayName)
+                                    .setStyle(Style.EMPTY
+                                            .withColor(host.displayColor)))
+                            .append(Component.literal("\n"))
+                            .append(Component.literal(state ? "ENABLED" : "DISABLED")
+                                    .setStyle(Style.EMPTY
+                                            .withBold(true)
+                                            .withColor(state ? ChatFormatting.GREEN
+                                                    : ChatFormatting.RED))));
                 };
 
                 // Icon button toggle input
@@ -203,6 +212,7 @@ public class DependencyEditScreen extends AbstractConfigScreen {
                 });
                 hostToggles.put(host, toggleInput);
                 hostsLayout.addChild(toggleInput);
+                editScreen.addWidget(toggleInput);
             }
 
             // Mode setting
@@ -218,22 +228,26 @@ public class DependencyEditScreen extends AbstractConfigScreen {
                         Component.translatable(KEY + ".mode.tooltip." + modeKey)));
                 modeInput.setTooltip(modeInput.getTooltip()); // Update existing tooltip
             }
+            editScreen.addWidget(modeInput);
 
             // Load priority setting
-            final var loadPriorityEditBox = new EditBox(editScreen.font, Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT,
+            final var loadPriorityEditBox = new EditBox(editScreen.font, Button.SMALL_WIDTH,
+                    Button.DEFAULT_HEIGHT,
                     Component.literal(String.valueOf(editScreen.editing.loadPriority())));
             loadPriorityEditBox.setValue(String.valueOf(editScreen.editing.loadPriority()));
             loadPriorityEditBox.setFilter(text -> text.isEmpty()
                     || (text.matches("^\\d+$") && text.length() <= 3));
             loadPriorityEditBox.setResponder(text -> editScreen.applyButton.active = true);
+            editScreen.addWidget(loadPriorityEditBox);
 
-            return new SettingsWidgets(slugEditBox, mirrorsList, hostToggles, modeInput, loadPriorityEditBox);
+            return new SettingsWidgets(slugEditBox, mirrorsList, hostToggles, modeInput,
+                    loadPriorityEditBox);
         }
     }
 
     @FunctionalInterface
     public static interface OnApply extends BiConsumer<DependencyInfo, DependencyInfo> {
-        
+
         @Override
         void accept(final DependencyInfo original, final DependencyInfo modified);
     }

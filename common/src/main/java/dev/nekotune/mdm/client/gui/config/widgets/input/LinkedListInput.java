@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import dev.nekotune.mdm.Constants;
 import dev.nekotune.mdm.client.gui.config.widgets.ScrollListContent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
@@ -20,7 +21,6 @@ import net.minecraft.network.chat.Component;
 // TODO Fix widget being totally broken and just taking up space without rendering anything
 public class LinkedListInput extends AbstractScrollWidget {
 
-    private static final int BG_COLOR = 0x75000000;
     private static final int BORDER_COLOR = 0x75FFFFFF;
 
     private static interface Components {
@@ -32,13 +32,15 @@ public class LinkedListInput extends AbstractScrollWidget {
 
     private Font font;
     private Predicate<String> inputValidator = $ -> true;
-    private Consumer<Collection<String>> responder = $ -> {};
+    private Consumer<Collection<String>> responder = $ -> {
+    };
     private final LinkedList<EditBox> items = new LinkedList<>();
     private final ListHeaderWidget header;
     private final Button addButton;
     private ScrollListContent content;
     public boolean collapsed = true;
-    public Consumer<Boolean> onCollapsedChanged = $ -> {};
+    public Consumer<Boolean> onCollapsedChanged = $ -> {
+    };
 
     public LinkedListInput(final int x, final int y, final int width,
             final Font font, final Component message) {
@@ -49,7 +51,7 @@ public class LinkedListInput extends AbstractScrollWidget {
         this.addButton = Button.builder(Components.ADD, $ -> this.addNewItem(""))
                 .size(Button.DEFAULT_HEIGHT * 2, Button.DEFAULT_HEIGHT)
                 .build();
-        refreshContents();
+        rebuildListContent();
     }
 
     public List<String> getValues() {
@@ -74,8 +76,18 @@ public class LinkedListInput extends AbstractScrollWidget {
         this.responder = responder;
     }
 
-    protected void refreshContents() {
-        final var contentBuilder = new ScrollListContent.Builder(width, font);
+    protected void updateContentWidget() {
+        final int baseX = this.getX() + this.innerPadding();
+        final int baseY = this.getY() + this.header.getHeight() + this.innerPadding();
+        final int scrolledY = baseY - ((int) this.scrollAmount());
+        this.content.container().setX(baseX + this.header.contentMargin());
+        this.content.container().setY(scrolledY);
+        this.content.container().arrangeElements();
+    }
+
+    protected void rebuildListContent() {
+        final int contentWidth = this.width - this.totalInnerPadding() - this.header.contentMargin();
+        final var contentBuilder = new ScrollListContent.Builder(contentWidth, font);
         for (int i = 0; i < this.items.size(); i++) {
             final EditBox item = this.items.get(i);
             final int i$immutable = i;
@@ -87,6 +99,7 @@ public class LinkedListInput extends AbstractScrollWidget {
         }
         contentBuilder.addElement(this.addButton);
         this.content = contentBuilder.build();
+        updateContentWidget();
     }
 
     protected void addNewItem(final String value) {
@@ -100,12 +113,23 @@ public class LinkedListInput extends AbstractScrollWidget {
             this.responder.accept(getValues());
         });
         this.items.add(newItem);
-        refreshContents();
+        rebuildListContent();
     }
 
     protected void removeItem(final int index) {
         this.items.remove(index);
-        refreshContents();
+        rebuildListContent();
+    }
+
+    @Override
+    protected void setScrollAmount(final double scrollAmount) {
+        super.setScrollAmount(scrollAmount);
+        updateContentWidget();
+    }
+
+    @Override
+    protected int getInnerHeight() {
+        return this.collapsed ? 0 : this.content.container().getHeight();
     }
 
     @Override
@@ -113,16 +137,12 @@ public class LinkedListInput extends AbstractScrollWidget {
         boolean handled = super.mouseClicked(mouseX, mouseY, button);
         if (this.header.isMouseOver(mouseX, mouseY)) {
             this.collapsed = !this.collapsed;
-            this.setHeight(this.getInnerHeight());
+            Constants.LOG.debug("COLLAPSED CHANGED TO " + collapsed);
+            this.setHeight(this.getInnerHeight() + this.header.getHeight());
             this.onCollapsedChanged.accept(this.collapsed);
             handled = true;
         }
         return handled;
-    }
-
-    @Override
-    protected int getInnerHeight() {
-        return this.header.getHeight() + (this.collapsed ? 0 : this.content.container().getHeight());
     }
 
     @Override
@@ -131,13 +151,16 @@ public class LinkedListInput extends AbstractScrollWidget {
         if (!this.visible)
             return;
         this.renderBackground(guiGraphics);
+        this.header.setX(this.getX());
+        this.header.setY(this.getY());
         this.header.setWidth(this.width);
         this.header.render(guiGraphics, mouseX, mouseY, partialTick);
 
         // Render contents & scroll bar if not collapsed
         if (!this.collapsed) {
-            guiGraphics.enableScissor(this.getX() + 1, this.getY() + 1,
-                    this.getX() + this.width - 1, this.getY() + this.height - 1);
+            final int contentY = this.getY() + this.header.getHeight();
+            guiGraphics.enableScissor(this.getX() + 1, contentY + 1,
+                    this.getX() + this.width - 1, contentY + this.getInnerHeight() - 1);
             this.renderContents(guiGraphics, mouseX, mouseY, partialTick);
             guiGraphics.disableScissor();
             this.renderDecorations(guiGraphics);
@@ -147,20 +170,25 @@ public class LinkedListInput extends AbstractScrollWidget {
     @Override
     protected final void renderContents(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
             final float partialTick) {
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(this.getX(), this.getY() + Button.DEFAULT_HEIGHT, 0);
         this.content.container().visitWidgets(
                 widget -> widget.render(guiGraphics, mouseX, mouseY, partialTick));
-        guiGraphics.pose().popPose();
     }
 
     @Override
-    protected void renderBackground(final GuiGraphics guiGraphics) {
-        final int x = this.getX();
-        final int y = this.getY();
-        guiGraphics.fill(x, y + 1, x + this.width, y + this.getInnerHeight() - 1, BG_COLOR);
-        guiGraphics.hLine(x, x + width, y, BORDER_COLOR);
-        guiGraphics.hLine(x, x + width, y + this.getInnerHeight(), BORDER_COLOR);
+    protected void renderDecorations(final GuiGraphics guiGraphics) {
+        // Draw scroll bar accounting for the header
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0, this.header.getHeight(), 0);
+        super.renderDecorations(guiGraphics);
+        guiGraphics.pose().popPose();
+
+        // Draw margin line when open
+        if (this.collapsed)
+            return;
+        final int marginLineX = this.getX() + ListHeaderWidget.ARROW_SIZE / 2;
+        final int marginLineY = this.getY() + this.header.getHeight();
+        final int contentHeight = this.content.container().getHeight();
+        guiGraphics.vLine(marginLineX, marginLineY, marginLineY + contentHeight, BORDER_COLOR);
     }
 
     @Override

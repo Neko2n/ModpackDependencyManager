@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class ListHeaderWidget extends AbstractWidget {
 
+    public static final int ARROW_SIZE = 20;
     protected final Supplier<Boolean> collapsed;
     protected Font font;
 
@@ -27,13 +28,21 @@ public class ListHeaderWidget extends AbstractWidget {
         return collapsed.get();
     }
 
+    public int contentMargin() {
+        return ARROW_SIZE + 4;
+    }
+
     @Override
     protected void renderWidget(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
             final float partialTick) {
+        final int x = this.getX();
+        final int y = this.getY();
         guiGraphics.blitSprite(this.isCollapsed() ? ArrowSprites.CLOSED : ArrowSprites.OPEN,
-                0, 0, this.height, this.height);
-        guiGraphics.drawString(font, getMessage(),
-                this.height + 4, this.height / 2, 0xFFFFFFFF);
+                x, y + this.height / 2 - ARROW_SIZE / 2,
+                ARROW_SIZE, ARROW_SIZE);
+        guiGraphics.drawString(this.font, getMessage(),
+                x + this.contentMargin(), y + this.height / 2 - this.font.lineHeight / 2,
+                0xFFFFFFFF);
     }
 
     @Override
@@ -43,8 +52,8 @@ public class ListHeaderWidget extends AbstractWidget {
 
     public static interface ArrowSprites {
         public static final ResourceLocation OPEN = ResourceLocation.fromNamespaceAndPath(
-                Constants.MOD_ID, "widget/arrow_open");
+                Constants.MOD_ID, "icon/arrow_open");
         public static final ResourceLocation CLOSED = ResourceLocation.fromNamespaceAndPath(
-                Constants.MOD_ID, "widget/arrow_closed");
+                Constants.MOD_ID, "icon/arrow_closed");
     }
 }

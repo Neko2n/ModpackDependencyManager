@@ -24,7 +24,7 @@ import net.minecraft.network.chat.MutableComponent;
  */
 public record ScrollListContent(Layout container, Component narration) {
 
-    private static final int PADDING = 16;
+    private static final int SPACING = 16;
     private static final int ELEMENT_HEIGHT = Button.DEFAULT_HEIGHT;
 
     public static class Builder {
@@ -39,7 +39,7 @@ public record ScrollListContent(Layout container, Component narration) {
             this.container = LinearLayout.vertical();
             this.container.defaultCellSetting().alignHorizontallyCenter();
             this.container.addChild(SpacerElement.width(this.width));
-            this.container.addChild(SpacerElement.height(PADDING / 2));
+            this.container.addChild(SpacerElement.height(SPACING / 2));
         }
 
         public Builder addButton(final String translationKey, final Button.OnPress onPress) {
@@ -76,7 +76,7 @@ public record ScrollListContent(Layout container, Component narration) {
             holder.addChild(rightGroup, settings -> settings.alignHorizontallyRight().alignVerticallyMiddle());
 
             holder.arrangeElements();
-            this.container.addChild(holder, settings -> settings.paddingBottom(PADDING / 2).paddingTop(PADDING / 2));
+            this.container.addChild(holder, settings -> settings.paddingBottom(SPACING / 2).paddingTop(SPACING / 2));
             return this;
         }
 
@@ -93,7 +93,7 @@ public record ScrollListContent(Layout container, Component narration) {
         }
 
         public ScrollListContent build() {
-            this.container.addChild(SpacerElement.height(PADDING / 2));
+            this.container.addChild(SpacerElement.height(SPACING / 2));
             this.container.arrangeElements();
             return new ScrollListContent(this.container, this.narration);
         }

@@ -49,10 +49,12 @@ public abstract class AbstractConfigScreen extends Screen {
      * {@link AbstractConfigScreen#populateSettings}.
      */
     protected final void rebuildSettings() {
+        final int listWidth = this.width - SCROLL_LIST_PADDING * 2;
         this.scrollList.setPosition(SCROLL_LIST_PADDING, this.barHeight());
-        this.scrollList.setWidth(this.width - SCROLL_LIST_PADDING * 2);
+        this.scrollList.setWidth(listWidth);
         this.scrollList.setHeight(this.height - this.barHeight() * 2);
-        final var listBuilder = new ScrollListContent.Builder(this.getInnerWidth(), this.font);
+        final int listContentWidth = listWidth - this.scrollList.totalInnerPadding();
+        final var listBuilder = new ScrollListContent.Builder(listContentWidth, this.font);
         populateSettings(listBuilder);
         this.scrollList.setContent(listBuilder.build());
     }
@@ -124,7 +126,6 @@ public abstract class AbstractConfigScreen extends Screen {
      * @return The width of the inner scroll list.
      */
     protected int getInnerWidth() {
-        // TODO Fix this value causing all lists' content to be offset to the right
         return this.scrollList.getWidth();
     }
 
