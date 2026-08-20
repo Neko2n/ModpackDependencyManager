@@ -2,8 +2,8 @@ package dev.nekotune.mdm.client.gui.config;
 
 import dev.nekotune.mdm.Config;
 import dev.nekotune.mdm.Constants;
-import dev.nekotune.mdm.client.gui.config.widgets.ScrollListContent;
-import dev.nekotune.mdm.client.gui.config.widgets.SettingsListWidget;
+import dev.nekotune.mdm.client.gui.config.widgets.container.ListContent;
+import dev.nekotune.mdm.client.gui.config.widgets.container.ScrollListWidget;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -16,7 +16,7 @@ import net.minecraft.network.chat.Component;
  */
 public abstract class AbstractConfigScreen extends Screen {
 
-    public static final String KEY = Constants.MOD_ID + ".screen.config";
+    public static final String KEY = Constants.Assets.Lang.Gui.Screen.KEY + ".config";
     public static final Component EXIT_BUTTON = Component
             .translatableWithFallback(KEY + ".button.exit", "Save & Exit");
     public static final Component APPLY_BUTTON = Component
@@ -24,7 +24,8 @@ public abstract class AbstractConfigScreen extends Screen {
     protected static final int SCROLL_LIST_PADDING = 80;
     private static final int BAR_BG_COLOR = 0x65000000;
 
-    private final SettingsListWidget scrollList;
+    // TODO Refactor to use a ScrollWidget wrapping a ListWidget
+    private final ScrollListWidget scrollList;
     public final Screen lastScreen;
     public final Button backButton;
 
@@ -34,7 +35,7 @@ public abstract class AbstractConfigScreen extends Screen {
         this.backButton = Button.builder(Component.empty(), $ -> this.onClose())
                 .size(Button.DEFAULT_WIDTH, Button.DEFAULT_HEIGHT)
                 .build();
-        this.scrollList = new SettingsListWidget(0, 0, 0, 0);
+        this.scrollList = new ScrollListWidget(0, 0, 0, 0);
     }
 
     /**
@@ -42,19 +43,19 @@ public abstract class AbstractConfigScreen extends Screen {
      * 
      * @param builder The builder to submit settings content to.
      */
-    protected abstract void populateSettings(final ScrollListContent.Builder builder);
+    protected abstract void populateSettings(final ListContent.Builder builder);
 
     /**
      * Re-builds the settings list, re-running
      * {@link AbstractConfigScreen#populateSettings}.
      */
     protected final void rebuildSettings() {
-        final int listWidth = this.width - SCROLL_LIST_PADDING * 2;
+        final int listWidth = this.getInnerWidth();
         this.scrollList.setPosition(SCROLL_LIST_PADDING, this.barHeight());
         this.scrollList.setWidth(listWidth);
         this.scrollList.setHeight(this.height - this.barHeight() * 2);
         final int listContentWidth = listWidth - this.scrollList.totalInnerPadding();
-        final var listBuilder = new ScrollListContent.Builder(listContentWidth, this.font);
+        final var listBuilder = new ListContent.Builder(listContentWidth, this.font);
         populateSettings(listBuilder);
         this.scrollList.setContent(listBuilder.build());
     }
@@ -126,7 +127,7 @@ public abstract class AbstractConfigScreen extends Screen {
      * @return The width of the inner scroll list.
      */
     protected int getInnerWidth() {
-        return this.scrollList.getWidth();
+        return this.width - SCROLL_LIST_PADDING * 2;
     }
 
     /**

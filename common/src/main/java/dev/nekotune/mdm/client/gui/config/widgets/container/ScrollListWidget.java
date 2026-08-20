@@ -1,27 +1,41 @@
-package dev.nekotune.mdm.client.gui.config.widgets;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
+package dev.nekotune.mdm.client.gui.config.widgets.container;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractScrollWidget;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
+// TODO Split into a ListContainerWidget widget class and ScrollContainerWidget wrapper class
 /**
  * Config screen widget which renders modifiable settings in a scrolling list.
  */
-public class SettingsListWidget extends AbstractScrollWidget {
+public class ScrollListWidget extends AbstractScrollWidget implements IContainerWidget {
 
-    protected ScrollListContent content;
+    protected ListContent content = ListContent.EMPTY;
 
-    public SettingsListWidget(final int x, final int y, final int width, final int height) {
+    public ScrollListWidget(final int x, final int y, final int width, final int height) {
         super(x, y, width, height, Component.empty());
-        this.content = null;
+    }
+
+    /**
+     * Updates the positions/arrangement of the list content.
+     */
+    protected void updateContent() {
+        final int baseX = this.getX() + this.innerPadding();
+        final int scrolledY = this.getY() + this.innerPadding() - ((int) this.scrollAmount());
+        this.content.container().setX(baseX);
+        this.content.container().setY(scrolledY);
+        this.content.container().arrangeElements();
+    }
+
+    /**
+     * Sets this scroll list's content to a new value.
+     */
+    public void setContent(final ListContent content) {
+        this.content = content;
+        updateContent();
     }
 
     @Override
@@ -47,7 +61,7 @@ public class SettingsListWidget extends AbstractScrollWidget {
             return;
         this.renderBackground(guiGraphics);
         guiGraphics.enableScissor(this.getX() + 1, this.getY() + 1,
-                this.getX() + this.width - 1, this.getY() + this.height - 1);
+                this.getX() + this.getWidth() - 1, this.getY() + this.getHeight() - 1);
         this.renderContents(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.disableScissor();
         this.renderDecorations(guiGraphics);
@@ -85,20 +99,8 @@ public class SettingsListWidget extends AbstractScrollWidget {
 
     @Override
     public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
-        if (!this.visible)
+        if (!this.visible || !this.withinContentAreaPoint(mouseX, mouseY))
             return false;
-
-        final boolean onScrollbar = this.scrollbarVisible()
-                && mouseX >= this.getX() + this.width
-                && mouseX <= this.getX() + this.width + this.scrollbarWidth()
-                && mouseY >= this.getY()
-                && mouseY < this.getY() + this.height;
-        if (onScrollbar && button == 0)
-            return super.mouseClicked(mouseX, mouseY, button);
-
-        if (!this.withinContentAreaPoint(mouseX, mouseY))
-            return false;
-
         final boolean handled = this.handleElementInteract(this.content.container(),
                 widget -> {
                     final boolean widget$handled = widget.mouseClicked(mouseX, mouseY, button);
@@ -116,53 +118,29 @@ public class SettingsListWidget extends AbstractScrollWidget {
         return super.mouseReleased(mouseX, mouseY, button) || handled;
     }
 
+    // Expose visibility
     @Override
     public int innerPadding() {
         return super.innerPadding();
     }
 
+    // Expose visibility
     @Override
     public int totalInnerPadding() {
         return super.totalInnerPadding();
     }
 
-    /**
-     * Helper method to handle interaction detection for child widgets.
-     * 
-     * @param element The element to handle interaction detection for. Recursively
-     *                handles its widgets.
-     * @param handler The handler function to apply.
-     * @return True if any widgets were handled, false otherwise.
-     */
-    private boolean handleElementInteract(final LayoutElement element,
-            final Function<AbstractWidget, Boolean> handler) {
-        if (element instanceof final AbstractWidget widget)
-            return handler.apply(widget);
-        final AtomicBoolean handled = new AtomicBoolean(false);
-        element.visitWidgets((final AbstractWidget child) -> {
-            if (handleElementInteract(child, handler)) {
-                handled.set(true);
-            }
-        });
-        return handled.get();
+    // Match children positions to parent
+    @Override
+    public void setX(final int x) {
+        super.setX(x);
+        this.updateContent();
     }
 
-    /**
-     * Updates the positions/arrangement of the list content.
-     */
-    protected void updateContent() {
-        final int baseX = this.getX() + this.innerPadding();
-        final int scrolledY = this.getY() + this.innerPadding() - ((int) this.scrollAmount());
-        this.content.container().setX(baseX);
-        this.content.container().setY(scrolledY);
-        this.content.container().arrangeElements();
-    }
-
-    /**
-     * Sets this scroll list's content to a new value.
-     */
-    public void setContent(final ScrollListContent content) {
-        this.content = content;
-        updateContent();
+    // Match children positions to parent
+    @Override
+    public void setY(final int y) {
+        super.setY(y);
+        this.updateContent();
     }
 }

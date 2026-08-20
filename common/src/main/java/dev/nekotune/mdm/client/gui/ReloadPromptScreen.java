@@ -9,19 +9,19 @@ import net.minecraft.network.chat.Component;
 
 public class ReloadPromptScreen extends AlertScreen {
 
-    private static final String ID = Constants.MOD_ID + ".screen.reloadprompt";
+    private static final String ID = Constants.Assets.Lang.Gui.Screen.KEY + ".reloadprompt";
 
     public static final Component TITLE = Component
-            .translatable(ID + ".title")
+            .translatableWithFallback(ID + ".title", "Modpack Resources Downloaded")
             .withStyle(ChatFormatting.BOLD);
 
     public static final Component MESSAGE = Component
-            .translatable(ID + ".message.1")
+            .translatableWithFallback(ID + ".message.1", "New resources have been downloaded.")
             .append(Component.literal("\n"))
-            .append(Component.translatable(ID + ".message.2"));
+            .append(Component.translatableWithFallback(ID + ".message.2", "A reload is required to apply them."));
 
     public static final Component BUTTON = Component
-            .translatable(ID + ".button");
+            .translatableWithFallback(ID + ".button", "Reload");
 
     public ReloadPromptScreen(final Runnable callback) {
         super(() -> {

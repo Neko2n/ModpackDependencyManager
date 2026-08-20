@@ -39,17 +39,14 @@ public class ConfigButtonHandler {
         return button;
     };
 
+    private static final List<String> BIND_TARGETS = List.of(
+            Component.translatable("menu.options").getString(),
+            Component.translatable("fml.menu.mods").getString());
+
     public static void click(final Button button) {
         final Minecraft mc = Minecraft.getInstance();
         mc.setScreen(new MainConfigScreen(mc.screen));
     }
-
-    /**
-     * A list of GUI elements that the button should bind to, stored as keys.
-     */
-    private static final List<String> bindTargets = List.of(
-            Component.translatable("menu.options").getString(),
-            Component.translatable("fml.menu.mods").getString());
 
     /**
      * Loads the title screen configuration button widget.
@@ -69,7 +66,7 @@ public class ConfigButtonHandler {
             if (!(listener instanceof final AbstractWidget widget))
                 continue;
             final String name = widget.getMessage().getString();
-            if (!bindTargets.contains(name))
+            if (!BIND_TARGETS.contains(name))
                 continue;
             final int spacing = 4;
             final var offset = Config.INSTANCE.buttonOffset;

@@ -18,9 +18,10 @@ import net.minecraft.network.chat.Style;
 
 public class DownloadErrorScreen extends Screen {
 
-    private static final String PATH = Constants.MOD_ID + ".screen.downloaderror";
+    private static final String KEY = Constants.Assets.Lang.Gui.Screen.KEY + ".downloaderror";
 
-    public static final Component TITLE = Component.translatable(PATH + ".title")
+    public static final Component TITLE = Component
+            .translatableWithFallback(KEY + ".title", "Error Downloading Modpack Resources")
             .withStyle(ChatFormatting.RED, ChatFormatting.BOLD);
 
     private static record Widgets(
@@ -37,11 +38,12 @@ public class DownloadErrorScreen extends Screen {
     private DownloadErrorScreen(final List<String> causes, final String message,
             final Button.OnPress callback) {
         super(TITLE);
-        this.message = Component.translatable(PATH + ".message." + message + ".1")
+        this.message = Component.translatable(KEY + ".message." + message + ".1")
                 .append(Component.literal("\n"))
-                .append(Component.translatable(PATH + ".message." + message + ".2"));
-        MutableComponent causesBuilder = Component.empty().append(Component.translatable(PATH + ".causes")
-                .withStyle(ChatFormatting.BOLD));
+                .append(Component.translatable(KEY + ".message." + message + ".2"));
+        MutableComponent causesBuilder = Component.empty().append(
+                Component.translatableWithFallback(KEY + ".causes", "Caused by:")
+                        .withStyle(ChatFormatting.BOLD));
         for (final String cause : causes) {
             causesBuilder = causesBuilder.append(Component.literal("\n"))
                     .append(Component.literal(cause)
@@ -85,7 +87,8 @@ public class DownloadErrorScreen extends Screen {
             yPos += widgets.message.getHeight() + 20;
             widgets.causes.setPosition(this.width / 2 - widgets.causes.getWidth() / 2, yPos);
             yPos += widgets.causes.getHeight() + 20;
-            widgets.button.setPosition(this.width / 2 - widgets.button.getWidth() / 2, Math.min(this.height - 20, yPos));
+            widgets.button.setPosition(this.width / 2 - widgets.button.getWidth() / 2,
+                    Math.min(this.height - 20, yPos));
         });
     }
 
