@@ -3,44 +3,62 @@ package dev.nekotune.mdm.client.gui.config.widgets.container;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractScrollWidget;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
-// TODO Split into a ListContainerWidget widget class and ScrollContainerWidget wrapper class
 /**
- * Config screen widget which renders modifiable settings in a scrolling list.
+ * Widget which renders a scrolling list of child widgets.
  */
-public class ScrollListWidget extends AbstractScrollWidget implements IContainerWidget {
+public class ScrollContainerWidget extends AbstractScrollWidget implements IContainerWidget<LinearLayout> {
 
-    protected ListContent content = ListContent.EMPTY;
+    protected LinearLayout content = LinearLayout.vertical();
 
-    public ScrollListWidget(final int x, final int y, final int width, final int height) {
+    public ScrollContainerWidget(final int x, final int y, final int width, final int height) {
         super(x, y, width, height, Component.empty());
     }
 
-    /**
-     * Updates the positions/arrangement of the list content.
-     */
-    protected void updateContent() {
+    @Override
+    public void updateContent() {
         final int baseX = this.getX() + this.innerPadding();
         final int scrolledY = this.getY() + this.innerPadding() - ((int) this.scrollAmount());
-        this.content.container().setX(baseX);
-        this.content.container().setY(scrolledY);
-        this.content.container().arrangeElements();
+        this.content.setX(baseX);
+        this.content.setY(scrolledY);
+        this.content.arrangeElements();
+    }
+
+    @Override
+    public LinearLayout getContent() {
+        return this.content;
     }
 
     /**
      * Sets this scroll list's content to a new value.
      */
-    public void setContent(final ListContent content) {
+    public void setContent(final LinearLayout content, final Component narration) {
         this.content = content;
+        this.setMessage(narration);
         updateContent();
+    }
+
+    // Match children positions to parent
+    @Override
+    public void setX(final int x) {
+        super.setX(x);
+        this.updateContent();
+    }
+
+    // Match children positions to parent
+    @Override
+    public void setY(final int y) {
+        super.setY(y);
+        this.updateContent();
     }
 
     @Override
     public int getInnerHeight() {
-        return this.content.container().getHeight();
+        return this.content.getHeight();
     }
 
     @Override
@@ -70,8 +88,7 @@ public class ScrollListWidget extends AbstractScrollWidget implements IContainer
     @Override
     protected final void renderContents(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
             final float partialTick) {
-        this.content.container()
-                .visitWidgets(widget -> widget.render(guiGraphics, mouseX, mouseY, partialTick));
+        this.content.visitWidgets(widget -> widget.render(guiGraphics, mouseX, mouseY, partialTick));
     }
 
     @Override
@@ -80,19 +97,19 @@ public class ScrollListWidget extends AbstractScrollWidget implements IContainer
 
     @Override
     protected void updateWidgetNarration(final NarrationElementOutput narrationOutput) {
-        narrationOutput.add(NarratedElementType.TITLE, this.content.narration());
+        narrationOutput.add(NarratedElementType.TITLE, this.getMessage());
     }
 
     @Override
     public boolean charTyped(final char codePoint, final int modifiers) {
-        final boolean handled = this.handleElementInteract(this.content.container(),
+        final boolean handled = this.handleElementInteract(this.content,
                 widget -> widget.isFocused() && widget.charTyped(codePoint, modifiers));
         return super.charTyped(codePoint, modifiers) || handled;
     }
 
     @Override
     public boolean keyPressed(final int keyCode, final int scanCode, final int modifiers) {
-        final boolean handled = this.handleElementInteract(this.content.container(),
+        final boolean handled = this.handleElementInteract(this.content,
                 widget -> widget.isFocused() && widget.keyPressed(keyCode, scanCode, modifiers));
         return super.keyPressed(keyCode, scanCode, modifiers) || handled;
     }
@@ -101,7 +118,7 @@ public class ScrollListWidget extends AbstractScrollWidget implements IContainer
     public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
         if (!this.visible || !this.withinContentAreaPoint(mouseX, mouseY))
             return false;
-        final boolean handled = this.handleElementInteract(this.content.container(),
+        final boolean handled = this.handleElementInteract(this.content,
                 widget -> {
                     final boolean widget$handled = widget.mouseClicked(mouseX, mouseY, button);
                     if (widget instanceof EditBox)
@@ -113,7 +130,7 @@ public class ScrollListWidget extends AbstractScrollWidget implements IContainer
 
     @Override
     public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {
-        final boolean handled = this.handleElementInteract(this.content.container(),
+        final boolean handled = this.handleElementInteract(this.content,
                 widget -> widget.mouseReleased(mouseX, mouseY, button));
         return super.mouseReleased(mouseX, mouseY, button) || handled;
     }
@@ -128,19 +145,5 @@ public class ScrollListWidget extends AbstractScrollWidget implements IContainer
     @Override
     public int totalInnerPadding() {
         return super.totalInnerPadding();
-    }
-
-    // Match children positions to parent
-    @Override
-    public void setX(final int x) {
-        super.setX(x);
-        this.updateContent();
-    }
-
-    // Match children positions to parent
-    @Override
-    public void setY(final int y) {
-        super.setY(y);
-        this.updateContent();
     }
 }

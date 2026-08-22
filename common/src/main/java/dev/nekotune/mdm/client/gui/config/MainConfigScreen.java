@@ -5,7 +5,7 @@ import java.util.function.Function;
 import dev.nekotune.mdm.Config;
 import dev.nekotune.mdm.Constants;
 import dev.nekotune.mdm.client.gui.config.dependencies.DependenciesScreen;
-import dev.nekotune.mdm.client.gui.config.widgets.container.ListContent;
+import dev.nekotune.mdm.client.gui.config.widgets.container.ListContainerWidget;
 import dev.nekotune.mdm.client.gui.config.widgets.input.ToggleInput;
 import dev.nekotune.mdm.client.gui.config.widgets.input.VectorInput;
 import net.minecraft.ChatFormatting;
@@ -33,7 +33,7 @@ public class MainConfigScreen extends AbstractConfigScreen {
     }
 
     @Override
-    protected void populateSettings(final ListContent.Builder builder) {
+    protected void populateSettings(final ListContainerWidget.ListContent.Builder builder) {
         builder.addButton(KEY + ".button.client-resources", (final Button button) -> {
             this.minecraft.setScreen(new DependenciesScreen(this, PackType.CLIENT_RESOURCES));
         });
@@ -89,9 +89,14 @@ public class MainConfigScreen extends AbstractConfigScreen {
             this.inputElement = inputElement;
         }
 
-        public ListContent.Builder appendTo(
-                final ListContent.Builder builder, final Font font) {
+        public ListContainerWidget.ListContent.Builder appendTo(
+                final ListContainerWidget.ListContent.Builder builder, final Font font) {
             return builder.addLabeled(this.translationKey, this.inputElement.apply(font));
         }
+    }
+
+    @Override
+    public Component getBackButtonMessage() {
+        return Component.translatableWithFallback(KEY + ".button.back", "Save & Exit");
     }
 }

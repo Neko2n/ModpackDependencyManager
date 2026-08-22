@@ -7,8 +7,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import dev.nekotune.mdm.client.gui.config.AbstractConfigScreen;
-import dev.nekotune.mdm.client.gui.config.widgets.container.DropdownWidget;
-import dev.nekotune.mdm.client.gui.config.widgets.container.ListContent.Builder;
+import dev.nekotune.mdm.client.gui.config.widgets.container.DropdownContainerWidget;
+import dev.nekotune.mdm.client.gui.config.widgets.container.ListContainerWidget;
 import dev.nekotune.mdm.client.gui.config.widgets.input.OrderedListInput;
 import dev.nekotune.mdm.client.gui.config.widgets.input.SelectionInput;
 import dev.nekotune.mdm.client.gui.config.widgets.input.ToggleInput;
@@ -37,8 +37,6 @@ public class DependencyEditScreen extends AbstractConfigScreen {
     private DependencyInfo editing;
     private final Component subtitle;
     private SettingsWidgets settingsWidgets;
-    private Button applyButton = Button.builder(Component.empty(), $ -> {
-    }).build();
 
     protected DependencyEditScreen(final DependenciesScreen below,
             final DependencyInfo dependency, final OnApply onApply) {
@@ -64,58 +62,51 @@ public class DependencyEditScreen extends AbstractConfigScreen {
     }
 
     @Override
-    protected void populateSettings(final Builder builder) {
+    protected void populateSettings(final ListContainerWidget.ListContent.Builder builder) {
         final String hostsKey = KEY + ".hosts";
         final LinearLayout hostsLayout = LinearLayout.horizontal().spacing(4);
         this.settingsWidgets.hosts.values().forEach(hostsLayout::addChild);
 
         builder.addLabeled(KEY + ".slug", this.settingsWidgets.slug());
-        builder.addElement(this.settingsWidgets.mirrors(), this.settingsWidgets.mirrors().getMessage());
+        builder.addElement(this.settingsWidgets.mirrors().dropdown());
         builder.addLabeled(hostsKey, hostsLayout);
         builder.addLabeled(KEY + ".mode", this.settingsWidgets.mode());
         builder.addLabeled(KEY + ".load-priority", this.settingsWidgets.loadPriority());
 
         // TODO remove debug
-        builder.addElement(this.settingsWidgets.listDebug(), Component.empty());
+        builder.addElement(this.settingsWidgets.listDebug());
     }
 
     @Override
     protected void init() {
-        this.settingsWidgets = SettingsWidgets.create(this);
+        this.settingsWidgets = SettingsWidgets.init(this);
         super.init(); // Calls populateSettings
+    }
 
-        // Button to apply changes
-        final Button.OnPress onApplyPressed = $ -> {
-            this.applyButton.active = false;
-            int loadPriority = 0;
-            try {
-                loadPriority = Integer.valueOf(this.settingsWidgets.loadPriority().getValue());
-            } catch (final NumberFormatException e) {
-            }
-            final Set<DependencyInfo.Host> hosts = new HashSet<>(this.settingsWidgets.hosts().keySet()
-                    .stream()
-                    .filter(host -> this.settingsWidgets.hosts().get(host).getValue())
-                    .toList());
-            if (hosts.isEmpty()) {
-                hosts.add(DependencyInfo.Host.MODRINTH);
-            }
-            final var modified = new DependencyInfo(
-                    this.editing.type(),
-                    this.settingsWidgets.slug().getValue(),
-                    this.settingsWidgets.mirrors().content.getValues(),
-                    hosts,
-                    this.settingsWidgets.mode().getValue(),
-                    loadPriority);
-            this.onApply.accept(this.editing, modified);
-            this.editing = modified;
-        };
-        this.applyButton = Button.builder(
-                Component.translatableWithFallback(KEY + ".button.apply", "Apply"), onApplyPressed)
-                .size(Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT)
-                .build();
-        this.applyButton.setPosition(this.width / 2 - (this.applyButton.getWidth() / 2),
-                this.height - this.barHeight() / 2 - (this.applyButton.getHeight() / 2));
-        this.addRenderableWidget(this.applyButton);
+    @Override
+    protected void onPressBack() {
+        this.backButton.active = false;
+        int loadPriority = 0;
+        try {
+            loadPriority = Integer.valueOf(this.settingsWidgets.loadPriority().getValue());
+        } catch (final NumberFormatException e) {
+        }
+        final Set<DependencyInfo.Host> hosts = new HashSet<>(this.settingsWidgets.hosts().keySet()
+                .stream()
+                .filter(host -> this.settingsWidgets.hosts().get(host).getValue())
+                .toList());
+        if (hosts.isEmpty()) {
+            hosts.add(DependencyInfo.Host.MODRINTH);
+        }
+        final var modified = new DependencyInfo(
+                this.editing.type(),
+                this.settingsWidgets.slug().getValue(),
+                this.settingsWidgets.mirrors().input().getValues(),
+                hosts,
+                this.settingsWidgets.mode().getValue(),
+                loadPriority);
+        this.onApply.accept(this.editing, modified);
+        this.editing = modified;
     }
 
     // Render the subtitle along with the main title
@@ -126,12 +117,6 @@ public class DependencyEditScreen extends AbstractConfigScreen {
                 this.width / 2, this.barHeight() / 2 - 5, 0xFFFFFFFF);
         guiGraphics.drawCenteredString(this.font, this.subtitle,
                 this.width / 2, this.barHeight() / 2 + 5, 0xFFFFFFFF);
-    }
-
-    // Remove the default close button in favor of the "apply changes" button
-    @Override
-    public void renderBottomButton(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
-            final float partialTick) {
     }
 
     // Render a blurred version of the screen below this one
@@ -164,7 +149,7 @@ public class DependencyEditScreen extends AbstractConfigScreen {
      */
     protected static record SettingsWidgets(
             EditBox slug,
-            DropdownWidget<OrderedListInput> mirrors,
+            MirrorsWidgets mirrors,
             EnumMap<DependencyInfo.Host, ToggleInput.IconToggle> hosts,
             SelectionInput<DependencyInfo.Mode> mode,
             EditBox loadPriority,
@@ -176,7 +161,7 @@ public class DependencyEditScreen extends AbstractConfigScreen {
          * @param editScreen The screen to create the widgets for.
          * @return The newly created SettingsWidgets.
          */
-        public static SettingsWidgets create(final DependencyEditScreen editScreen) {
+        public static SettingsWidgets init(final DependencyEditScreen editScreen) {
 
             // Primary slug setting
             final var slugEditBox = new EditBox(editScreen.font, Button.DEFAULT_WIDTH,
@@ -184,7 +169,7 @@ public class DependencyEditScreen extends AbstractConfigScreen {
                     Component.literal(editScreen.editing.slug()));
             slugEditBox.setValue(editScreen.editing.slug());
             slugEditBox.setFilter(DependencyInfo.SLUG_VALIDATOR);
-            slugEditBox.setResponder(text -> editScreen.applyButton.active = true);
+            slugEditBox.setResponder(text -> editScreen.backButton.active = true);
             editScreen.addWidget(slugEditBox);
 
             // Mirror slugs setting
@@ -192,17 +177,19 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             final Component mirrorsHeader = Component.translatable(mirrorsKey);
             final Tooltip mirrorsTooltip = Tooltip.create(
                     Component.translatable(mirrorsKey + ".tooltip"));
-            // TODO Update to match refactored OrderedListInput
             final var mirrorsList = new OrderedListInput(0, 0,
                     editScreen.getInnerWidth(), Integer.MAX_VALUE, editScreen.font);
             mirrorsList.setValues(editScreen.editing.mirrors());
-            mirrorsList.setResponder(values -> editScreen.applyButton.active = true);
+            mirrorsList.setResponder(values -> editScreen.backButton.active = true);
             mirrorsList.setFilter(DependencyInfo.SLUG_VALIDATOR);
-            final DropdownWidget<OrderedListInput> mirrorsDropdown = new DropdownWidget<>(0, 0,
+            final var mirrorsDropdown = new DropdownContainerWidget(0, 0,
                     editScreen.getInnerWidth(), Button.DEFAULT_HEIGHT,
-                    mirrorsHeader, editScreen.font, mirrorsList,
+                    mirrorsHeader, editScreen.font,
                     isCollapsed -> editScreen.rebuildSettings());
             mirrorsDropdown.setTooltip(mirrorsTooltip);
+            final var mirrorsWrapper = LinearLayout.vertical();
+            mirrorsWrapper.addChild(mirrorsList);
+            mirrorsDropdown.setContent(mirrorsWrapper);
             editScreen.addWidget(mirrorsDropdown);
 
             // Hosts setting
@@ -238,7 +225,7 @@ public class DependencyEditScreen extends AbstractConfigScreen {
                 toggleInput = new ToggleInput.IconToggle(ToggleSprites.Hosts.get(host), enabled);
                 toggleInput.setTooltip(tooltip.apply(enabled));
                 toggleInput.setResponder(newValue -> {
-                    editScreen.applyButton.active = true;
+                    editScreen.backButton.active = true;
                     toggleInput.setTooltip(tooltip.apply(newValue));
                 });
                 hostToggles.put(host, toggleInput);
@@ -250,7 +237,7 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             final var modeInput = new SelectionInput<DependencyInfo.Mode>(0, 0,
                     Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT,
                     Set.of(DependencyInfo.Mode.values()), editScreen.editing.mode(),
-                    $ -> editScreen.applyButton.active = true);
+                    $ -> editScreen.backButton.active = true);
             for (final DependencyInfo.Mode mode : DependencyInfo.Mode.values()) {
 
                 // Assign informational tooltips to each mode option
@@ -268,15 +255,19 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             loadPriorityEditBox.setValue(String.valueOf(editScreen.editing.loadPriority()));
             loadPriorityEditBox.setFilter(text -> text.isEmpty()
                     || (text.matches("^\\d+$") && text.length() <= 3));
-            loadPriorityEditBox.setResponder(text -> editScreen.applyButton.active = true);
+            loadPriorityEditBox.setResponder(text -> editScreen.backButton.active = true);
             editScreen.addWidget(loadPriorityEditBox);
 
             // TODO remove debug
             final var debugList = new OrderedListInput(0, 0,
                     editScreen.getInnerWidth(), 200, editScreen.font);
 
-            return new SettingsWidgets(slugEditBox, mirrorsDropdown, hostToggles, modeInput,
+            final var mirrorsWidgets = new MirrorsWidgets(mirrorsDropdown, mirrorsList);
+            return new SettingsWidgets(slugEditBox, mirrorsWidgets, hostToggles, modeInput,
                     loadPriorityEditBox, debugList); // TODO remove debug
+        }
+
+        public static record MirrorsWidgets(DropdownContainerWidget dropdown, OrderedListInput input) {
         }
     }
 
@@ -285,5 +276,10 @@ public class DependencyEditScreen extends AbstractConfigScreen {
 
         @Override
         void accept(final DependencyInfo original, final DependencyInfo modified);
+    }
+
+    @Override
+    public Component getBackButtonMessage() {
+        return Component.translatableWithFallback(KEY + ".button.back", "Apply");
     }
 }

@@ -10,7 +10,7 @@ import java.util.Map;
 import dev.nekotune.mdm.Config;
 import dev.nekotune.mdm.Constants;
 import dev.nekotune.mdm.client.gui.config.AbstractConfigScreen;
-import dev.nekotune.mdm.client.gui.config.widgets.container.ListContent;
+import dev.nekotune.mdm.client.gui.config.widgets.container.ListContainerWidget;
 import dev.nekotune.mdm.definition.DependencyInfo;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
@@ -82,7 +82,7 @@ public class DependenciesScreen extends AbstractConfigScreen {
     }
 
     @Override
-    protected void populateSettings(final ListContent.Builder builder) {
+    protected void populateSettings(final ListContainerWidget.ListContent.Builder builder) {
         for (final DependencyInfo dependency : this.modifying) {
             final List<LayoutElement> infoWidgets = new LinkedList<>();
 
@@ -167,5 +167,10 @@ public class DependenciesScreen extends AbstractConfigScreen {
     @Override
     public boolean shouldCloseOnEsc() {
         return true;
+    }
+
+    @Override
+    public Component getBackButtonMessage() {
+        return Component.translatableWithFallback(KEY + ".button.back", "Apply");
     }
 }

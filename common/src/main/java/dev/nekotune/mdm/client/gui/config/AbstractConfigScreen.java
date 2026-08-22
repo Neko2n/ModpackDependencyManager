@@ -2,8 +2,8 @@ package dev.nekotune.mdm.client.gui.config;
 
 import dev.nekotune.mdm.Config;
 import dev.nekotune.mdm.Constants;
-import dev.nekotune.mdm.client.gui.config.widgets.container.ListContent;
-import dev.nekotune.mdm.client.gui.config.widgets.container.ScrollListWidget;
+import dev.nekotune.mdm.client.gui.config.widgets.container.ListContainerWidget;
+import dev.nekotune.mdm.client.gui.config.widgets.container.ScrollContainerWidget;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -17,25 +17,20 @@ import net.minecraft.network.chat.Component;
 public abstract class AbstractConfigScreen extends Screen {
 
     public static final String KEY = Constants.Assets.Lang.Gui.Screen.KEY + ".config";
-    public static final Component EXIT_BUTTON = Component
-            .translatableWithFallback(KEY + ".button.exit", "Save & Exit");
-    public static final Component APPLY_BUTTON = Component
-            .translatableWithFallback(KEY + ".button.apply", "Apply");
     protected static final int SCROLL_LIST_PADDING = 80;
     private static final int BAR_BG_COLOR = 0x65000000;
 
-    // TODO Refactor to use a ScrollWidget wrapping a ListWidget
-    private final ScrollListWidget scrollList;
+    private final ScrollContainerWidget scrollList;
     public final Screen lastScreen;
     public final Button backButton;
 
     protected AbstractConfigScreen(final Component title, final Screen lastScreen) {
         super(title);
         this.lastScreen = lastScreen;
-        this.backButton = Button.builder(Component.empty(), $ -> this.onClose())
+        this.backButton = Button.builder(Component.empty(), $ -> this.onPressBack())
                 .size(Button.DEFAULT_WIDTH, Button.DEFAULT_HEIGHT)
                 .build();
-        this.scrollList = new ScrollListWidget(0, 0, 0, 0);
+        this.scrollList = new ScrollContainerWidget(0, 0, 0, 0);
     }
 
     /**
@@ -43,7 +38,12 @@ public abstract class AbstractConfigScreen extends Screen {
      * 
      * @param builder The builder to submit settings content to.
      */
-    protected abstract void populateSettings(final ListContent.Builder builder);
+    protected abstract void populateSettings(final ListContainerWidget.ListContent.Builder builder);
+
+    /**
+     * @return The {@link Button#getMessage()} result for {@link AbstractConfigScreen#backButton}
+     */
+    public abstract Component getBackButtonMessage();
 
     /**
      * Re-builds the settings list, re-running
@@ -55,42 +55,10 @@ public abstract class AbstractConfigScreen extends Screen {
         this.scrollList.setWidth(listWidth);
         this.scrollList.setHeight(this.height - this.barHeight() * 2);
         final int listContentWidth = listWidth - this.scrollList.totalInnerPadding();
-        final var listBuilder = new ListContent.Builder(listContentWidth, this.font);
+        final var listBuilder = new ListContainerWidget.ListContent.Builder(listContentWidth, this.font);
         populateSettings(listBuilder);
-        this.scrollList.setContent(listBuilder.build());
-    }
-
-    /**
-     * @return True if the screen should call {@link Config#save} upon closing,
-     *         false otherwise.
-     */
-    protected boolean shouldSaveOnClose() {
-        return !(this.lastScreen instanceof AbstractConfigScreen);
-    }
-
-    /**
-     * Renders the title text at the top of the screen.
-     */
-    public void renderTitle(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
-            final float partialTick) {
-        guiGraphics.drawCenteredString(this.font, this.title,
-                this.width / 2, this.barHeight() / 2, 0xFFFFFFFF);
-    }
-
-    /**
-     * Renders the button at the bottom of the screen.
-     * By default, this is a button which closes the screen and saves the config.
-     */
-    public void renderBottomButton(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
-            final float partialTick) {
-        if (shouldSaveOnClose()) {
-            backButton.setMessage(EXIT_BUTTON);
-        } else {
-            backButton.setMessage(APPLY_BUTTON);
-        }
-        backButton.setPosition(this.width / 2 - (backButton.getWidth() / 2),
-                this.height - this.barHeight() / 2 - (backButton.getHeight() / 2));
-        backButton.render(guiGraphics, mouseX, mouseY, partialTick);
+        final ListContainerWidget.ListContent content = listBuilder.build();
+        this.scrollList.setContent(content.container(), content.narration());
     }
 
     /**
@@ -117,6 +85,27 @@ public abstract class AbstractConfigScreen extends Screen {
     }
 
     /**
+     * Renders the title text at the top of the screen.
+     */
+    public void renderTitle(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
+            final float partialTick) {
+        guiGraphics.drawCenteredString(this.font, this.title,
+                this.width / 2, this.barHeight() / 2, 0xFFFFFFFF);
+    }
+
+    /**
+     * Renders the button at the bottom of the screen.
+     * By default, this is a button which closes the screen and saves the config.
+     */
+    public void renderBottomButton(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
+            final float partialTick) {
+        backButton.setMessage(getBackButtonMessage());
+        backButton.setPosition(this.width / 2 - (backButton.getWidth() / 2),
+                this.height - this.barHeight() / 2 - (backButton.getHeight() / 2));
+        backButton.render(guiGraphics, mouseX, mouseY, partialTick);
+    }
+
+    /**
      * @return The height of the top and bottom bars.
      */
     protected int barHeight() {
@@ -137,6 +126,13 @@ public abstract class AbstractConfigScreen extends Screen {
         return this.scrollList.getInnerHeight();
     }
 
+    /**
+     * Fires when the back button is pressed.
+     */
+    protected void onPressBack() {
+        this.onClose();
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -155,6 +151,14 @@ public abstract class AbstractConfigScreen extends Screen {
 
         // Draw bars
         this.renderBars(guiGraphics, mouseX, mouseY, partialTick);
+    }
+
+    /**
+     * @return True if the screen should call {@link Config#save} upon closing,
+     *         false otherwise.
+     */
+    protected boolean shouldSaveOnClose() {
+        return !(this.lastScreen instanceof AbstractConfigScreen);
     }
 
     @Override

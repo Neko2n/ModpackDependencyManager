@@ -7,20 +7,15 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import dev.nekotune.mdm.Constants;
-import dev.nekotune.mdm.client.gui.config.widgets.container.ListContent;
+import dev.nekotune.mdm.client.gui.config.widgets.container.ListContainerWidget;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.SpriteIconButton;
-import net.minecraft.client.gui.layouts.LinearLayout;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
-// TODO Refactor into a subclass of ListWidget
-public class OrderedListInput extends LinearLayout {
+public class OrderedListInput extends ListContainerWidget {
 
     public static final String KEY = Constants.Assets.Lang.Gui.Widget.Input.KEY + ".ordered-list";
 
@@ -34,9 +29,9 @@ public class OrderedListInput extends LinearLayout {
     private final LinkedList<EditBox> items = new LinkedList<>();
     private final Button addButton;
 
-    public OrderedListInput(final int width, final LinearLayout.Orientation orientation,
+    public OrderedListInput(final int x, final int y, final int width, final int height,
             final Font font) {
-        super(width, 0, orientation);
+        super(x, y, width, height);
         this.font = font;
         this.addButton = Button.builder(ADD_TEXT, $ -> this.addValue(""))
                 .size(Button.DEFAULT_HEIGHT * 2, Button.DEFAULT_HEIGHT)
@@ -85,7 +80,7 @@ public class OrderedListInput extends LinearLayout {
     }
 
     private void rebuildContent() {
-        final var contentBuilder = new ListContent.Builder(this.getWidth(), font);
+        final var contentBuilder = new ListContainerWidget.ListContent.Builder(this.getWidth(), font);
         for (int i = 0; i < this.items.size(); i++) {
             final int i$immutable = i;
             final EditBox item = this.items.get(i$immutable);
@@ -98,7 +93,6 @@ public class OrderedListInput extends LinearLayout {
             contentBuilder.addLine(item, removeButton, item.getMessage());
         }
         contentBuilder.addElement(this.addButton, Component.translatable(KEY + ".add.narration"));
-        final ListContent content = contentBuilder.build();
-        this.setHeight(Math.min(this.getInnerHeight() + 1, this.getMaxHeight()));
+        this.setContent(contentBuilder.build());
     }
 }
