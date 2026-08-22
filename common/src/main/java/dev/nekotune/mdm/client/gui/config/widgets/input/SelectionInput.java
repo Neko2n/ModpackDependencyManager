@@ -10,7 +10,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 
-// TODO Fix tooltip not showing until the input is interacted with
 public class SelectionInput<T extends Enum<T>> extends Button {
 
     private final LinkedList<T> values;
@@ -33,6 +32,9 @@ public class SelectionInput<T extends Enum<T>> extends Button {
     public void assignTooltip(final T value, final Tooltip tooltip) {
         tooltips.put(value, tooltip);
         autoTooltips = true;
+        if (value == this.getValue()) {
+            this.setTooltip(tooltip);
+        }
     }
 
     @Override
