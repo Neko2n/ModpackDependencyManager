@@ -3,7 +3,6 @@ package dev.nekotune.mdm.client.gui.config.widgets.container;
 import java.util.Collection;
 import java.util.List;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -161,7 +160,7 @@ public class ListContainerWidget extends AbstractWidget implements IContainerWid
             public Builder addButton(final String translationKey, final Button.OnPress onPress) {
                 final Component label = Component.translatable(translationKey);
                 final Button button = Button
-                        .builder(label.copy().withStyle(ChatFormatting.BOLD), onPress)
+                        .builder(label, onPress)
                         .size(width, ELEMENT_HEIGHT)
                         .tooltip(Tooltip.create(Component.translatable(translationKey + ".tooltip")))
                         .build();
