@@ -15,6 +15,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.SpriteIconButton;
 import net.minecraft.network.chat.Component;
 
+// TODO Fix typing not actually writing anything into the input boxes
 public class OrderedListInput extends ListContainerWidget {
 
     public static final String KEY = Constants.Assets.Lang.Gui.Widget.Input.KEY + ".ordered-list";

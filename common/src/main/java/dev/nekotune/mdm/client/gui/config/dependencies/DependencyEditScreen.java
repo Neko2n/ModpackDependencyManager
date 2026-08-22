@@ -23,6 +23,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 
+// TODO Fix all settings being offset to the right and clipping into the scroll bar
 /**
  * Pop-up screen to edit a dependency.
  */
