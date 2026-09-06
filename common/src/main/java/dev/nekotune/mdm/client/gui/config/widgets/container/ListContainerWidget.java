@@ -3,6 +3,7 @@ package dev.nekotune.mdm.client.gui.config.widgets.container;
 import java.util.Collection;
 import java.util.List;
 
+import dev.nekotune.mdm.Constants;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -65,7 +66,9 @@ public class ListContainerWidget extends AbstractWidget implements IContainerWid
     }
 
     protected boolean withinContentAreaPoint(final double x, final double y) {
-        return x >= (double)this.getX() && x < (double)(this.getX() + this.width) && y >= (double)this.getY() && y < (double)(this.getY() + this.height);
+        final boolean withinX = x >= (double)this.getX() && x < (double)(this.getX() + this.getWidth());
+        final boolean withinY = y >= (double)this.getY() && y < (double)(this.getY() + this.getHeight());
+        return withinX && withinY;
     }
 
     @Override
@@ -115,7 +118,9 @@ public class ListContainerWidget extends AbstractWidget implements IContainerWid
 
     @Override
     public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
-        if (!this.visible || !this.withinContentAreaPoint(mouseX, mouseY))
+        final boolean withinContentArea = this.withinContentAreaPoint(mouseX, mouseY);
+        Constants.LOG.debug("Mouse clicked at ({}, {}), widget position is ({}, {}), widget size is ({}, {}); Within content area? {}", mouseX, mouseY, this.getX(), this.getY(), this.getWidth(), this.getHeight(), withinContentArea);
+        if (!this.visible || !withinContentArea)
             return false;
         final boolean handled = this.handleElementInteract(this.content.container(),
                 widget -> widget.mouseClicked(mouseX, mouseY, button));

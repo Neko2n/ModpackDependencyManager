@@ -15,7 +15,6 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-// TODO Fix dropdown contents not being interactable
 /**
  * Widget which contains a Layout of child widgets within a clickable dropdown.
  */
