@@ -3,6 +3,7 @@ package dev.nekotune.mdm.client.gui.config.widgets.container;
 import java.util.function.Consumer;
 
 import dev.nekotune.mdm.Constants;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -15,6 +16,8 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
+// TODO add highlighting for the header arrow when hovered
+// TODO fix scrolling not working when the mouse is over a dropdown widget
 /**
  * Widget which contains a Layout of child widgets within a clickable dropdown.
  */
@@ -57,6 +60,7 @@ public class DropdownContainerWidget extends AbstractWidget implements IContaine
     public void updateContent() {
         this.getContent().setPosition(this.getX() + this.getContentMargin(), this.getY() + this.getHeaderHeight());
         this.getContent().arrangeElements();
+        this.setHeight(this.getHeaderHeight() + (this.isCollapsed() ? 0 : this.getContent().getHeight()));
     }
 
     // Match children positions to parent
@@ -185,8 +189,9 @@ public class DropdownContainerWidget extends AbstractWidget implements IContaine
     @Override
     public void onClick(final double mouseX, final double mouseY) {
         super.onClick(mouseX, mouseY);
+        this.playDownSound(Minecraft.getInstance().getSoundManager());
         this.setCollapsed(!this.isCollapsed());
-        this.setHeight(this.getHeaderHeight() + (this.isCollapsed() ? 0 : this.getContent().getHeight()));
+        this.updateContent();
         this.onClick.accept(this.isCollapsed());
     }
 

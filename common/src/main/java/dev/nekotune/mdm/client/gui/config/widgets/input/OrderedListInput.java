@@ -15,7 +15,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.SpriteIconButton;
 import net.minecraft.network.chat.Component;
 
-// TODO Fix typing not actually writing anything into the input boxes
+// TODO Fix not being able to interact with edit boxes
 public class OrderedListInput extends ListContainerWidget {
 
     public static final String KEY = Constants.Assets.Lang.Gui.Widget.Input.KEY + ".ordered-list";
@@ -28,16 +28,18 @@ public class OrderedListInput extends ListContainerWidget {
     private Consumer<Collection<String>> responder = $ -> {
     };
     private final LinkedList<EditBox> items = new LinkedList<>();
+    private final Consumer<OrderedListInput> rebuildCallback;
     private final Button addButton;
 
     public OrderedListInput(final int x, final int y, final int width, final int height,
-            final Font font) {
+            final Font font, final Consumer<OrderedListInput> rebuildCallback) {
         super(x, y, width, height);
         this.font = font;
+        this.rebuildCallback = rebuildCallback;
         this.addButton = Button.builder(ADD_TEXT, $ -> this.addValue(""))
                 .size(Button.DEFAULT_HEIGHT * 2, Button.DEFAULT_HEIGHT)
                 .build();
-        rebuildContent();
+        this.buildContent();
     }
 
     public final void setFilter(final Predicate<String> validator) {
@@ -63,7 +65,9 @@ public class OrderedListInput extends ListContainerWidget {
     }
 
     protected final void addValue(final String value) {
-        final EditBox newItem = new EditBox(this.font, this.getWidth(), Button.DEFAULT_HEIGHT,
+        final var deleteButtonSprite = Constants.Assets.Gui.Sprite.Icon.DELETE;
+        final int editBoxWidth = this.getWidth() - deleteButtonSprite.width() - 4;
+        final EditBox newItem = new EditBox(this.font, editBoxWidth, Button.DEFAULT_HEIGHT,
                 Component.empty());
         newItem.setFilter(this.inputValidator);
         if (this.inputValidator.test(value))
@@ -81,6 +85,11 @@ public class OrderedListInput extends ListContainerWidget {
     }
 
     private void rebuildContent() {
+        this.buildContent();
+        this.rebuildCallback.accept(this);
+    }
+
+    private void buildContent() {
         final var contentBuilder = new ListContainerWidget.ListContent.Builder(this.getWidth(), font);
         for (int i = 0; i < this.items.size(); i++) {
             final int i$immutable = i;

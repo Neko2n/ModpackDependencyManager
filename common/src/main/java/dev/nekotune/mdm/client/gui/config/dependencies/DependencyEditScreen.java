@@ -178,19 +178,20 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             final Component mirrorsHeader = Component.translatable(mirrorsKey);
             final Tooltip mirrorsTooltip = Tooltip.create(
                     Component.translatable(mirrorsKey + ".tooltip"));
-            final var mirrorsList = new OrderedListInput(0, 0,
-                    editScreen.getInnerWidth(), Integer.MAX_VALUE, editScreen.font);
-            mirrorsList.setValues(editScreen.editing.mirrors());
-            mirrorsList.setResponder(values -> editScreen.backButton.active = true);
-            mirrorsList.setFilter(DependencyInfo.SLUG_VALIDATOR);
             final var mirrorsDropdown = new DropdownContainerWidget(0, 0,
                     editScreen.getInnerWidth(), Button.DEFAULT_HEIGHT,
                     mirrorsHeader, editScreen.font,
-                    isCollapsed -> editScreen.rebuildSettings());
+                    isCollapsed -> editScreen.refresh());
             mirrorsDropdown.setTooltip(mirrorsTooltip);
-            final var mirrorsWrapper = LinearLayout.vertical();
-            mirrorsWrapper.addChild(mirrorsList);
-            mirrorsDropdown.setContent(mirrorsWrapper);
+            final var mirrorsHolder = LinearLayout.vertical();
+            final var mirrorsList = new OrderedListInput(0, 0,
+                    editScreen.getInnerWidth(), Integer.MAX_VALUE, editScreen.font,
+                    listInput -> editScreen.refresh());
+            mirrorsList.setValues(editScreen.editing.mirrors());
+            mirrorsList.setResponder(values -> editScreen.backButton.active = true);
+            mirrorsList.setFilter(DependencyInfo.SLUG_VALIDATOR);
+            mirrorsHolder.addChild(mirrorsList);
+            mirrorsDropdown.setContent(mirrorsHolder);
             editScreen.addWidget(mirrorsDropdown);
 
             // Hosts setting
@@ -261,7 +262,8 @@ public class DependencyEditScreen extends AbstractConfigScreen {
 
             // TODO remove debug
             final var debugList = new OrderedListInput(0, 0,
-                    editScreen.getInnerWidth(), 200, editScreen.font);
+                    editScreen.getInnerWidth(), 200, editScreen.font,
+                    listInput -> editScreen.refresh());
 
             final var mirrorsWidgets = new MirrorsWidgets(mirrorsDropdown, mirrorsList);
             return new SettingsWidgets(slugEditBox, mirrorsWidgets, hostToggles, modeInput,

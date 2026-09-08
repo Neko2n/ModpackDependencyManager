@@ -49,7 +49,7 @@ public abstract class AbstractConfigScreen extends Screen {
      * Re-builds the settings list, re-running
      * {@link AbstractConfigScreen#populateSettings}.
      */
-    protected final void rebuildSettings() {
+    private final void rebuildSettings() {
         final int listWidth = this.getInnerWidth();
         this.scrollList.setPosition(SCROLL_LIST_PADDING, this.barHeight());
         this.scrollList.setWidth(listWidth);
@@ -60,6 +60,14 @@ public abstract class AbstractConfigScreen extends Screen {
         final ListContainerWidget.ListContent content = listBuilder.build();
         this.scrollList.setContent(content.container(), content.narration());
     }
+    
+    /**
+     * Calls {@link AbstractConfigScreen#rebuildSettings()}.
+     */
+    public final void refresh() {
+        this.rebuildSettings();
+    }
+
 
     /**
      * Renders the bars at the top and bottom of the screen, as well as their

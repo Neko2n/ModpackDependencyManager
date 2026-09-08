@@ -76,7 +76,7 @@ public class DependenciesScreen extends AbstractConfigScreen {
                 }
                 return candidate;
             });
-            this.rebuildSettings();
+            this.refresh();
         };
         this.minecraft.setScreen(new DependencyEditScreen(this, dependency, injectModified));
     }
@@ -121,7 +121,7 @@ public class DependenciesScreen extends AbstractConfigScreen {
 
                         // On click, re-build the scroll list with this dependency removed.
                         this.modifying.remove(dependency);
-                        this.rebuildSettings();
+                        this.refresh();
                     },
                     true)
                     .size(Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT)
@@ -152,7 +152,7 @@ public class DependenciesScreen extends AbstractConfigScreen {
                 (final Button button) -> {
                     final DependencyInfo dependency = DependencyInfo.createDefault(this.packType);
                     this.modifying.add(dependency);
-                    this.rebuildSettings();
+                    this.refresh();
                     editDependency(dependency); // Automatically opens the editor for it
                 }).size(Button.DEFAULT_HEIGHT * 2, Button.DEFAULT_HEIGHT)
                 .build(), Component.translatableWithFallback(KEY + ".add.narration", "Add new dependency"));
