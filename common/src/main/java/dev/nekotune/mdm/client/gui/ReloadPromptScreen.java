@@ -1,7 +1,7 @@
 package dev.nekotune.mdm.client.gui;
 
 import dev.nekotune.mdm.Constants;
-
+import dev.nekotune.mdm.Resources;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.AlertScreen;
@@ -9,7 +9,7 @@ import net.minecraft.network.chat.Component;
 
 public class ReloadPromptScreen extends AlertScreen {
 
-    private static final String ID = Constants.Assets.Lang.Gui.Screen.KEY + ".reloadprompt";
+    private static final String ID = Resources.Lang.Gui.Screen.KEY + ".reloadprompt";
 
     public static final Component TITLE = Component
             .translatableWithFallback(ID + ".title", "Modpack Resources Downloaded")

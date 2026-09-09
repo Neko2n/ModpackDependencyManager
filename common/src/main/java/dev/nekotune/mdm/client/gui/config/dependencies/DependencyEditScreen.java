@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import dev.nekotune.mdm.Resources;
 import dev.nekotune.mdm.client.gui.config.AbstractConfigScreen;
 import dev.nekotune.mdm.client.gui.config.widgets.container.DropdownContainerWidget;
 import dev.nekotune.mdm.client.gui.config.widgets.container.ListContainerWidget;
@@ -223,8 +224,9 @@ public class DependencyEditScreen extends AbstractConfigScreen {
 
                 // Icon button toggle input
                 final boolean enabled = editScreen.editing.hosts().contains(host);
-                final ToggleInput.IconToggle toggleInput;
-                toggleInput = new ToggleInput.IconToggle(ToggleSprites.Hosts.get(host), enabled);
+                final Resources.HostIcons hostIcons = Resources.HostIcons.of(host);
+                final var toggleInput = new ToggleInput.IconToggle(hostIcons.buttonOn(),
+                        hostIcons.buttonOff(), enabled);
                 toggleInput.setTooltip(tooltip.apply(enabled));
                 toggleInput.setResponder(newValue -> {
                     editScreen.backButton.active = true;

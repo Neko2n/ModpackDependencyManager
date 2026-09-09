@@ -2,7 +2,7 @@ package dev.nekotune.mdm.client.gui.config.widgets.container;
 
 import java.util.function.Consumer;
 
-import dev.nekotune.mdm.Constants;
+import dev.nekotune.mdm.Resources;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -14,16 +14,13 @@ import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 
-// TODO add highlighting for the header arrow when hovered
 // TODO fix scrolling not working when the mouse is over a dropdown widget
 /**
  * Widget which contains a Layout of child widgets within a clickable dropdown.
  */
 public class DropdownContainerWidget extends AbstractWidget implements IContainerWidget<Layout> {
 
-    public static final int ARROW_SIZE = 20;
     public static final int MARGIN_LINE_COLOR = 0xFFFFFFFF;
     
     private final DropdownContainerWidget.OnClick onClick;
@@ -31,7 +28,7 @@ public class DropdownContainerWidget extends AbstractWidget implements IContaine
     private Layout content = LinearLayout.vertical();
     protected Font font;
     private int headerHeight;
-    private int contentMargin = ARROW_SIZE + 4;
+    private int contentMargin = 24;
     private boolean collapsed = true;
 
     public DropdownContainerWidget(final int x, final int y, final int width, final int height,
@@ -136,7 +133,7 @@ public class DropdownContainerWidget extends AbstractWidget implements IContaine
      * Renders the margin line.
      */
     protected void renderDecorations(final GuiGraphics guiGraphics) {
-        final int marginLineX = this.getX() + DropdownContainerWidget.ARROW_SIZE / 2;
+        final int marginLineX = this.getX() + ((this.getContentMargin() - 4) / 2);
         final int marginLineY = this.getY() + this.getHeaderHeight();
         guiGraphics.vLine(marginLineX, marginLineY, marginLineY + this.getContent().getHeight(),
                 MARGIN_LINE_COLOR);
@@ -165,9 +162,12 @@ public class DropdownContainerWidget extends AbstractWidget implements IContaine
 
         // Render header
         final int centerY = this.getY() + this.getHeaderHeight() / 2;
-        guiGraphics.blitSprite(this.isCollapsed() ? ArrowSprites.CLOSED : ArrowSprites.OPEN,
-                this.getX(), centerY - ARROW_SIZE / 2, ARROW_SIZE, ARROW_SIZE);
-        this.headerText.setPosition(this.getX() + getContentMargin(),
+        final Resources.Sprite arrowSprite = Resources.Gui.Sprites.Icons.Dropdown.get(
+                !this.isCollapsed(), this.isHovered());
+        guiGraphics.blitSprite(arrowSprite.location(),
+                this.getX(), centerY - arrowSprite.height() / 2,
+                arrowSprite.width(), arrowSprite.height());
+        this.headerText.setPosition(this.getX() + getContentMargin() + arrowSprite.width(),
                 centerY - this.headerText.getHeight() / 2);
         this.headerText.render(guiGraphics, mouseX, mouseY, partialTick);
     }
@@ -241,13 +241,6 @@ public class DropdownContainerWidget extends AbstractWidget implements IContaine
                     widget -> widget.isFocused() && widget.keyPressed(keyCode, scanCode, modifiers));
         }
         return super.keyPressed(keyCode, scanCode, modifiers) || handled;
-    }
-
-    public static interface ArrowSprites {
-        public static final ResourceLocation OPEN = ResourceLocation.fromNamespaceAndPath(
-                Constants.MOD_ID, "icon/arrow_open");
-        public static final ResourceLocation CLOSED = ResourceLocation.fromNamespaceAndPath(
-                Constants.MOD_ID, "icon/arrow_closed");
     }
 
     @FunctionalInterface

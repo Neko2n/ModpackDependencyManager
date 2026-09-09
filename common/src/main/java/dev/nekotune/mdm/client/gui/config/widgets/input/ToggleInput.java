@@ -4,11 +4,10 @@ import java.util.function.Consumer;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import dev.nekotune.mdm.client.gui.config.dependencies.ToggleSprites;
+import dev.nekotune.mdm.Resources;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 
 /**
  * Simple input button representing a boolean setting.
@@ -66,13 +65,31 @@ public abstract sealed class ToggleInput extends Button {
      */
     public static final class IconToggle extends ToggleInput {
 
-        private final ResourceLocation onSprite;
-        private final ResourceLocation offSprite;
+        private final Resources.Sprite onSprite;
+        private final Resources.Sprite offSprite;
 
-        public IconToggle(final ToggleSprites sprites, final boolean defaultValue) {
-            super(defaultValue, Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT);
-            this.onSprite = sprites.onSprite();
-            this.offSprite = sprites.offSprite();
+        public IconToggle(final Resources.Sprite onSprite, final Resources.Sprite offSprite,
+                final boolean defaultValue) {
+            super(defaultValue, 0, 0);
+            this.onSprite = onSprite;
+            this.offSprite = offSprite;
+            this.updateSize();
+        }
+
+        private Resources.Sprite getSprite() {
+            return this.value ? this.onSprite : this.offSprite;
+        }
+
+        private void updateSize() {
+            final Resources.Sprite sprite = this.getSprite();
+            this.setWidth(sprite.width());
+            this.setHeight(sprite.height());
+        }
+        
+        @Override
+        public void onPress() {
+            super.onPress();
+            this.updateSize();
         }
 
         @Override
@@ -83,8 +100,10 @@ public abstract sealed class ToggleInput extends Button {
             }
             super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
             RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-            final ResourceLocation sprite = this.value ? this.onSprite : this.offSprite;
-            guiGraphics.blitSprite(sprite, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            final Resources.Sprite sprite = this.getSprite();
+            guiGraphics.blitSprite(sprite.location(),
+                    this.getX(), this.getY(),
+                    sprite.width(), sprite.height());
         }
     }
 }

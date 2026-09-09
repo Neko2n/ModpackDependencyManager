@@ -3,9 +3,8 @@ package dev.nekotune.mdm.client.gui;
 import java.util.List;
 import java.util.Optional;
 
-import dev.nekotune.mdm.Constants;
 import dev.nekotune.mdm.DownloadManager.DownloadResult;
-
+import dev.nekotune.mdm.Resources;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -18,7 +17,7 @@ import net.minecraft.network.chat.Style;
 
 public class DownloadErrorScreen extends Screen {
 
-    private static final String KEY = Constants.Assets.Lang.Gui.Screen.KEY + ".downloaderror";
+    private static final String KEY = Resources.Lang.Gui.Screen.KEY + ".downloaderror";
 
     public static final Component TITLE = Component
             .translatableWithFallback(KEY + ".title", "Error Downloading Modpack Resources")

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import dev.nekotune.mdm.Config;
-import dev.nekotune.mdm.Constants;
+import dev.nekotune.mdm.Resources;
 import dev.nekotune.mdm.client.gui.config.AbstractConfigScreen;
 import dev.nekotune.mdm.client.gui.config.widgets.container.ListContainerWidget;
 import dev.nekotune.mdm.definition.DependencyInfo;
@@ -24,7 +24,12 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackType;
 
-// TODO Make custom non-button icons for shown dependencies
+/**
+ * Screen which shows a list of active dependencies.
+ * Dependencies in the list may be edited with a button, opening {@link DependencyEditScreen}.
+ * Dependencies in the list may be removed with a button.
+ * New dependencies may be added to the list with a button.
+ */
 public class DependenciesScreen extends AbstractConfigScreen {
 
     protected static final String KEY = AbstractConfigScreen.KEY + ".dependencies";
@@ -94,14 +99,14 @@ public class DependenciesScreen extends AbstractConfigScreen {
             // Display the dependency's active hosts as badges next to the title
             for (final DependencyInfo.Host host : dependency.hosts()) {
                 infoWidgets.add(SpacerElement.width(4));
-                final ToggleSprites toggleSprites = ToggleSprites.Hosts.get(host);
+                final Resources.Sprite logoIcon = Resources.HostIcons.of(host).logo();
                 infoWidgets.add(ImageWidget.sprite(
-                        toggleSprites.width(), toggleSprites.height(), toggleSprites.onSprite()));
-                titleInfoWidth -= toggleSprites.width() + 4;
+                        logoIcon.width(), logoIcon.height(), logoIcon.location()));
+                titleInfoWidth -= logoIcon.width() + 4;
             }
 
             // Button which modifies the dependency's information
-            final var editIcon = Constants.Assets.Gui.Sprite.Icon.EDIT;
+            final Resources.Sprite editIcon = Resources.Gui.Sprites.Icons.EDIT;
             final Button editButton = SpriteIconButton.builder(Component.empty(),
                     (final Button button) -> editDependency(dependency),
                     true)
@@ -114,7 +119,7 @@ public class DependenciesScreen extends AbstractConfigScreen {
             titleInfoWidth -= editButton.getWidth() + 4;
 
             // Button which deletes the dependency from the list
-            final var deleteIcon = Constants.Assets.Gui.Sprite.Icon.DELETE;
+            final Resources.Sprite deleteIcon = Resources.Gui.Sprites.Icons.DELETE;
             final Button deleteButton = SpriteIconButton.builder(
                     Component.empty(),
                     (final Button button) -> {

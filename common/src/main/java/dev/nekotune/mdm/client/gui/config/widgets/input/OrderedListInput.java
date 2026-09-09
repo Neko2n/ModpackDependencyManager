@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import dev.nekotune.mdm.Constants;
+import dev.nekotune.mdm.Resources;
 import dev.nekotune.mdm.client.gui.config.widgets.container.ListContainerWidget;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
@@ -16,9 +16,10 @@ import net.minecraft.client.gui.components.SpriteIconButton;
 import net.minecraft.network.chat.Component;
 
 // TODO Fix not being able to interact with edit boxes
+// TODO Fix edit boxes being wider than the container widget
 public class OrderedListInput extends ListContainerWidget {
 
-    public static final String KEY = Constants.Assets.Lang.Gui.Widget.Input.KEY + ".ordered-list";
+    public static final String KEY = Resources.Lang.Gui.Widget.Input.KEY + ".ordered-list";
 
     public static final Component ADD_TEXT = Component.literal("+")
             .withStyle(ChatFormatting.BOLD);
@@ -65,7 +66,7 @@ public class OrderedListInput extends ListContainerWidget {
     }
 
     protected final void addValue(final String value) {
-        final var deleteButtonSprite = Constants.Assets.Gui.Sprite.Icon.DELETE;
+        final var deleteButtonSprite = Resources.Gui.Sprites.Icons.DELETE;
         final int editBoxWidth = this.getWidth() - deleteButtonSprite.width() - 4;
         final EditBox newItem = new EditBox(this.font, editBoxWidth, Button.DEFAULT_HEIGHT,
                 Component.empty());
@@ -94,7 +95,7 @@ public class OrderedListInput extends ListContainerWidget {
         for (int i = 0; i < this.items.size(); i++) {
             final int i$immutable = i;
             final EditBox item = this.items.get(i$immutable);
-            final var deleteIcon = Constants.Assets.Gui.Sprite.Icon.DELETE;
+            final var deleteIcon = Resources.Gui.Sprites.Icons.DELETE;
             final SpriteIconButton removeButton = SpriteIconButton.builder(Component.empty(),
                     $ -> this.removeValue(i$immutable), true)
                     .size(Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT)

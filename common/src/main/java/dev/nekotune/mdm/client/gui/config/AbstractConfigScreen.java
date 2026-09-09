@@ -1,7 +1,7 @@
 package dev.nekotune.mdm.client.gui.config;
 
 import dev.nekotune.mdm.Config;
-import dev.nekotune.mdm.Constants;
+import dev.nekotune.mdm.Resources;
 import dev.nekotune.mdm.client.gui.config.widgets.container.ListContainerWidget;
 import dev.nekotune.mdm.client.gui.config.widgets.container.ScrollContainerWidget;
 import net.minecraft.client.gui.GuiGraphics;
@@ -16,7 +16,7 @@ import net.minecraft.network.chat.Component;
  */
 public abstract class AbstractConfigScreen extends Screen {
 
-    public static final String KEY = Constants.Assets.Lang.Gui.Screen.KEY + ".config";
+    public static final String KEY = Resources.Lang.Gui.Screen.KEY + ".config";
     protected static final int SCROLL_LIST_PADDING = 80;
     private static final int BAR_BG_COLOR = 0x65000000;
 
