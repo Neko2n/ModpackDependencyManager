@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import dev.nekotune.mdm.Resources;
-import dev.nekotune.mdm.client.gui.config.widgets.container.ListContainerWidget;
+import dev.nekotune.mdm.client.gui.config.widgets.container.SettingsList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
@@ -17,7 +17,7 @@ import net.minecraft.network.chat.Component;
 
 // TODO Fix not being able to interact with edit boxes
 // TODO Fix edit boxes being wider than the container widget
-public class OrderedListInput extends ListContainerWidget {
+public class OrderedListInput extends SettingsList {
 
     public static final String KEY = Resources.Lang.Gui.Widget.Input.KEY + ".ordered-list";
 
@@ -91,7 +91,7 @@ public class OrderedListInput extends ListContainerWidget {
     }
 
     private void buildContent() {
-        final var contentBuilder = new ListContainerWidget.ListContent.Builder(this.getWidth(), font);
+        final var contentBuilder = new SettingsList.SettingsContent.Builder(this.getWidth(), font);
         for (int i = 0; i < this.items.size(); i++) {
             final int i$immutable = i;
             final EditBox item = this.items.get(i$immutable);

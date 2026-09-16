@@ -2,8 +2,7 @@ package dev.nekotune.mdm.client.gui.config;
 
 import dev.nekotune.mdm.Config;
 import dev.nekotune.mdm.Resources;
-import dev.nekotune.mdm.client.gui.config.widgets.container.ListContainerWidget;
-import dev.nekotune.mdm.client.gui.config.widgets.container.ScrollContainerWidget;
+import dev.nekotune.mdm.client.gui.config.widgets.container.SettingsList;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -20,7 +19,7 @@ public abstract class AbstractConfigScreen extends Screen {
     protected static final int SCROLL_LIST_PADDING = 80;
     private static final int BAR_BG_COLOR = 0x65000000;
 
-    private final ScrollContainerWidget scrollList;
+    private final SettingsList settingsList;
     public final Screen lastScreen;
     public final Button backButton;
 
@@ -30,7 +29,7 @@ public abstract class AbstractConfigScreen extends Screen {
         this.backButton = Button.builder(Component.empty(), $ -> this.onPressBack())
                 .size(Button.DEFAULT_WIDTH, Button.DEFAULT_HEIGHT)
                 .build();
-        this.scrollList = new ScrollContainerWidget(0, 0, 0, 0);
+        this.settingsList = new SettingsList(0, 0, 0, 0);
     }
 
     /**
@@ -38,7 +37,7 @@ public abstract class AbstractConfigScreen extends Screen {
      * 
      * @param builder The builder to submit settings content to.
      */
-    protected abstract void populateSettings(final ListContainerWidget.ListContent.Builder builder);
+    protected abstract void populateSettings(final SettingsList.SettingsContent.Builder builder);
 
     /**
      * @return The {@link Button#getMessage()} result for {@link AbstractConfigScreen#backButton}
@@ -51,14 +50,13 @@ public abstract class AbstractConfigScreen extends Screen {
      */
     private final void rebuildSettings() {
         final int listWidth = this.getInnerWidth();
-        this.scrollList.setPosition(SCROLL_LIST_PADDING, this.barHeight());
-        this.scrollList.setWidth(listWidth);
-        this.scrollList.setHeight(this.height - this.barHeight() * 2);
-        final int listContentWidth = listWidth - this.scrollList.totalInnerPadding();
-        final var listBuilder = new ListContainerWidget.ListContent.Builder(listContentWidth, this.font);
+        this.settingsList.setPosition(SCROLL_LIST_PADDING, this.barHeight());
+        this.settingsList.setWidth(listWidth);
+        this.settingsList.setHeight(this.height - this.barHeight() * 2);
+        final int listContentWidth = listWidth - this.settingsList.totalInnerPadding();
+        final var listBuilder = new SettingsList.SettingsContent.Builder(listContentWidth, this.font);
         populateSettings(listBuilder);
-        final ListContainerWidget.ListContent content = listBuilder.build();
-        this.scrollList.setContent(content.container(), content.narration());
+        this.settingsList.setContent(listBuilder.build());
     }
     
     /**
@@ -68,6 +66,13 @@ public abstract class AbstractConfigScreen extends Screen {
         this.rebuildSettings();
     }
 
+    @Override
+    public void render(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
+            final float partialTick) {
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        settingsList.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+        this.renderBars(guiGraphics, mouseX, mouseY, partialTick);
+    }
 
     /**
      * Renders the bars at the top and bottom of the screen, as well as their
@@ -131,7 +136,7 @@ public abstract class AbstractConfigScreen extends Screen {
      * @return The height of the inner scroll list.
      */
     protected int getInnerHeight() {
-        return this.scrollList.getInnerHeight();
+        return this.settingsList.getInnerHeight();
     }
 
     /**
@@ -145,20 +150,8 @@ public abstract class AbstractConfigScreen extends Screen {
     protected void init() {
         super.init();
         this.rebuildSettings();
-        this.addWidget(scrollList);
-        this.addWidget(backButton);
-    }
-
-    @Override
-    public void render(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
-            final float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-
-        // Draw scroll layout contents
-        scrollList.render(guiGraphics, mouseX, mouseY, partialTick);
-
-        // Draw bars
-        this.renderBars(guiGraphics, mouseX, mouseY, partialTick);
+        this.addWidget(this.settingsList);
+        this.addWidget(this.backButton);
     }
 
     /**

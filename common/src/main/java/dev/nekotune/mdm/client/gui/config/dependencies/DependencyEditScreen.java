@@ -8,8 +8,8 @@ import java.util.function.Function;
 
 import dev.nekotune.mdm.Resources;
 import dev.nekotune.mdm.client.gui.config.AbstractConfigScreen;
-import dev.nekotune.mdm.client.gui.config.widgets.container.DropdownContainerWidget;
-import dev.nekotune.mdm.client.gui.config.widgets.container.ListContainerWidget;
+import dev.nekotune.mdm.client.gui.config.widgets.container.DropdownContainer;
+import dev.nekotune.mdm.client.gui.config.widgets.container.SettingsList;
 import dev.nekotune.mdm.client.gui.config.widgets.input.OrderedListInput;
 import dev.nekotune.mdm.client.gui.config.widgets.input.SelectionInput;
 import dev.nekotune.mdm.client.gui.config.widgets.input.ToggleInput;
@@ -25,6 +25,9 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 
 // TODO Fix all settings being offset to the right and clipping into the scroll bar
+// TODO Fix apply button only working when you click the left side of it
+// TODO Fix widgets being uninteractable after scrolling enough distance
+// TODO Fix scroll bar being unable to be clicked + dragged
 /**
  * Pop-up screen to edit a dependency.
  */
@@ -64,7 +67,7 @@ public class DependencyEditScreen extends AbstractConfigScreen {
     }
 
     @Override
-    protected void populateSettings(final ListContainerWidget.ListContent.Builder builder) {
+    protected void populateSettings(final SettingsList.SettingsContent.Builder builder) {
         final String hostsKey = KEY + ".hosts";
         final LinearLayout hostsLayout = LinearLayout.horizontal().spacing(4);
         this.settingsWidgets.hosts.values().forEach(hostsLayout::addChild);
@@ -179,20 +182,18 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             final Component mirrorsHeader = Component.translatable(mirrorsKey);
             final Tooltip mirrorsTooltip = Tooltip.create(
                     Component.translatable(mirrorsKey + ".tooltip"));
-            final var mirrorsDropdown = new DropdownContainerWidget(0, 0,
+            final var mirrorsDropdown = new DropdownContainer(0, 0,
                     editScreen.getInnerWidth(), Button.DEFAULT_HEIGHT,
                     mirrorsHeader, editScreen.font,
                     isCollapsed -> editScreen.refresh());
             mirrorsDropdown.setTooltip(mirrorsTooltip);
-            final var mirrorsHolder = LinearLayout.vertical();
             final var mirrorsList = new OrderedListInput(0, 0,
                     editScreen.getInnerWidth(), Integer.MAX_VALUE, editScreen.font,
                     listInput -> editScreen.refresh());
             mirrorsList.setValues(editScreen.editing.mirrors());
             mirrorsList.setResponder(values -> editScreen.backButton.active = true);
             mirrorsList.setFilter(DependencyInfo.SLUG_VALIDATOR);
-            mirrorsHolder.addChild(mirrorsList);
-            mirrorsDropdown.setContent(mirrorsHolder);
+            mirrorsDropdown.addChild(mirrorsList);
             editScreen.addWidget(mirrorsDropdown);
 
             // Hosts setting
@@ -266,13 +267,14 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             final var debugList = new OrderedListInput(0, 0,
                     editScreen.getInnerWidth(), 200, editScreen.font,
                     listInput -> editScreen.refresh());
+            editScreen.addWidget(debugList);
 
             final var mirrorsWidgets = new MirrorsWidgets(mirrorsDropdown, mirrorsList);
             return new SettingsWidgets(slugEditBox, mirrorsWidgets, hostToggles, modeInput,
                     loadPriorityEditBox, debugList); // TODO remove debug
         }
 
-        public static record MirrorsWidgets(DropdownContainerWidget dropdown, OrderedListInput input) {
+        public static record MirrorsWidgets(DropdownContainer dropdown, OrderedListInput input) {
         }
     }
 

@@ -1,11 +1,10 @@
 package dev.nekotune.mdm.client.gui.config.widgets.container;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import dev.nekotune.mdm.Constants;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
@@ -21,117 +20,33 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
 /**
- * Renders a list of widgets as a vertical layout, forwarding interactions automatically.
+ * Renders a formatted list of settings widgets as a vertical layout.
  */
-public class ListContainerWidget extends AbstractWidget implements IContainerWidget<LinearLayout> {
+public class SettingsList extends ScrollContainer {
     
-    protected ListContent content = ListContent.EMPTY;
+    private SettingsContent content = SettingsContent.EMPTY;
 
-    public ListContainerWidget(final int x, final int y, final int width, final int height) {
-        super(x, y, width, height, Component.empty());
-    }
-
-    @Override
-    public void updateContent() {
-        this.content.container().setX(this.getX());
-        this.content.container().setY(this.getY());
-        this.content.container().arrangeElements();
-    }
-
-    // Match children positions to parent
-    @Override
-    public void setX(final int x) {
-        super.setX(x);
-        this.updateContent();
-    }
-
-    // Match children positions to parent
-    @Override
-    public void setY(final int y) {
-        super.setY(y);
-        this.updateContent();
-    }
-
-    @Override
-    public LinearLayout getContent() {
-        return this.content.container();
+    public SettingsList(final int x, final int y, final int width, final int height) {
+        super(x, y, width, height);
     }
 
     /**
-     * Sets this scroll list's content to a new value.
+     * Sets this container's content to a new value.
      */
-    public void setContent(final ListContent content) {
+    public void setContent(final SettingsContent content) {
         this.content = content;
-        updateContent();
+        this.clearChildren();
+        this.addChild(content.container(), content.narration());
+        updateLayout();
     }
 
-    protected boolean withinContentAreaPoint(final double x, final double y) {
-        final boolean withinX = x >= (double)this.getX() && x < (double)(this.getX() + this.getWidth());
-        final boolean withinY = y >= (double)this.getY() && y < (double)(this.getY() + this.getHeight());
-        return withinX && withinY;
-    }
-
-    @Override
-    public int getHeight() {
-        return this.content.container().getHeight();
-    }
-
-    @Override
-    public void renderWidget(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
-            final float partialTick) {
-        if (!this.visible)
-            return;
-        this.renderBackground(guiGraphics);
-        guiGraphics.enableScissor(this.getX() + 1, this.getY() + 1,
-                this.getX() + this.getWidth() - 1, this.getY() + this.getHeight() - 1);
-        this.renderContents(guiGraphics, mouseX, mouseY, partialTick);
-        guiGraphics.disableScissor();
-    }
-
-    protected final void renderContents(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
-            final float partialTick) {
-        this.content.container()
-                .visitWidgets(widget -> widget.render(guiGraphics, mouseX, mouseY, partialTick));
-    }
-
-    protected void renderBackground(final GuiGraphics guiGraphics) {
+    public SettingsContent getContent() {
+        return this.content;
     }
 
     @Override
     protected void updateWidgetNarration(final NarrationElementOutput narrationOutput) {
         narrationOutput.add(NarratedElementType.TITLE, this.content.narration());
-    }
-
-    @Override
-    public boolean charTyped(final char codePoint, final int modifiers) {
-        final boolean handled = this.handleElementInteract(this.content.container(),
-                widget -> widget.isFocused() && widget.charTyped(codePoint, modifiers));
-        return super.charTyped(codePoint, modifiers) || handled;
-    }
-
-    @Override
-    public boolean keyPressed(final int keyCode, final int scanCode, final int modifiers) {
-        final boolean handled = this.handleElementInteract(this.content.container(),
-                widget -> widget.isFocused() && widget.keyPressed(keyCode, scanCode, modifiers));
-        return super.keyPressed(keyCode, scanCode, modifiers) || handled;
-    }
-
-    @Override
-    public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
-        final boolean withinContentArea = this.withinContentAreaPoint(mouseX, mouseY);
-        Constants.LOG.debug("Mouse clicked at ({}, {}), widget position is ({}, {}), widget size is ({}, {}); Within content area? {}", mouseX, mouseY, this.getX(), this.getY(), this.getWidth(), this.getHeight(), withinContentArea);
-        if (!this.visible || !withinContentArea)
-            return false;
-        final boolean handled = this.handleElementInteract(this.content.container(),
-                widget -> widget.mouseClicked(mouseX, mouseY, button));
-        return super.mouseClicked(mouseX, mouseY, button) || handled;
-    }
-
-    @Override
-    public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {
-        final boolean handled = this.handleElementInteract(this.content.container(),
-                widget -> widget.mouseReleased(mouseX, mouseY, button));
-        return super.mouseReleased(mouseX, mouseY, button) || handled;
     }
 
     /**
@@ -140,17 +55,19 @@ public class ListContainerWidget extends AbstractWidget implements IContainerWid
      * @param container The container layout holding the list's contents.
      * @param narration The narration label for the container.
      */
-    public record ListContent(LinearLayout container, Component narration) {
+    public record SettingsContent(LinearLayout container, List<AbstractWidget> widgets, Component narration) {
 
         public static final int SPACING = 16;
         public static final int ELEMENT_HEIGHT = Button.DEFAULT_HEIGHT;
 
-        public static final ListContent EMPTY = new ListContent(LinearLayout.vertical(), Component.empty());
+        public static final SettingsContent EMPTY = new SettingsContent(
+                LinearLayout.vertical(), List.of(), Component.empty());
 
         public static class Builder {
             private final Font font;
             private final int width;
             private final LinearLayout container;
+            private final List<AbstractWidget> widgets = new ArrayList<>();
             private final MutableComponent narration = Component.empty();
 
             public Builder(final int width, final Font font) {
@@ -186,12 +103,18 @@ public class ListContainerWidget extends AbstractWidget implements IContainerWid
                 final LinearLayout leftGroup = LinearLayout.horizontal();
                 for (final LayoutElement element : left) {
                     leftGroup.addChild(element, settings -> settings.alignVerticallyMiddle());
+                    if (element instanceof final AbstractWidget widget) {
+                        this.widgets.add(widget);
+                    }
                 }
                 holder.addChild(leftGroup, settings -> settings.alignHorizontallyLeft().alignVerticallyMiddle());
 
                 final LinearLayout rightGroup = LinearLayout.horizontal();
                 for (final LayoutElement element : right) {
                     rightGroup.addChild(element, settings -> settings.alignVerticallyMiddle());
+                    if (element instanceof final AbstractWidget widget) {
+                        this.widgets.add(widget);
+                    }
                 }
                 holder.addChild(rightGroup, settings -> settings.alignHorizontallyRight().alignVerticallyMiddle());
 
@@ -216,10 +139,10 @@ public class ListContainerWidget extends AbstractWidget implements IContainerWid
                 return this.addLine(elements, List.of(), narration);
             }
 
-            public ListContent build() {
+            public SettingsContent build() {
                 this.container.addChild(SpacerElement.height(SPACING / 2));
                 arrangeNested(this.container);
-                return new ListContent(this.container, this.narration);
+                return new SettingsContent(this.container, this.widgets, this.narration);
             }
 
             private static void arrangeNested(final Layout layout) {

@@ -1,38 +1,42 @@
 package dev.nekotune.mdm.client.gui.config.widgets.container;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 import dev.nekotune.mdm.Resources;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractContainerWidget;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.layouts.Layout;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
-// TODO fix scrolling not working when the mouse is over a dropdown widget
+// TODO Fix clicking dropdowns not opening/closing them
 /**
  * Widget which contains a Layout of child widgets within a clickable dropdown.
  */
-public class DropdownContainerWidget extends AbstractWidget implements IContainerWidget<Layout> {
+public class DropdownContainer extends AbstractContainerWidget {
 
     public static final int MARGIN_LINE_COLOR = 0xFFFFFFFF;
     
-    private final DropdownContainerWidget.OnClick onClick;
+    private final DropdownContainer.OnClick onClick;
     protected final StringWidget headerText;
-    private Layout content = LinearLayout.vertical();
+    private final LinearLayout layout = LinearLayout.vertical();
+    private List<GuiEventListener> children = new ArrayList<>();
     protected Font font;
     private int headerHeight;
     private int contentMargin = 24;
     private boolean collapsed = true;
 
-    public DropdownContainerWidget(final int x, final int y, final int width, final int height,
-            final Component header, final Font font, final DropdownContainerWidget.OnClick onClick) {
+    public DropdownContainer(final int x, final int y, final int width, final int height,
+            final Component header, final Font font, final DropdownContainer.OnClick onClick) {
         super(x, y, width, height, header);
         this.headerHeight = height;
         this.font = font;
@@ -41,37 +45,43 @@ public class DropdownContainerWidget extends AbstractWidget implements IContaine
     }
 
     @Override
-    public Layout getContent() {
-        return this.content;
+    public List<? extends GuiEventListener> children() {
+        return this.children;
+    }
+
+    private void updateLayout() {
+        this.layout.setPosition(this.getX() + this.getContentMargin(), this.getY() + this.getHeaderHeight());
+        this.layout.arrangeElements();
+        this.setHeight(this.getHeaderHeight() + (this.isCollapsed() ? 0 : this.layout.getHeight()));
     }
 
     /**
-     * Sets this dropdown's content to a new value.
+     * Adds a widget to this dropdown.
      */
-    public void setContent(final Layout content) {
-        this.content = content;
-        this.updateContent();
+    public void addChild(final AbstractWidget child) {
+        this.children.add(child);
+        this.layout.addChild(child);
+        this.updateLayout();
     }
 
     @Override
-    public void updateContent() {
-        this.getContent().setPosition(this.getX() + this.getContentMargin(), this.getY() + this.getHeaderHeight());
-        this.getContent().arrangeElements();
-        this.setHeight(this.getHeaderHeight() + (this.isCollapsed() ? 0 : this.getContent().getHeight()));
+    public void visitWidgets(final Consumer<AbstractWidget> consumer) {
+        super.visitWidgets(consumer);
+        this.layout.visitWidgets(consumer);
     }
 
     // Match children positions to parent
     @Override
     public void setX(final int x) {
         super.setX(x);
-        this.updateContent();
+        this.updateLayout();
     }
 
     // Match children positions to parent
     @Override
     public void setY(final int y) {
         super.setY(y);
-        this.updateContent();
+        this.updateLayout();
     }
 
     /**
@@ -79,7 +89,7 @@ public class DropdownContainerWidget extends AbstractWidget implements IContaine
      */
     public void setHeaderHeight(final int headerHeight) {
         this.headerHeight = headerHeight;
-        this.updateContent();
+        this.updateLayout();
     }
 
     /**
@@ -118,7 +128,7 @@ public class DropdownContainerWidget extends AbstractWidget implements IContaine
      */
     public void setContentMargin(final int contentMargin) {
         this.contentMargin = contentMargin;
-        this.updateContent();
+        this.updateLayout();
     }
 
     /**
@@ -126,16 +136,19 @@ public class DropdownContainerWidget extends AbstractWidget implements IContaine
      */
     protected void renderContent(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
             final float partialTick) {
-        this.getContent().visitWidgets(widget -> widget.render(guiGraphics, mouseX, mouseY, partialTick));
+        this.layout.visitWidgets(widget -> widget.render(guiGraphics, mouseX, mouseY, partialTick));
     }
 
     /**
      * Renders the margin line.
      */
     protected void renderDecorations(final GuiGraphics guiGraphics) {
+        final int contentHeight = this.layout.getHeight();
+        if (contentHeight <= 0)
+            return;
         final int marginLineX = this.getX() + ((this.getContentMargin() - 4) / 2);
         final int marginLineY = this.getY() + this.getHeaderHeight();
-        guiGraphics.vLine(marginLineX, marginLineY, marginLineY + this.getContent().getHeight(),
+        guiGraphics.vLine(marginLineX, marginLineY, marginLineY + contentHeight,
                 MARGIN_LINE_COLOR);
     }
 
@@ -191,56 +204,8 @@ public class DropdownContainerWidget extends AbstractWidget implements IContaine
         super.onClick(mouseX, mouseY);
         this.playDownSound(Minecraft.getInstance().getSoundManager());
         this.setCollapsed(!this.isCollapsed());
-        this.updateContent();
+        this.updateLayout();
         this.onClick.accept(this.isCollapsed());
-    }
-
-    @Override
-    public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
-        final boolean handled;
-        if (this.isCollapsed()) {
-            handled = false;
-        } else {
-            handled = this.handleElementInteract(this.getContent(),
-                    widget -> widget.mouseClicked(mouseX, mouseY, button));
-        }
-        return super.mouseClicked(mouseX, mouseY, button) || handled;
-    }
-
-    @Override
-    public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {
-        final boolean handled;
-        if (this.isCollapsed()) {
-            handled = false;
-        } else {
-            handled = this.handleElementInteract(this.getContent(),
-                    widget -> widget.mouseReleased(mouseX, mouseY, button));
-        }
-        return super.mouseReleased(mouseX, mouseY, button) || handled;
-    }
-
-    @Override
-    public boolean charTyped(final char codePoint, final int modifiers) {
-        final boolean handled;
-        if (this.isCollapsed()) {
-            handled = false;
-        } else {
-            handled = this.handleElementInteract(this.getContent(),
-                    widget -> widget.isFocused() && widget.charTyped(codePoint, modifiers));
-        }
-        return super.charTyped(codePoint, modifiers) || handled;
-    }
-
-    @Override
-    public boolean keyPressed(final int keyCode, final int scanCode, final int modifiers) {
-        final boolean handled;
-        if (this.isCollapsed()) {
-            handled = false;
-        } else {
-            handled = this.handleElementInteract(this.getContent(),
-                    widget -> widget.isFocused() && widget.keyPressed(keyCode, scanCode, modifiers));
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers) || handled;
     }
 
     @FunctionalInterface
