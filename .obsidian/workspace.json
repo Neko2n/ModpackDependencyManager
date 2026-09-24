@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "dev/todo/Local Dependencies.md",
+                "file": "dev/todo/Blacklist.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Local Dependencies"
+              "title": "Blacklist"
             }
           }
         ]
@@ -185,6 +185,8 @@
   },
   "active": "73d9c8ff0d76fd6d",
   "lastOpenFiles": [
+    "dev/todo/Local Dependencies.md",
+    "dev/todo/Blacklist.md",
     "common/src/main/java/dev/nekotune/mdm/server/ServerModpackDependencyManager.java",
     "common/src/main/java/dev/nekotune/mdm/client/ClientModpackDependencyManager.java",
     "common/src/main/java/dev/nekotune/mdm/ModpackDependencyManager.java",
@@ -195,7 +197,6 @@
     "neoforge/src/main/java/dev/nekotune/mdm/NeoForgeLoader.java",
     "neoforge/src/main/java/dev/nekotune/mdm/NeoForge.java",
     "neoforge/src/main/java/dev/nekotune/mdm/client/ClientNeoForge.java",
-    "neoforge/src/main/java/dev/nekotune/mdm/ClientNeoForge.java",
     "neoforge/run/saves/Test/icon.png",
     "todo/Data Pack Loading.md",
     "dev/todo/done/Web Fetches.md",
@@ -229,7 +230,6 @@
     "frontend/common/build/docs/javadoc/legal/jqueryUI.md",
     "frontend/common/build/docs/javadoc/legal/jquery.md",
     "frontend/README.md",
-    "todo/done/Web Fetches.md",
-    "todo/web-fetch/Modrinth.md"
+    "todo/done/Web Fetches.md"
   ]
 }
