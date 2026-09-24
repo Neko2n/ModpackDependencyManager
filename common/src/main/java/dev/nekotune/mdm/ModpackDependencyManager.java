@@ -11,17 +11,17 @@ import dev.nekotune.mdm.definition.DependencyInfo;
 import dev.nekotune.mdm.platform.Services;
 import dev.nekotune.mdm.platform.services.IPlatformHelper;
 import dev.nekotune.mdm.platform.services.IPlatformHelper.Dist;
-import dev.nekotune.mdm.server.ServerCommonClass;
+import dev.nekotune.mdm.server.ServerModpackDependencyManager;
 
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.PackRepository;
 
-public final class CommonClass {
+public final class ModpackDependencyManager {
 
     public static void init() {
         final IPlatformHelper platform = Services.PLATFORM.get();
         if (platform.dist() == Dist.SERVER) {
-            ServerCommonClass.init();
+            ServerModpackDependencyManager.init();
         }
 
         // Download dependencies

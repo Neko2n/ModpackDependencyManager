@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import dev.nekotune.mdm.CommonClass;
+import dev.nekotune.mdm.ModpackDependencyManager;
 import dev.nekotune.mdm.Config;
 import dev.nekotune.mdm.Constants;
 import dev.nekotune.mdm.DownloadManager;
@@ -20,20 +20,20 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.PackRepository;
 
-public class ServerCommonClass {
+public class ServerModpackDependencyManager {
 
     public static volatile Optional<MinecraftServer> running = Optional.empty();
 
     public static void init() {
-        PlatformEvents.SERVER_STARTING.hook.connect(ServerCommonClass::serverStarting);
-        PlatformEvents.SERVER_CLOSING.hook.connect(ServerCommonClass::serverClosing);
+        PlatformEvents.SERVER_STARTING.hook.connect(ServerModpackDependencyManager::serverStarting);
+        PlatformEvents.SERVER_CLOSING.hook.connect(ServerModpackDependencyManager::serverClosing);
 
         // Automatically enable OPTIONAL_ENABLED server packs
         DownloadManager.onDownloadsFinished.connect(() -> {
             Constants.LOG.debug("[ServerCommonClass] onDownloadFinished called");
             running.ifPresent((final MinecraftServer server) -> {
                 final PackRepository repo = server.getPackRepository();
-                CommonClass.enableDownloadedOptionals(repo, PackType.SERVER_DATA);
+                ModpackDependencyManager.enableDownloadedOptionals(repo, PackType.SERVER_DATA);
                 server.reloadResources(repo.getSelectedIds());
             });
         });
@@ -56,7 +56,7 @@ public class ServerCommonClass {
 
             // If the flag file exists, optionals have already been enabled by default;
             // Only enable newly downloaded optionals, if there are any.
-            CommonClass.enableDownloadedOptionals(repo, PackType.SERVER_DATA);
+            ModpackDependencyManager.enableDownloadedOptionals(repo, PackType.SERVER_DATA);
         } else {
 
             // If the flag file does not exist yet, write it, and enable all

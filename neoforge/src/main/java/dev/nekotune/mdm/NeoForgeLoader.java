@@ -12,9 +12,9 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
 @Mod(Constants.MOD_ID)
-public class ModpackDependencyManager {
+public class NeoForgeLoader {
 
-    public ModpackDependencyManager(final ModContainer mod) {
+    public NeoForgeLoader(final ModContainer mod) {
         Services.init(this.getClass().getClassLoader());
         CommonClass.init();
 

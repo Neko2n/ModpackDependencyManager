@@ -1,6 +1,6 @@
-package dev.nekotune.mdm;
+package dev.nekotune.mdm.client;
 
-import dev.nekotune.mdm.client.ClientCommonClass;
+import dev.nekotune.mdm.Constants;
 import dev.nekotune.mdm.platform.PlatformEvents;
 
 import net.neoforged.api.distmarker.Dist;
@@ -10,10 +10,10 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
 @Mod(value = Constants.MOD_ID, dist = Dist.CLIENT)
-public class ClientModpackDependencyManager {
+public class ClientNeoForgeLoader {
     
-    public ClientModpackDependencyManager() {
-        ClientCommonClass.init();
+    public ClientNeoForgeLoader() {
+        ClientModpackDependencyManager.init();
         NeoForge.EVENT_BUS.register(this);
     }
 

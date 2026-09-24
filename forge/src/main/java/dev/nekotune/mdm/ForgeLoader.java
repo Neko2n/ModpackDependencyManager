@@ -16,11 +16,11 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(Constants.MOD_ID)
-public class ModpackDependencyManager {
+public class ForgeLoader {
 
     private final FMLJavaModLoadingContext context;
 
-    public ModpackDependencyManager(final FMLJavaModLoadingContext context) {
+    public ForgeLoader(final FMLJavaModLoadingContext context) {
         this.context = context;
         Services.init(this.getClass().getClassLoader());
         CommonClass.init();

@@ -8,11 +8,11 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 
 @Environment(value = EnvType.CLIENT)
-public class ClientModpackDependencyManager implements ClientModInitializer {
+public class ClientFabricLoader implements ClientModInitializer {
     
     @Override
     public void onInitializeClient() {
-        ClientCommonClass.init();
+        ClientModpackDependencyManager.init();
 
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
             PlatformEvents.SCREEN_INIT.controller.post(screen);

@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import dev.nekotune.mdm.CommonClass;
+import dev.nekotune.mdm.ModpackDependencyManager;
 import dev.nekotune.mdm.Config;
 import dev.nekotune.mdm.Constants;
 import dev.nekotune.mdm.DownloadManager;
@@ -30,7 +30,7 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.server.packs.PackType;
 
-public class ClientCommonClass {
+public class ClientModpackDependencyManager {
 
     public static void init() {
         PlatformEvents.SCREEN_INIT.hook.connect((screen, connection) -> {
@@ -50,10 +50,10 @@ public class ClientCommonClass {
         // Enable OPTIONAL_ENABLED client packs by default
         DownloadManager.onDownloadsFinished.connect(() -> {
             final Minecraft mc = Minecraft.getInstance();
-            CommonClass.enableDownloadedOptionals(mc.getResourcePackRepository(), PackType.CLIENT_RESOURCES);
+            ModpackDependencyManager.enableDownloadedOptionals(mc.getResourcePackRepository(), PackType.CLIENT_RESOURCES);
             final IntegratedServer server = mc.getSingleplayerServer();
             if (server != null) {
-                CommonClass.enableDownloadedOptionals(server.getPackRepository(), PackType.SERVER_DATA);
+                ModpackDependencyManager.enableDownloadedOptionals(server.getPackRepository(), PackType.SERVER_DATA);
             }
         });
     }
@@ -69,7 +69,7 @@ public class ClientCommonClass {
         final var canRun = new AtomicBoolean(true);
         final Runnable showFinishedScreen = () -> {
             if (canRun.getAcquire()) {
-                setScreenAtomic(ClientCommonClass::downloadFinishedScreen);
+                setScreenAtomic(ClientModpackDependencyManager::downloadFinishedScreen);
                 if (!Config.INSTANCE.promptEnabled) {
                     Minecraft.getInstance().reloadResourcePacks();
                 }
