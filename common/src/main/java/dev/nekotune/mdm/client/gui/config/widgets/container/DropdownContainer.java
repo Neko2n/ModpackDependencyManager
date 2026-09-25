@@ -19,7 +19,6 @@ import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
-// TODO Fix open dropdowns being infinitely tall and moving their position????
 /**
  * Widget which contains a Layout of child widgets within a clickable dropdown.
  */
@@ -56,12 +55,19 @@ public class DropdownContainer extends AbstractContainerWidget {
         this.setHeight(this.getHeaderHeight() + (this.isCollapsed() ? 0 : this.layout.getHeight()));
     }
 
+    private void collapseChild(final AbstractWidget child) {
+        final boolean isActive = !this.isCollapsed();
+        child.active = isActive;
+        child.visible = isActive;
+    }
+
     /**
      * Adds a widget to this dropdown.
      */
     public void addChild(final AbstractWidget child) {
         this.children.add(child);
         this.layout.addChild(child);
+        this.collapseChild(child);
         this.updateLayout();
     }
 
@@ -114,6 +120,7 @@ public class DropdownContainer extends AbstractContainerWidget {
      */
     public void setCollapsed(final boolean collapsed) {
         this.collapsed = collapsed;
+        this.layout.visitWidgets(this::collapseChild);
         this.updateLayout();
     }
 

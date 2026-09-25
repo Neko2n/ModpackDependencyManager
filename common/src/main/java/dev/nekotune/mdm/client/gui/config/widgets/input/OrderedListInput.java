@@ -17,6 +17,7 @@ import net.minecraft.network.chat.Component;
 
 // TODO Fix not being able to interact with edit boxes
 // TODO Fix edit boxes being wider than the container widget
+// TODO Fix the widget having infinite height (possibly only when in a dropdown?)
 public class OrderedListInput extends SettingsList {
 
     public static final String KEY = Resources.Lang.Gui.Widget.Input.KEY + ".ordered-list";
