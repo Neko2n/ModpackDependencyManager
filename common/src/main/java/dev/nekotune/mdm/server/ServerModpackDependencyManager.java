@@ -30,7 +30,7 @@ public class ServerModpackDependencyManager {
 
         // Automatically enable OPTIONAL_ENABLED server packs
         DownloadManager.onDownloadsFinished.connect(() -> {
-            Constants.LOG.debug("[ServerCommonClass] onDownloadFinished called");
+            Constants.LOG.debug("[ServerModpackDependencyManager] onDownloadFinished called");
             running.ifPresent((final MinecraftServer server) -> {
                 final PackRepository repo = server.getPackRepository();
                 ModpackDependencyManager.enableDownloadedOptionals(repo, PackType.SERVER_DATA);
@@ -45,7 +45,7 @@ public class ServerModpackDependencyManager {
      * @see PlatformEvents
      */
     public static void serverStarting(final MinecraftServer server) {
-        Constants.LOG.debug("[ServerCommonClass] serverLoaded called");
+        Constants.LOG.debug("[ServerModpackDependencyManager] serverLoaded called");
         running = Optional.of(server);
 
         // Configure enabled server data packs
@@ -89,7 +89,7 @@ public class ServerModpackDependencyManager {
      * @see PlatformEvents
      */
     public static void serverClosing(final MinecraftServer server) {
-        Constants.LOG.debug("[ServerCommonClass] serverClosing called");
+        Constants.LOG.debug("[ServerModpackDependencyManager] serverClosing called");
         running = Optional.empty();
     }
 }

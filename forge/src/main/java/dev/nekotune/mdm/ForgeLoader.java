@@ -1,6 +1,6 @@
 package dev.nekotune.mdm;
 
-import dev.nekotune.mdm.client.ClientCommonClass;
+import dev.nekotune.mdm.client.ClientModpackDependencyManager;
 import dev.nekotune.mdm.client.gui.config.MainConfigScreen;
 import dev.nekotune.mdm.platform.PlatformEvents;
 import dev.nekotune.mdm.platform.Services;
@@ -23,7 +23,7 @@ public class ForgeLoader {
     public ForgeLoader(final FMLJavaModLoadingContext context) {
         this.context = context;
         Services.init(this.getClass().getClassLoader());
-        CommonClass.init();
+        ModpackDependencyManager.init();
         
         // Register events
         final IEventBus modEventBus = context.getModEventBus();
@@ -32,7 +32,7 @@ public class ForgeLoader {
     }
     
     private void onClientSetup(final FMLClientSetupEvent event) {
-        ClientCommonClass.init();
+        ClientModpackDependencyManager.init();
 
         // Hook up configuration screen to the mods menu button
         context.registerExtensionPoint(

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import dev.nekotune.mdm.Constants;
 import dev.nekotune.mdm.Resources;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -18,7 +19,7 @@ import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
-// TODO Fix clicking dropdowns not opening/closing them
+// TODO Fix open dropdowns being infinitely tall and moving their position????
 /**
  * Widget which contains a Layout of child widgets within a clickable dropdown.
  */
@@ -113,6 +114,7 @@ public class DropdownContainer extends AbstractContainerWidget {
      */
     public void setCollapsed(final boolean collapsed) {
         this.collapsed = collapsed;
+        this.updateLayout();
     }
 
     /**
@@ -193,8 +195,9 @@ public class DropdownContainer extends AbstractContainerWidget {
     // Restrict onClick fire requirements to be clicking the header.
     @Override
     protected boolean clicked(final double mouseX, final double mouseY) {
-        if (mouseY > this.getY() + this.getHeaderHeight())
+        if (mouseY > this.getY() + this.getHeaderHeight()) {
             return false;
+        }
         return super.clicked(mouseX, mouseY);
     }
 
@@ -202,10 +205,21 @@ public class DropdownContainer extends AbstractContainerWidget {
     @Override
     public void onClick(final double mouseX, final double mouseY) {
         super.onClick(mouseX, mouseY);
-        this.playDownSound(Minecraft.getInstance().getSoundManager());
+        Constants.LOG.debug("onClick fired");
         this.setCollapsed(!this.isCollapsed());
-        this.updateLayout();
         this.onClick.accept(this.isCollapsed());
+    }
+    
+    // AbstractContainerWidget discards click functionality, so add it back
+    @Override
+    public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
+        if (this.active && this.visible && this.isValidClickButton(button)
+                && this.clicked(mouseX, mouseY)) {
+            this.playDownSound(Minecraft.getInstance().getSoundManager());
+            this.onClick(mouseX, mouseY);
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @FunctionalInterface

@@ -7,3 +7,5 @@ The blacklist has a "client handling" setting: BLOCK, WARN, or NONE.
 The blacklist also has a "server handling" setting: BLOCK or WARN. Same thing, but for joining servers rather than your game starting up.
 
 There's a setting which allows you to change the blacklist into a whitelist. Anything loaded by the mod or listed in the whitelist will be allowed, while anything else will be treated as illegal.
+
+Clients who attempt to join a server with illegal content are logged on the server in a special log file.

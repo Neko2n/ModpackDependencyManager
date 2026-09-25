@@ -16,7 +16,7 @@ public class NeoForgeLoader {
 
     public NeoForgeLoader(final ModContainer mod) {
         Services.init(this.getClass().getClassLoader());
-        CommonClass.init();
+        ModpackDependencyManager.init();
 
         // Hook up configuration screen to the mods menu button
         if (FMLEnvironment.dist == Dist.CLIENT)

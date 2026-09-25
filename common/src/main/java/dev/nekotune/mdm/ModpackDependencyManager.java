@@ -69,21 +69,21 @@ public final class ModpackDependencyManager {
 
         @Override
         public void run() {
-            Constants.LOG.debug("[CommonClass] [Download Thread] Thread started");
+            Constants.LOG.debug("[ModpackDependencyManager] [Download Thread] Thread started");
             final Download threads = DownloadManager.dispatch(targets);
             final long startTime = System.currentTimeMillis();
-            Constants.LOG.debug("[CommonClass] [Download Thread] Downloading dependencies...");
+            Constants.LOG.debug("[ModpackDependencyManager] [Download Thread] Downloading dependencies...");
             try {
                 threads.await();
             } catch (final InterruptedException e) {
-                Constants.LOG.error("[CommonClass] [Download Thread] Dependencies download FAILURE; ", e);
+                Constants.LOG.error("[ModpackDependencyManager] [Download Thread] Dependencies download FAILURE; ", e);
                 Thread.currentThread().interrupt();
                 return;
             }
             final long downloadTime = System.currentTimeMillis() - startTime;
 
             // Report successful download
-            String report = "[CommonClass] [Download Thread] Dependencies download SUCCESS; Took " + downloadTime
+            String report = "[ModpackDependencyManager] [Download Thread] Dependencies download SUCCESS; Took " + downloadTime
                     + " ms; Downloaded: [ ";
             for (final DependencyInfo target : DownloadManager.getDownloaded()) {
                 report += target.slug() + ", ";
