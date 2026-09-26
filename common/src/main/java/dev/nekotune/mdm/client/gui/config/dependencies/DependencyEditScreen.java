@@ -188,7 +188,7 @@ public class DependencyEditScreen extends AbstractConfigScreen {
                     isCollapsed -> editScreen.refresh());
             mirrorsDropdown.setTooltip(mirrorsTooltip);
             final var mirrorsList = new OrderedListInput(0, 0,
-                    editScreen.getInnerWidth(), Integer.MAX_VALUE, editScreen.font,
+                    editScreen.getInnerWidth(), editScreen.font,
                     listInput -> editScreen.refresh());
             mirrorsList.setValues(editScreen.editing.mirrors());
             mirrorsList.setResponder(values -> editScreen.backButton.active = true);
@@ -265,7 +265,7 @@ public class DependencyEditScreen extends AbstractConfigScreen {
 
             // TODO remove debug
             final var debugList = new OrderedListInput(0, 0,
-                    editScreen.getInnerWidth(), 200, editScreen.font,
+                    editScreen.getInnerWidth(), editScreen.font,
                     listInput -> editScreen.refresh());
             editScreen.addWidget(debugList);
 
