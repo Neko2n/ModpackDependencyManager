@@ -1,5 +1,6 @@
 package dev.nekotune.mdm.client.gui.config.widgets.input;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,8 +23,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
 // TODO Fix edit boxes being wider than the container widget
-// TODO Fix the widget having infinite height (possibly only when in a dropdown?)
-// TODO Fix arrangeElements, and subsequently onArrangeElements, being called too early in widget construction, causing null reference errors
+// TODO Fix widget not rendering at all
 /**
  * An ordered list of EditBoxes which can add and remove values.
  */
@@ -162,21 +162,23 @@ public class OrderedListInput extends AbstractContainerWidget {
 
     @Override
     public void setX(final int x) {
+        final int delta = x - this.getX();
         super.setX(x);
-        this.arrangeElements();
+        this.children().forEach(child -> child.setX(child.getX() + delta));
     }
 
     @Override
     public void setY(final int y) {
+        final int delta = y - this.getY();
         super.setY(y);
-        this.arrangeElements();
+        this.children().forEach(child -> child.setY(child.getY() + delta));
     }
 
     @Override
     public List<AbstractWidget> children() {
-        final List<AbstractWidget> list = this.entries.keySet().stream()
+        final List<AbstractWidget> list = new ArrayList<>(this.entries.keySet().stream()
                 .map(editBox -> (AbstractWidget)editBox)
-                .toList();
+                .toList());
         list.addAll(this.entries.values().stream()
                 .map(entry -> (AbstractWidget)entry.deleteButton())
                 .toList());

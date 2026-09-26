@@ -189,7 +189,10 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             mirrorsDropdown.setTooltip(mirrorsTooltip);
             final var mirrorsList = new OrderedListInput(0, 0,
                     editScreen.getInnerWidth(), editScreen.font,
-                    listInput -> editScreen.refresh());
+                    $ -> {
+                        if (editScreen.settingsWidgets != null)
+                            editScreen.refresh();
+                    });
             mirrorsList.setValues(editScreen.editing.mirrors());
             mirrorsList.setResponder(values -> editScreen.backButton.active = true);
             mirrorsList.setFilter(DependencyInfo.SLUG_VALIDATOR);
