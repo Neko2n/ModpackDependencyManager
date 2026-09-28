@@ -123,7 +123,7 @@ public class ScrollContainer extends AbstractContainerWidget {
         int k = Math.max(this.getY(),
                 (int) this.scrollAmount * (this.height - i) / this.getMaxScrollAmount() + this.getY());
         RenderSystem.enableBlend();
-        guiGraphics.blitSprite(SCROLLER_SPRITE, j, k, 8, i);
+        guiGraphics.blitSprite(SCROLLER_SPRITE, j, k, this.scrollbarWidth(), i);
         RenderSystem.disableBlend();
     }
 
@@ -133,7 +133,7 @@ public class ScrollContainer extends AbstractContainerWidget {
         } else {
             final boolean onScrollbar = this.scrollbarVisible()
                     && !this.withinContentAreaPoint(mouseX, mouseY)
-                    && this.withinContentAreaPoint(mouseX - 8, mouseY);
+                    && this.withinContentAreaPoint(mouseX - this.scrollbarWidth(), mouseY);
             if (onScrollbar && button == 0) {
                 this.isScrolling = true;
                 return true;
@@ -174,10 +174,9 @@ public class ScrollContainer extends AbstractContainerWidget {
             final double scrollX, final double scrollY) {
         if (!this.visible) {
             return false;
-        } else {
-            this.setScrollAmount(this.scrollAmount - scrollY * this.scrollRate());
-            return true;
         }
+        this.setScrollAmount(this.scrollAmount - scrollY * this.scrollRate());
+        return true;
     }
 
     public boolean keyPressed(final int keyCode, final int scanCode, final int modifiers) {
@@ -213,11 +212,11 @@ public class ScrollContainer extends AbstractContainerWidget {
     }
 
     protected int getMaxScrollAmount() {
-        return Math.max(0, this.getContentHeight() - (this.height - 4));
+        return Math.max(0, this.getContentHeight() - (this.height - this.innerPadding()));
     }
 
     private int getContentHeight() {
-        return this.getInnerHeight() + 4;
+        return this.getInnerHeight() + this.innerPadding();
     }
 
     protected boolean withinContentAreaTopBottom(final int top, final int bottom) {
