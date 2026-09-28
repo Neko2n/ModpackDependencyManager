@@ -16,13 +16,13 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "dev.nekotune.jigsaw.Jigsaw"
+            "dev.nekotune.staple.Staple"
         ],
         "client": [
-            "dev.nekotune.jigsaw.ClientJigsaw"
+            "dev.nekotune.staple.ClientStaple"
         ],
         "modmenu": [
-            "dev.nekotune.jigsaw.ModMenuIntegration"
+            "dev.nekotune.staple.ModMenuIntegration"
         ]
     },
     "mixins": [

@@ -16,7 +16,7 @@
       ],
       "vmArgs": [
         "@C:\\Users\\nikoz\\OneDrive\\Documents\\Projects\\Jigsaw\\neoforge\\build\\moddev\\clientRunVmArgs.txt",
-        "-Dfml.modFolders\u003djigsaw%%C:\\Users\\nikoz\\OneDrive\\Documents\\Projects\\Jigsaw\\neoforge\\bin\\main"
+        "-Dfml.modFolders\u003dstaple%%C:\\Users\\nikoz\\OneDrive\\Documents\\Projects\\Jigsaw\\neoforge\\bin\\main"
       ],
       "cwd": "${workspaceFolder}\\neoforge\\run",
       "console": "internalConsole",
@@ -37,7 +37,7 @@
       ],
       "vmArgs": [
         "@C:\\Users\\nikoz\\OneDrive\\Documents\\Projects\\Jigsaw\\neoforge\\build\\moddev\\dataRunVmArgs.txt",
-        "-Dfml.modFolders\u003djigsaw%%C:\\Users\\nikoz\\OneDrive\\Documents\\Projects\\Jigsaw\\neoforge\\bin\\main"
+        "-Dfml.modFolders\u003dstaple%%C:\\Users\\nikoz\\OneDrive\\Documents\\Projects\\Jigsaw\\neoforge\\bin\\main"
       ],
       "cwd": "${workspaceFolder}\\neoforge\\run",
       "console": "internalConsole",
@@ -58,7 +58,7 @@
       ],
       "vmArgs": [
         "@C:\\Users\\nikoz\\OneDrive\\Documents\\Projects\\Jigsaw\\neoforge\\build\\moddev\\serverRunVmArgs.txt",
-        "-Dfml.modFolders\u003djigsaw%%C:\\Users\\nikoz\\OneDrive\\Documents\\Projects\\Jigsaw\\neoforge\\bin\\main"
+        "-Dfml.modFolders\u003dstaple%%C:\\Users\\nikoz\\OneDrive\\Documents\\Projects\\Jigsaw\\neoforge\\bin\\main"
       ],
       "cwd": "${workspaceFolder}\\neoforge\\run",
       "console": "internalConsole",
