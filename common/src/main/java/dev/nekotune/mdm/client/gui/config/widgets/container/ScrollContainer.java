@@ -131,16 +131,15 @@ public class ScrollContainer extends AbstractContainerWidget {
         if (!this.visible) {
             return false;
         } else {
-            final boolean isMouseOver = this.withinContentAreaPoint(mouseX, mouseY);
-            final boolean onScrollbar = this.scrollbarVisible() && mouseX >= (double) (this.getX() + this.width)
-                    && mouseX <= (double) (this.getX() + this.width + 8) && mouseY >= (double) this.getY()
-                    && mouseY < (double) (this.getY() + this.height);
+            final boolean onScrollbar = this.scrollbarVisible()
+                    && !this.withinContentAreaPoint(mouseX, mouseY)
+                    && this.withinContentAreaPoint(mouseX - 8, mouseY);
             if (onScrollbar && button == 0) {
                 this.isScrolling = true;
                 return true;
             }
             final boolean consumed = super.mouseClicked(mouseX, mouseY, button);
-            return consumed || isMouseOver || onScrollbar;
+            return consumed;
         }
     }
 
@@ -154,7 +153,7 @@ public class ScrollContainer extends AbstractContainerWidget {
 
     public boolean mouseDragged(final double mouseX, final double mouseY, final int button,
             final double dragX, final double dragY) {
-        if (this.visible && this.isFocused() && this.isScrolling) {
+        if (this.visible && this.isScrolling) {
             if (mouseY < (double) this.getY()) {
                 this.setScrollAmount((double) 0.0F);
             } else if (mouseY > (double) (this.getY() + this.height)) {
