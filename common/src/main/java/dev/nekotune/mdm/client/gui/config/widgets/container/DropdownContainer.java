@@ -162,7 +162,7 @@ public class DropdownContainer extends AbstractContainerWidget {
         final int contentHeight = this.layout.getHeight();
         if (contentHeight <= 0)
             return;
-        final int marginLineX = this.getX() + ((this.getContentMargin() - 4) / 2);
+        final int marginLineX = this.getX() + ((this.getContentMargin() - 4) / 2) - 1;
         final int marginLineY = this.getY() + this.getHeaderHeight();
         guiGraphics.vLine(marginLineX, marginLineY, marginLineY + contentHeight,
                 MARGIN_LINE_COLOR);

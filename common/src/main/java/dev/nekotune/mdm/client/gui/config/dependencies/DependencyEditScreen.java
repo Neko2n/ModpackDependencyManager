@@ -25,7 +25,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 
-// TODO Fix all settings being offset to the right and clipping into the scroll bar
 /**
  * Pop-up screen to edit a dependency.
  */
@@ -178,7 +177,7 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             final Tooltip mirrorsTooltip = Tooltip.create(
                     Component.translatable(mirrorsKey + ".tooltip"));
             final var mirrorsDropdown = new DropdownContainer(0, 0,
-                    editScreen.getInnerWidth(), Button.DEFAULT_HEIGHT,
+                    editScreen.getInnerWidth() - 8, Button.DEFAULT_HEIGHT,
                     mirrorsHeader, editScreen.font,
                     isCollapsed -> editScreen.refresh());
             mirrorsDropdown.setTooltip(mirrorsTooltip);
