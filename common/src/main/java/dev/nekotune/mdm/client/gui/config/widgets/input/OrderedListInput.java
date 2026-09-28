@@ -137,6 +137,7 @@ public class OrderedListInput extends AbstractContainerWidget {
     public final String popValue() {
         final Entry entry = this.entries.remove(this.entries.lastEntry().getKey());
         this.arrangeElements();
+        this.responder.accept(this.getValues());
         return entry.editBox.getValue();
     }
 

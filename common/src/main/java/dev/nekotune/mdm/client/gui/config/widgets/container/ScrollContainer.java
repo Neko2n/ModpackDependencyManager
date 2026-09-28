@@ -16,7 +16,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
-// TODO Fix scroll input being consumed by child widgets
 /**
  * Widget which renders a scrolling list of child widgets.
  */

@@ -26,7 +26,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 
 // TODO Fix all settings being offset to the right and clipping into the scroll bar
-// TODO Fix apply button only working when you click the left side of it
 /**
  * Pop-up screen to edit a dependency.
  */
@@ -76,9 +75,6 @@ public class DependencyEditScreen extends AbstractConfigScreen {
         builder.addLabeled(hostsKey, hostsLayout);
         builder.addLabeled(KEY + ".mode", this.settingsWidgets.mode());
         builder.addLabeled(KEY + ".load-priority", this.settingsWidgets.loadPriority());
-
-        // TODO remove debug
-        builder.addElement(this.settingsWidgets.listDebug());
     }
 
     @Override
@@ -105,7 +101,9 @@ public class DependencyEditScreen extends AbstractConfigScreen {
         final var modified = new DependencyInfo(
                 this.editing.type(),
                 this.settingsWidgets.slug().getValue(),
-                this.settingsWidgets.mirrors().input().getValues(),
+                this.settingsWidgets.mirrors().input().getValues().stream()
+                        .filter(str -> !str.isBlank())
+                        .toList(),
                 hosts,
                 this.settingsWidgets.mode().getValue(),
                 loadPriority);
@@ -156,8 +154,7 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             MirrorsWidgets mirrors,
             EnumMap<DependencyInfo.Host, ToggleInput.IconToggle> hosts,
             SelectionInput<DependencyInfo.Mode> mode,
-            EditBox loadPriority,
-            OrderedListInput listDebug /* TODO remove debug */) {
+            EditBox loadPriority) {
 
         /**
          * Creates new SettingsWidgets to load into the given editScreen.
@@ -174,7 +171,6 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             slugEditBox.setValue(editScreen.editing.slug());
             slugEditBox.setFilter(DependencyInfo.SLUG_VALIDATOR);
             slugEditBox.setResponder(text -> editScreen.backButton.active = true);
-            editScreen.addWidget(slugEditBox);
 
             // Mirror slugs setting
             final String mirrorsKey = KEY + ".mirrors";
@@ -196,7 +192,6 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             mirrorsList.setResponder(values -> editScreen.backButton.active = true);
             mirrorsList.setFilter(DependencyInfo.SLUG_VALIDATOR);
             mirrorsDropdown.addChild(mirrorsList);
-            editScreen.addWidget(mirrorsDropdown);
 
             // Hosts setting
             final EnumMap<DependencyInfo.Host, ToggleInput.IconToggle> hostToggles = new EnumMap<>(
@@ -237,7 +232,6 @@ public class DependencyEditScreen extends AbstractConfigScreen {
                 });
                 hostToggles.put(host, toggleInput);
                 hostsLayout.addChild(toggleInput);
-                editScreen.addWidget(toggleInput);
             }
 
             // Mode setting
@@ -253,7 +247,6 @@ public class DependencyEditScreen extends AbstractConfigScreen {
                         Component.translatable(KEY + ".mode.tooltip." + modeKey)));
                 modeInput.setTooltip(modeInput.getTooltip()); // Update existing tooltip
             }
-            editScreen.addWidget(modeInput);
 
             // Load priority setting
             final var loadPriorityEditBox = new EditBox(editScreen.font, Button.SMALL_WIDTH,
@@ -263,17 +256,10 @@ public class DependencyEditScreen extends AbstractConfigScreen {
             loadPriorityEditBox.setFilter(text -> text.isEmpty()
                     || (text.matches("^\\d+$") && text.length() <= 3));
             loadPriorityEditBox.setResponder(text -> editScreen.backButton.active = true);
-            editScreen.addWidget(loadPriorityEditBox);
-
-            // TODO remove debug
-            final var debugList = new OrderedListInput(0, 0,
-                    editScreen.getInnerWidth(), editScreen.font,
-                    listInput -> editScreen.refresh());
-            editScreen.addWidget(debugList);
 
             final var mirrorsWidgets = new MirrorsWidgets(mirrorsDropdown, mirrorsList);
             return new SettingsWidgets(slugEditBox, mirrorsWidgets, hostToggles, modeInput,
-                    loadPriorityEditBox, debugList); // TODO remove debug
+                    loadPriorityEditBox);
         }
 
         public static record MirrorsWidgets(DropdownContainer dropdown, OrderedListInput input) {
