@@ -102,6 +102,7 @@ public class DependencyEditScreen extends AbstractConfigScreen {
                 this.settingsWidgets.slug().getValue(),
                 this.settingsWidgets.mirrors().input().getValues().stream()
                         .filter(str -> !str.isBlank())
+                        .distinct()
                         .toList(),
                 hosts,
                 this.settingsWidgets.mode().getValue(),
