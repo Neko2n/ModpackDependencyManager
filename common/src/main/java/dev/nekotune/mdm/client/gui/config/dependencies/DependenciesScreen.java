@@ -2,6 +2,7 @@ package dev.nekotune.mdm.client.gui.config.dependencies;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,6 +51,7 @@ public class DependenciesScreen extends AbstractConfigScreen {
         super(TITLES.get(packType), lastScreen);
         this.original = Config.INSTANCE.dependencies.stream()
                 .filter(d -> d.type() == packType)
+                .sorted(Comparator.comparingInt(d -> d.loadPriority()))
                 .toList();
         this.modifying = new LinkedList<>(this.original);
         this.packType = packType;
