@@ -20,14 +20,13 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.LinearLayout;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 
 // TODO Fix all settings being offset to the right and clipping into the scroll bar
 // TODO Fix apply button only working when you click the left side of it
-// TODO Fix widgets being uninteractable after scrolling enough distance
-// TODO Fix scroll bar being unable to be clicked + dragged
 /**
  * Pop-up screen to edit a dependency.
  */
@@ -43,7 +42,7 @@ public class DependencyEditScreen extends AbstractConfigScreen {
     private final Component subtitle;
     private SettingsWidgets settingsWidgets;
 
-    protected DependencyEditScreen(final DependenciesScreen below,
+    protected DependencyEditScreen(final Screen below,
             final DependencyInfo dependency, final OnApply onApply) {
         super(TITLE, below);
         final MutableComponent subtitle = Component.empty();
@@ -188,7 +187,7 @@ public class DependencyEditScreen extends AbstractConfigScreen {
                     isCollapsed -> editScreen.refresh());
             mirrorsDropdown.setTooltip(mirrorsTooltip);
             final var mirrorsList = new OrderedListInput(0, 0,
-                    editScreen.getInnerWidth(), editScreen.font,
+                    mirrorsDropdown.getInnerWidth(), editScreen.font,
                     $ -> {
                         if (editScreen.settingsWidgets != null)
                             editScreen.refresh();

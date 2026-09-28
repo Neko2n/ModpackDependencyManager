@@ -141,6 +141,13 @@ public class DropdownContainer extends AbstractContainerWidget {
     }
 
     /**
+     * @return The available width inside of the dropdown.
+     */
+    public int getInnerWidth() {
+        return this.getWidth() - this.contentMargin;
+    }
+
+    /**
      * Renders the inner contents contained within this dropdown.
      */
     protected void renderContent(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
@@ -189,7 +196,7 @@ public class DropdownContainer extends AbstractContainerWidget {
         guiGraphics.blitSprite(arrowSprite.location(),
                 this.getX(), centerY - arrowSprite.height() / 2,
                 arrowSprite.width(), arrowSprite.height());
-        this.headerText.setPosition(this.getX() + getContentMargin() + arrowSprite.width(),
+        this.headerText.setPosition(this.getX() + this.getContentMargin(),
                 centerY - this.headerText.getHeight() / 2);
         this.headerText.render(guiGraphics, mouseX, mouseY, partialTick);
     }

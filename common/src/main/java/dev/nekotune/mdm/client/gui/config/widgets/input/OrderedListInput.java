@@ -16,14 +16,13 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.SpriteIconButton;
+import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.layouts.SpacerElement;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
-// TODO Fix edit boxes being wider than the container widget
-// TODO Fix widget not rendering at all
 /**
  * An ordered list of EditBoxes which can add and remove values.
  */
@@ -47,7 +46,12 @@ public class OrderedListInput extends AbstractContainerWidget {
         super(x, y, width, Button.DEFAULT_HEIGHT, Component.empty());
         this.font = font;
         this.onArrangeElements = onArrangeElements;
-        this.addButton = Button.builder(ADD_TEXT, $ -> this.pushValue(""))
+        final Button.OnPress addPressed = $ -> {
+            if (this.getValues().stream().anyMatch(str -> str.isBlank()))
+                return;
+            this.pushValue("");
+        };
+        this.addButton = Button.builder(ADD_TEXT, addPressed)
                 .size(Button.DEFAULT_HEIGHT * 2, Button.DEFAULT_HEIGHT)
                 .build();
         final LinearLayout layout = LinearLayout.vertical();
@@ -58,18 +62,20 @@ public class OrderedListInput extends AbstractContainerWidget {
 
     /**
      * Sets the filter to apply to values input to the list's EditBoxes.
+     * 
      * @param validator The predicate to apply to input values
      * @see EditBox#setFilter(Predicate)
      */
     public final void setFilter(final Predicate<String> validator) {
         this.inputValidator = validator;
         for (final Entry entry : this.entries.values()) {
-            entry.editBox().setFilter(validator);
+            entry.editBox.setFilter(validator);
         }
     }
 
     /**
      * Sets the responding consumer for all EditBoxes in the list.
+     * 
      * @param responder The consumer to apply to changes
      * @see EditBox#setResponder(Consumer)
      */
@@ -86,17 +92,17 @@ public class OrderedListInput extends AbstractContainerWidget {
 
     /**
      * Sets the values of this list input.
+     * 
      * @param values The ordered collection of string values to set
      */
     public final void setValues(final Collection<String> values) {
         this.entries.clear();
-        for (final String value : values) {
-            this.pushValue(value);
-        }
+        values.forEach(this::pushValue);
     }
 
     /**
      * Pushes a new value to the list.
+     * 
      * @param value The value to push
      */
     public final void pushValue(final String value) {
@@ -113,50 +119,54 @@ public class OrderedListInput extends AbstractContainerWidget {
         final SpriteIconButton deleteButton = SpriteIconButton.builder(Component.empty(),
                 $ -> {
                     this.entries.remove(editBox);
-                    arrangeElements();
+                    this.arrangeElements();
                 }, true)
                 .size(Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT)
                 .sprite(deleteIcon.location(), deleteIcon.width(), deleteIcon.height())
                 .build();
         final Entry entry = new Entry(editBox, deleteButton);
         this.entries.put(editBox, entry);
-        arrangeElements();
+        this.arrangeElements();
     }
 
     /**
      * Pops the last value from the list.
+     * 
      * @return The removed value
      */
     public final String popValue() {
         final Entry entry = this.entries.remove(this.entries.lastEntry().getKey());
         this.arrangeElements();
-        return entry.editBox().getValue();
+        return entry.editBox.getValue();
     }
 
     private void arrangeElements() {
         final LinearLayout layout = LinearLayout.vertical();
         layout.setPosition(this.getX(), this.getY());
+        final Consumer<LayoutSettings> padding = settings -> settings.paddingBottom(2).paddingTop(2);
         for (final Entry entry : this.entries.values()) {
             final LinearLayout entryLayout = LinearLayout.horizontal();
-            entryLayout.addChild(entry.editBox());
+            entryLayout.addChild(entry.editBox);
             entryLayout.addChild(SpacerElement.width(4));
-            entryLayout.addChild(entry.deleteButton());
-            layout.addChild(entryLayout);
+            entryLayout.addChild(entry.deleteButton);
+            layout.addChild(entryLayout, padding);
         }
-        layout.addChild(this.addButton, settings -> settings.paddingBottom(2).paddingTop(2));
+        layout.addChild(this.addButton, padding);
         layout.arrangeElements();
+        super.setHeight(layout.getHeight());
         this.onArrangeElements.accept(this);
     }
 
     @Override
     public void setHeight(final int height) {
-        super.setHeight(height);
-        this.arrangeElements();
     }
 
     @Override
     public void setWidth(final int width) {
         super.setWidth(width);
+        this.entries.values().forEach(entry -> {
+            entry.editBox.setWidth(width - entry.deleteButton.getWidth() - 4);
+        });
         this.arrangeElements();
     }
 
@@ -176,19 +186,23 @@ public class OrderedListInput extends AbstractContainerWidget {
 
     @Override
     public List<AbstractWidget> children() {
-        final List<AbstractWidget> list = new ArrayList<>(this.entries.keySet().stream()
-                .map(editBox -> (AbstractWidget)editBox)
-                .toList());
-        list.addAll(this.entries.values().stream()
-                .map(entry -> (AbstractWidget)entry.deleteButton())
-                .toList());
+        final List<AbstractWidget> list = new ArrayList<>();
+        this.entries.values().stream().forEach(entry -> {
+            list.add(entry.editBox);
+            list.add(entry.deleteButton);
+        });
+        list.add(this.addButton);
         return list;
     }
 
     @Override
     protected void renderWidget(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
             final float partialTick) {
-        this.children().forEach(child -> child.render(guiGraphics, mouseX, mouseY, partialTick));
+        this.entries.values().forEach(entry -> {
+            entry.editBox.render(guiGraphics, mouseX, mouseY, partialTick);
+            entry.deleteButton.render(guiGraphics, mouseX, mouseY, partialTick);
+        });
+        this.addButton.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     @Override
@@ -196,6 +210,6 @@ public class OrderedListInput extends AbstractContainerWidget {
         narrationElementOutput.add(NarratedElementType.TITLE, this.getMessage());
     }
 
-    public static record Entry(EditBox editBox, Button deleteButton) {
+    protected static record Entry(EditBox editBox, Button deleteButton) {
     }
 }
