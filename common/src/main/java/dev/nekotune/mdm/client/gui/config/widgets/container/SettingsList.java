@@ -37,7 +37,7 @@ public class SettingsList extends ScrollContainer {
         this.content = content;
         this.clearChildren();
         this.addChild(content.container(), content.narration());
-        updateLayout();
+        this.updateLayout();
     }
 
     public SettingsContent getContent() {
