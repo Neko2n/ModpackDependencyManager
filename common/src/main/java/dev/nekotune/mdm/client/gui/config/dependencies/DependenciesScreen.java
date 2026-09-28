@@ -51,7 +51,6 @@ public class DependenciesScreen extends AbstractConfigScreen {
         super(TITLES.get(packType), lastScreen);
         this.original = Config.INSTANCE.dependencies.stream()
                 .filter(d -> d.type() == packType)
-                .sorted(Comparator.comparingInt(d -> d.loadPriority()))
                 .toList();
         this.modifying = new LinkedList<>(this.original);
         this.packType = packType;
@@ -90,7 +89,10 @@ public class DependenciesScreen extends AbstractConfigScreen {
 
     @Override
     protected void populateSettings(final SettingsList.SettingsContent.Builder builder) {
-        for (final DependencyInfo dependency : this.modifying) {
+        final var sorted = this.modifying.stream()
+                .sorted(Comparator.comparingInt(d -> d.loadPriority()))
+                .toList();
+        for (final DependencyInfo dependency : sorted) {
             final List<LayoutElement> infoWidgets = new LinkedList<>();
 
             // Display the dependency's title
