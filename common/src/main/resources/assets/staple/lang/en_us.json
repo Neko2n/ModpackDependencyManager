@@ -1,5 +1,5 @@
 {
-    "staple.gui.screen.config.main.title": "Modpack Dependency Manager",
+    "staple.gui.screen.config.main.title": "Staple",
     "staple.gui.screen.config.main.button.client-resources": "Resource Packs",
     "staple.gui.screen.config.main.button.client-resources.tooltip": "Configure resource pack dependencies",
     "staple.gui.screen.config.main.button.server-data": "Data Packs",
@@ -53,7 +53,7 @@
     "staple.gui.screen.downloaderror.message.security-blocked.2": "Please check your firewall and DNS configuration, and try re-launching.",
     "staple.gui.screen.downloaderror.message.timed-out.1": "Timed out while downloading modpack resources.",
     "staple.gui.screen.downloaderror.message.timed-out.2": "Resources will be downloaded on your next launch.",
-    "staple.gui.screen.downloaderror.message.exception.1": "Exception in Modpack Dependency Manager (staple)",
+    "staple.gui.screen.downloaderror.message.exception.1": "Exception in Staple (staple)",
     "staple.gui.screen.downloaderror.message.exception.2": "This should never happen.",
     "staple.gui.screen.downloaderror.message.not-found.1": "404: Invalid resources could not be downloaded.",
     "staple.gui.screen.downloaderror.message.not-found.2": "Please report this to the modpack author.",
