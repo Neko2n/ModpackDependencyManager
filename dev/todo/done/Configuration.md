@@ -1,6 +1,6 @@
 Handles which resource packs and which data packs to download, and in what order they should be loaded.
 
-Handled by `config/dependencies.mdm.json`
+Handled by `config/dependencies.jigsaw.json`
 
 ### Example Config
 

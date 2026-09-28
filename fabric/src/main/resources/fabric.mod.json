@@ -16,13 +16,13 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "dev.nekotune.mdm.ModpackDependencyManager"
+            "dev.nekotune.jigsaw.Jigsaw"
         ],
         "client": [
-            "dev.nekotune.mdm.ClientModpackDependencyManager"
+            "dev.nekotune.jigsaw.ClientJigsaw"
         ],
         "modmenu": [
-            "dev.nekotune.mdm.ModMenuIntegration"
+            "dev.nekotune.jigsaw.ModMenuIntegration"
         ]
     },
     "mixins": [
