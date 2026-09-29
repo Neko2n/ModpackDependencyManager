@@ -1,6 +1,6 @@
 Handles which resource packs and which data packs to download, and in what order they should be loaded.
 
-Handled by `config/dependencies.lace.json`
+Handled by `config/dependencies.zipper.json`
 
 ### Example Config
 

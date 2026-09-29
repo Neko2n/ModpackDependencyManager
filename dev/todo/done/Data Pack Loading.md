@@ -12,7 +12,7 @@ This probably requires the mod to be server-sided, not just client-sided.
 
 https://github.com/YUNG-GANG/Paxi/blob/1.21.1/Common/src/main/java/com/yungnickyoung/minecraft/paxi/PaxiRepositorySource.java
 
-Replace mixins with child classes of RepositorySource, Pack, and PackSource.
+Repzipper mixins with child classes of RepositorySource, Pack, and PackSource.
 
 Use one mixin into PackRepository which pulls packs from DependencyRepositorySource.
 

@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.nekotune.zipper.mixin.minecraft",
+  "refmap": "${mod_id}.refmap.json",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "shared.BuiltInPackSourceAccessor",
+    "shared.PackRepositoryMixin"
+  ],
+  "client": [
+    "client.PackSelectionModelMixin",
+    "client.ScreenAccessor"
+  ],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
