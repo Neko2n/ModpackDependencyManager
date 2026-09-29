@@ -16,13 +16,13 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "dev.nekotune.staple.Staple"
+            "dev.nekotune.lace.Lace"
         ],
         "client": [
-            "dev.nekotune.staple.ClientStaple"
+            "dev.nekotune.lace.ClientLace"
         ],
         "modmenu": [
-            "dev.nekotune.staple.ModMenuIntegration"
+            "dev.nekotune.lace.ModMenuIntegration"
         ]
     },
     "mixins": [
